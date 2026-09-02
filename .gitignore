@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# Databases (local dev)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+prisma/dev.db*
+prisma/db/
+db/
+
+# Env
+.env
+.env.local
+.env*.local
+
+# Logs
+*.log
+dev.log
+server.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Gemini Antigravity CLI session dumps (kept on disk, not in git)
+Gemini chat/
+
+# Scratch
+Airwallex Site Cloner — Visual Buil.txt
+gemini last response.txt
+
+# Misc large research artifacts carried in from the old template
+**/tool-results/
+**/download/

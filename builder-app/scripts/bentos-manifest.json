@@ -1,0 +1,362 @@
+[
+  {
+    "id": "BentoAsymLargeLeft",
+    "name": "Bento Asym Large Left Hero Card",
+    "subcategory": "asymmetric-2col",
+    "desc": "Dominant 2/3 left card with preview and 1/3 right column with stacked sub-features"
+  },
+  {
+    "id": "BentoAsymLargeRight",
+    "name": "Bento Asym Large Right Feature",
+    "subcategory": "asymmetric-2col",
+    "desc": "Left column feature list with dominant 2/3 right interactive preview module"
+  },
+  {
+    "id": "BentoAsymSplitDiagonal",
+    "name": "Bento Asym Diagonal Flow",
+    "subcategory": "asymmetric-2col",
+    "desc": "Asymmetric alternating card heights creating an energetic visual reading rhythm"
+  },
+  {
+    "id": "BentoAsymStatHighlight",
+    "name": "Bento Asym Hero Metric Left",
+    "subcategory": "asymmetric-2col",
+    "desc": "Left card spotlighting 99.99% uptime SLA with right telemetry telemetry feed"
+  },
+  {
+    "id": "BentoAsymCardOverhang",
+    "name": "Bento Asym Overhanging Asset",
+    "subcategory": "asymmetric-2col",
+    "desc": "Asymmetric 2-column layout with partially overflowing UI canvas mockup"
+  },
+  {
+    "id": "BentoAsymFintechFlow",
+    "name": "Bento Asym Multi-Currency Flow",
+    "subcategory": "asymmetric-2col",
+    "desc": "Left real-time currency conversion card with right automated FX rules"
+  },
+  {
+    "id": "BentoAsymDeveloperSplit",
+    "name": "Bento Asym Webhook Debugger",
+    "subcategory": "asymmetric-2col",
+    "desc": "Left real-time event log with right instant webhook retry simulator"
+  },
+  {
+    "id": "BentoAsymSecurityVault",
+    "name": "Bento Asym Zero-Knowledge Vault",
+    "subcategory": "asymmetric-2col",
+    "desc": "Left AES-256 encryption visual with right audit access controls"
+  },
+  {
+    "id": "BentoAsymAnalyticsSplit",
+    "name": "Bento Asym Conversion Funnel",
+    "subcategory": "asymmetric-2col",
+    "desc": "Dominant visual checkout drop-off analysis with right automated recovery actions"
+  },
+  {
+    "id": "BentoAsymTeamCollab",
+    "name": "Bento Asym Multi-Tenant Access",
+    "subcategory": "asymmetric-2col",
+    "desc": "Role-based permission matrix on left with audit trails log on right"
+  },
+  {
+    "id": "BentoAsymSpeedLatency",
+    "name": "Bento Asym Global Edge Routing",
+    "subcategory": "asymmetric-2col",
+    "desc": "World map edge server latency preview paired with instant cache purging"
+  },
+  {
+    "id": "BentoAsymEcomInventory",
+    "name": "Bento Asym Smart Stock Sync",
+    "subcategory": "asymmetric-2col",
+    "desc": "Multi-warehouse stock sync engine left with backorder notifications right"
+  },
+  {
+    "id": "BentoAsymAutomationRules",
+    "name": "Bento Asym No-Code Workflow",
+    "subcategory": "asymmetric-2col",
+    "desc": "Visual if-this-then-that automation builder with prebuilt trigger library"
+  },
+  {
+    "id": "BentoAsymInvoiceEngine",
+    "name": "Bento Asym Automated Billing",
+    "subcategory": "asymmetric-2col",
+    "desc": "Recurring invoice generation preview paired with automated dunning alerts"
+  },
+  {
+    "id": "BentoAsymComplianceShield",
+    "name": "Bento Asym Automated KYC/KYB",
+    "subcategory": "asymmetric-2col",
+    "desc": "Real-time passport OCR verification with global sanction lists scanning"
+  },
+  {
+    "id": "Bento3x3Classic",
+    "name": "Bento 3x3 Universal Grid",
+    "subcategory": "3x3-grids",
+    "desc": "Standard 9-tile balanced feature grid with iconography and sleek card borders"
+  },
+  {
+    "id": "Bento3x3CenterHighlight",
+    "name": "Bento 3x3 Center Anchor Card",
+    "subcategory": "3x3-grids",
+    "desc": "3x3 grid where the center card is visually highlighted with gradient border"
+  },
+  {
+    "id": "Bento3x3TopSpan",
+    "name": "Bento 3x3 Top Banner Span",
+    "subcategory": "3x3-grids",
+    "desc": "Top full-width row span with two rows of three compact capability tiles"
+  },
+  {
+    "id": "Bento3x3BottomSpan",
+    "name": "Bento 3x3 Bottom Summary Span",
+    "subcategory": "3x3-grids",
+    "desc": "Six feature cards on top with wide summary integration banner below"
+  },
+  {
+    "id": "Bento3x3Mosaic",
+    "name": "Bento 3x3 Mosaic Irregular",
+    "subcategory": "3x3-grids",
+    "desc": "Mixed col-span 1 and 2 tiles creating an architectural mosaic aesthetic"
+  },
+  {
+    "id": "Bento3x3DarkCyber",
+    "name": "Bento 3x3 High-Contrast Slate",
+    "subcategory": "3x3-grids",
+    "desc": "Deep slate 3x3 tiles with lime green active state indicators"
+  },
+  {
+    "id": "Bento3x3MetricsGrid",
+    "name": "Bento 3x3 Performance KPI Board",
+    "subcategory": "3x3-grids",
+    "desc": "9-card executive dashboard displaying key operational and growth KPIs"
+  },
+  {
+    "id": "Bento3x3Integrations",
+    "name": "Bento 3x3 Ecosystem Stack",
+    "subcategory": "3x3-grids",
+    "desc": "Platform connectivity grid showcasing Stripe, AWS, Slack, GitHub, etc."
+  },
+  {
+    "id": "Bento3x3SecurityStack",
+    "name": "Bento 3x3 Defense in Depth",
+    "subcategory": "3x3-grids",
+    "desc": "9 enterprise security layers from DDoS mitigation to hardware security keys"
+  },
+  {
+    "id": "Bento3x3EcommerceTools",
+    "name": "Bento 3x3 Omnichannel Suite",
+    "subcategory": "3x3-grids",
+    "desc": "POS, online store, multi-currency, checkout, tax, and returns all in one"
+  },
+  {
+    "id": "Bento3x3AIAssistant",
+    "name": "Bento 3x3 AI Copilot Capabilities",
+    "subcategory": "3x3-grids",
+    "desc": "Natural language queries, predictive forecasting, auto-categorization"
+  },
+  {
+    "id": "Bento3x3DevExperience",
+    "name": "Bento 3x3 DX Toolchain",
+    "subcategory": "3x3-grids",
+    "desc": "CLI tools, TypeScript SDKs, sandboxes, webhooks, and GitHub actions"
+  },
+  {
+    "id": "Bento3x3GlobalReach",
+    "name": "Bento 3x3 Cross-Border Engine",
+    "subcategory": "3x3-grids",
+    "desc": "Local payment methods across EU, US, APAC, LATAM, and Middle East"
+  },
+  {
+    "id": "Bento3x3CustomerCare",
+    "name": "Bento 3x3 Concierge Support",
+    "subcategory": "3x3-grids",
+    "desc": "24/7 dedicated Slack channels, 15-min SLA, designated technical account manager"
+  },
+  {
+    "id": "Bento3x3MinimalMono",
+    "name": "Bento 3x3 Clean Minimal Mono",
+    "subcategory": "3x3-grids",
+    "desc": "Monochrome minimalist wireframe style with refined Swiss typography"
+  },
+  {
+    "id": "BentoTabsSolutions",
+    "name": "Bento Tabs Solutions Matrix",
+    "subcategory": "interactive-tabs",
+    "desc": "Interactive tabbed bento for Startups, Scaleups, and Enterprise workflows"
+  },
+  {
+    "id": "BentoTabsDevelopers",
+    "name": "Bento Tabs Language SDKs",
+    "subcategory": "interactive-tabs",
+    "desc": "Switchable code tabs for Node.js, Python, Go, Ruby, and cURL endpoints"
+  },
+  {
+    "id": "BentoTabsIndustries",
+    "name": "Bento Tabs Industry Verticals",
+    "subcategory": "interactive-tabs",
+    "desc": "Specialized feature matrices for SaaS, Marketplaces, Creator, and Retail"
+  },
+  {
+    "id": "BentoTabsLifecycle",
+    "name": "Bento Tabs Customer Journey",
+    "subcategory": "interactive-tabs",
+    "desc": "Interactive tabs showing Onboarding, Activation, Retention, and Scale"
+  },
+  {
+    "id": "BentoTabsArchitecture",
+    "name": "Bento Tabs Cloud Infrastructure",
+    "subcategory": "interactive-tabs",
+    "desc": "Switch between Edge Compute, Storage Cluster, and Database Replicas"
+  },
+  {
+    "id": "BentoTabsCompliance",
+    "name": "Bento Tabs Global Regulations",
+    "subcategory": "interactive-tabs",
+    "desc": "Jurisdiction selector toggling UK FCA, EU PSD2, US FinCEN, and SG MAS"
+  },
+  {
+    "id": "BentoTabsPaymentMethods",
+    "name": "Bento Tabs Payment Rails",
+    "subcategory": "interactive-tabs",
+    "desc": "Tabs toggling Cards, SEPA/ACH Direct Debit, Digital Wallets, and Wire Transfers"
+  },
+  {
+    "id": "BentoTabsPricingTiers",
+    "name": "Bento Tabs Tier Comparison Bento",
+    "subcategory": "interactive-tabs",
+    "desc": "Interactive plan switcher updating included bento feature capacities"
+  },
+  {
+    "id": "BentoTabsDataAnalytics",
+    "name": "Bento Tabs Real-Time Reports",
+    "subcategory": "interactive-tabs",
+    "desc": "Switch views between Revenue, Churn, ARPU, and LTV telemetry"
+  },
+  {
+    "id": "BentoTabsAutomationTemplates",
+    "name": "Bento Tabs Workflow Blueprints",
+    "subcategory": "interactive-tabs",
+    "desc": "Pre-packaged recipes for subscription billing, refunds, and dunning"
+  },
+  {
+    "id": "BentoMetricProcessingVolume",
+    "name": "Bento Metric $50B+ Volume",
+    "subcategory": "metric-highlight",
+    "desc": "Giant glowing processing figure surrounded by latency and uptime counters"
+  },
+  {
+    "id": "BentoMetricUptimeSLA",
+    "name": "Bento Metric 99.999% SLA",
+    "subcategory": "metric-highlight",
+    "desc": "High-availability metric card with 90-day incident-free status timeline"
+  },
+  {
+    "id": "BentoMetricGlobalCountries",
+    "name": "Bento Metric 180+ Countries",
+    "subcategory": "metric-highlight",
+    "desc": "Global coverage stat card paired with real-time settlement speed stats"
+  },
+  {
+    "id": "BentoMetricCustomerGrowth",
+    "name": "Bento Metric 10x Velocity",
+    "subcategory": "metric-highlight",
+    "desc": "Speed-to-market highlight with 3-minute average onboarding timer"
+  },
+  {
+    "id": "BentoMetricCostSavings",
+    "name": "Bento Metric 40% Lower Fees",
+    "subcategory": "metric-highlight",
+    "desc": "Cost optimization benchmark comparing legacy banking interchange fees"
+  },
+  {
+    "id": "BentoMetricSubMillisecond",
+    "name": "Bento Metric 12ms Response",
+    "subcategory": "metric-highlight",
+    "desc": "Sub-second API execution latency verified across 45 edge regions"
+  },
+  {
+    "id": "BentoMetricFraudPrevention",
+    "name": "Bento Metric 99.4% Fraud Block",
+    "subcategory": "metric-highlight",
+    "desc": "Machine learning fraud detection rate with zero legitimate transaction drop"
+  },
+  {
+    "id": "BentoMetricDeveloperAdoption",
+    "name": "Bento Metric 500k+ Developers",
+    "subcategory": "metric-highlight",
+    "desc": "Developer community milestone card with 25M monthly API calls"
+  },
+  {
+    "id": "BentoMetricCarbonNeutral",
+    "name": "Bento Metric 100% Green Energy",
+    "subcategory": "metric-highlight",
+    "desc": "Sustainable cloud computing metric with net-zero carbon certification"
+  },
+  {
+    "id": "BentoMetricROIExecutive",
+    "name": "Bento Metric 320% Average ROI",
+    "subcategory": "metric-highlight",
+    "desc": "Independent Forrester Total Economic Impact study metric highlight"
+  },
+  {
+    "id": "BentoCodeRestAPI",
+    "name": "Bento Code REST API Quickstart",
+    "subcategory": "code-window",
+    "desc": "Interactive cURL/Fetch terminal showing clean JSON response payload"
+  },
+  {
+    "id": "BentoCodeWebhooks",
+    "name": "Bento Code Webhook Event Payload",
+    "subcategory": "code-window",
+    "desc": "Real-time JSON event stream showing signed signature verification"
+  },
+  {
+    "id": "BentoCodeReactComponent",
+    "name": "Bento Code React SDK Snippet",
+    "subcategory": "code-window",
+    "desc": "Drop-in checkout element code snippet with live visual preview"
+  },
+  {
+    "id": "BentoCodeGraphQLQuery",
+    "name": "Bento Code GraphQL Explorer",
+    "subcategory": "code-window",
+    "desc": "Precise schema query editor with autocomplete and instantaneous output"
+  },
+  {
+    "id": "BentoCodePythonData",
+    "name": "Bento Code Python Data Client",
+    "subcategory": "code-window",
+    "desc": "Pandas & Jupyter integration snippet for automated financial reconciliations"
+  },
+  {
+    "id": "BentoCodeMobileSwift",
+    "name": "Bento Code iOS Swift SDK",
+    "subcategory": "code-window",
+    "desc": "Native Apple Pay and biometric authentication snippet for Swift 6"
+  },
+  {
+    "id": "BentoCodeGoMicroservice",
+    "name": "Bento Code Go High-Concurrency",
+    "subcategory": "code-window",
+    "desc": "Go routine batch processing snippet with connection pooling"
+  },
+  {
+    "id": "BentoCodeDockerCompose",
+    "name": "Bento Code Dokploy / Docker Spec",
+    "subcategory": "code-window",
+    "desc": "One-click self-hosted deployment config for isolated staging environments"
+  },
+  {
+    "id": "BentoCodeSQLReconciliation",
+    "name": "Bento Code SQL Ledger Audit",
+    "subcategory": "code-window",
+    "desc": "Double-entry immutability verification query with cryptographic proofs"
+  },
+  {
+    "id": "BentoCodeAuthTokens",
+    "name": "Bento Code JWT Bearer Auth",
+    "subcategory": "code-window",
+    "desc": "OAuth 2.0 scoped credential issuance and mTLS handshake preview"
+  }
+]

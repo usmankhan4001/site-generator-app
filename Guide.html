@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airwallex Site Cloner - Operations Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+        }
+        .code-block {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased selection:bg-brand-200 selection:text-brand-900">
+
+    <!-- Header -->
+    <header class="gradient-bg text-white pt-20 pb-24 shadow-xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div class="max-w-4xl mx-auto px-6 relative z-10 text-center">
+            <div class="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-6 backdrop-blur-sm border border-white/20">
+                <i class="fa-solid fa-wand-magic-sparkles text-2xl text-blue-200"></i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-4">Airwallex Site Cloner</h1>
+            <p class="text-lg md:text-xl text-blue-100 font-light max-w-2xl mx-auto">
+                The automated, AI-powered operations manual for rapidly deploying compliance-ready business sites via Claude.ai and Dokploy.
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-6 -mt-12 relative z-20 pb-20">
+        
+        <!-- Welcome Card -->
+        <div class="glass-card rounded-2xl shadow-lg p-8 mb-10">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fa-solid fa-box-open text-brand-500 mr-3"></i> Package Contents
+            </h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border border-gray-100 rounded-xl p-5 bg-gray-50 flex items-start hover:shadow-md transition-shadow">
+                    <div class="bg-brand-100 p-3 rounded-lg text-brand-600 mr-4">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">/template</h3>
+                        <p class="text-sm text-gray-600 mt-1">The Gold Standard Next.js React codebase.</p>
+                    </div>
+                </div>
+                <div class="border border-gray-100 rounded-xl p-5 bg-gray-50 flex items-start hover:shadow-md transition-shadow">
+                    <div class="bg-brand-100 p-3 rounded-lg text-brand-600 mr-4">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">/skill</h3>
+                        <p class="text-sm text-gray-600 mt-1">Claude AI instructions, themes, Dockerfile, and setup scripts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1 -->
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 border-b pb-4">Part 1: One-Time Claude Setup</h2>
+            <p class="text-gray-600 mb-8 text-lg">Transform Claude into a non-technical automated deployment concierge by setting up a dedicated workspace.</p>
+
+            <!-- Step 1 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 flex gap-6">
+                <div class="flex-shrink-0 w-12 h-12 bg-brand-600 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-md">1</div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Create a Claude Project</h3>
+                    <p class="text-gray-600">Log in to <a href="https://claude.ai" class="text-brand-600 hover:underline font-medium">Claude.ai</a> (Pro required). Click on <strong>Projects</strong> in the left sidebar, and click <strong>Create Project</strong>. Name it <em>"Airwallex Site Cloner"</em>.</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 flex gap-6">
+                <div class="flex-shrink-0 w-12 h-12 bg-brand-600 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-md">2</div>
+                <div class="w-full">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Upload the Brain Files</h3>
+                    <p class="text-gray-600 mb-4">Inside your new Project, look for the <strong>Project Knowledge</strong> section. Upload these specific files from the <code>/skill</code> folder in this package:</p>
+                    <ul class="space-y-2 text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <li class="flex items-center"><i class="fa-solid fa-file-code text-gray-400 mr-3"></i> <code>themes.json</code> (Design systems)</li>
+                        <li class="flex items-center"><i class="fa-brands fa-js text-yellow-500 mr-3"></i> <code>setup.js</code> (Policy injection script)</li>
+                        <li class="flex items-center"><i class="fa-brands fa-docker text-blue-500 mr-3"></i> <code>Dockerfile</code> (Dokploy config)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 flex gap-6">
+                <div class="flex-shrink-0 w-12 h-12 bg-brand-600 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-md">3</div>
+                <div class="w-full">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Configure Custom Instructions</h3>
+                    <p class="text-gray-600 mb-4">Open the <code>SKILL.md</code> file from the <code>/skill</code> folder in a text editor. Copy <strong>all the text</strong> and paste it into the <strong>Custom Instructions</strong> box in Claude.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2 -->
+        <div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 border-b pb-4">Part 2: Generating a Site</h2>
+            <p class="text-gray-600 mb-8 text-lg">How to use Claude when signing a new client or launching a new domain.</p>
+
+            <!-- Step 1 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
+                    <i class="fa-solid fa-comments text-brand-500 mr-3"></i> 1. The Interview
+                </h3>
+                <p class="text-gray-600 mb-4">Open your Claude Project and start a new chat with:</p>
+                <div class="code-block p-4 rounded-lg font-mono text-sm shadow-inner">
+                    I need to spin up a new site. Start the interview.
+                </div>
+                <p class="text-gray-500 text-sm mt-3"><i class="fa-solid fa-arrow-right mr-2 text-brand-400"></i> Claude will ask for the Company Name, Registration, Address, Niche, Theme, and Domain in plain English.</p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
+                    <i class="fa-solid fa-terminal text-gray-700 mr-3"></i> 2. Execute the Magic Script
+                </h3>
+                <p class="text-gray-600 mb-4">Once you answer the questions, Claude will quietly write the copy, find images, and prepare the deployment. It will then give you a single "magic" script to run. It will not burden you with technical explanations.</p>
+                <div class="bg-blue-50 border-l-4 border-brand-500 p-4 mb-4 text-sm text-brand-800">
+                    Open your Terminal (or Command Prompt), ensure you are in the directory where you extracted this zip, and <strong>paste the command!</strong>
+                </div>
+                <p class="text-gray-600 text-sm">This script will automatically copy the files, inject your details, upload to GitHub, and trigger the Dokploy server using the built-in API.</p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
+                    <i class="fa-brands fa-cloudflare text-orange-500 mr-3"></i> 3. Point Your Domain
+                </h3>
+                <p class="text-gray-600">The script handles the deployment. The only manual step left is logging into Cloudflare and pointing your domain to the server:</p>
+                <div class="mt-4 bg-gray-50 p-4 rounded border border-gray-200 font-mono text-sm">
+                    <strong>Type:</strong> A<br>
+                    <strong>Name:</strong> @<br>
+                    <strong>Content:</strong> [Your Dokploy Server IP]<br>
+                    <strong>Proxy:</strong> On (Orange Cloud)
+                </div>
+            </div>
+
+            <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center mt-8">
+                <div class="inline-flex items-center justify-center w-12 h-12 bg-green-100 text-green-600 rounded-full mb-3">
+                    <i class="fa-solid fa-check text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-green-800 mb-2">You're Done!</h3>
+                <p class="text-green-700">You now have a fully compliant, production-ready, beautifully styled website deployed to its own domain.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center py-10 text-gray-500 text-sm">
+        <p>Generated by Airwallex Site Cloner System.</p>
+    </footer>
+
+</body>
+</html>

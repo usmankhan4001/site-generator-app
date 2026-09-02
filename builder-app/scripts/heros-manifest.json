@@ -1,0 +1,272 @@
+[
+  {
+    "id": "HeroSplitDefault",
+    "name": "Hero Split Default",
+    "subcategory": "split-screen",
+    "desc": "Balanced 2-column split hero with headline, dual CTA, and responsive app showcase"
+  },
+  {
+    "id": "HeroSplitReverse",
+    "name": "Hero Split Reverse",
+    "subcategory": "split-screen",
+    "desc": "Inverted split hero with visual asset on left and compelling value proposition on right"
+  },
+  {
+    "id": "HeroSplitForm",
+    "name": "Hero Split Lead Form",
+    "subcategory": "split-screen",
+    "desc": "High-intent lead generation hero with interactive email signup and instant onboarding card"
+  },
+  {
+    "id": "HeroSplitCards",
+    "name": "Hero Split Feature Stack",
+    "subcategory": "split-screen",
+    "desc": "Split hero paired with floating glassmorphism feature cards and metric pills"
+  },
+  {
+    "id": "HeroSplitStats",
+    "name": "Hero Split Metrics",
+    "subcategory": "split-screen",
+    "desc": "Split hero highlighting live throughput stats and tier-1 partner trust badges"
+  },
+  {
+    "id": "HeroSplitTerminal",
+    "name": "Hero Split Code Terminal",
+    "subcategory": "split-screen",
+    "desc": "Developer API platform hero with interactive shell command and syntax preview"
+  },
+  {
+    "id": "HeroSplitCheckout",
+    "name": "Hero Split Checkout Preview",
+    "subcategory": "split-screen",
+    "desc": "Fintech split hero with interactive simulated payment modal and live rates"
+  },
+  {
+    "id": "HeroSplitGradient",
+    "name": "Hero Split Aurora Glow",
+    "subcategory": "split-screen",
+    "desc": "Vibrant mesh aurora background with angled glass device preview"
+  },
+  {
+    "id": "HeroCenteredBadgeDefault",
+    "name": "Hero Centered Badge Default",
+    "subcategory": "centered-badge",
+    "desc": "Iconic Untitled UI centered headline with pill badge and social proof row"
+  },
+  {
+    "id": "HeroCenteredBadgeGlow",
+    "name": "Hero Centered Badge Glow",
+    "subcategory": "centered-badge",
+    "desc": "Centered hero with radiant ambient background glow and rounded action buttons"
+  },
+  {
+    "id": "HeroCenteredBadgeMinimal",
+    "name": "Hero Centered Badge Minimal",
+    "subcategory": "centered-badge",
+    "desc": "Hyper-minimalist centered typography with understated pill version chip"
+  },
+  {
+    "id": "HeroCenteredBadgeRatings",
+    "name": "Hero Centered Badge Ratings",
+    "subcategory": "centered-badge",
+    "desc": "Centered headline anchored by 5-star customer review rating pill and avatars"
+  },
+  {
+    "id": "HeroCenteredBadgeDualCta",
+    "name": "Hero Centered Badge Dual CTA",
+    "subcategory": "centered-badge",
+    "desc": "Centered layout with primary trial CTA and secondary watch-demo video trigger"
+  },
+  {
+    "id": "HeroCenteredBadgeSearch",
+    "name": "Hero Centered Badge Search",
+    "subcategory": "centered-badge",
+    "desc": "Centered discovery hero with integrated search input and popular suggestion tags"
+  },
+  {
+    "id": "HeroCenteredBadgeLaunch",
+    "name": "Hero Centered Badge Product Hunt",
+    "subcategory": "centered-badge",
+    "desc": "Centered launch celebration hero with #1 Product of the Day badge"
+  },
+  {
+    "id": "HeroAppMockupBrowser",
+    "name": "Hero App Mockup Browser",
+    "subcategory": "app-mockup",
+    "desc": "Full-width macOS browser window frame with tabs, address bar, and shadow depth"
+  },
+  {
+    "id": "HeroAppMockupDashboard",
+    "name": "Hero App Mockup Dashboard",
+    "subcategory": "app-mockup",
+    "desc": "Interactive SaaS dashboard preview with analytics charts and transaction tables"
+  },
+  {
+    "id": "HeroAppMockupDarkStudio",
+    "name": "Hero App Mockup Dark Studio",
+    "subcategory": "app-mockup",
+    "desc": "Linear/Vercel inspired dark workspace mockup with ambient rim light"
+  },
+  {
+    "id": "HeroAppMockupFloatingCards",
+    "name": "Hero App Mockup Floating Cards",
+    "subcategory": "app-mockup",
+    "desc": "Central workspace frame flanked by floating notification and stat overlays"
+  },
+  {
+    "id": "HeroAppMockupIsometric",
+    "name": "Hero App Mockup 3D Isometric",
+    "subcategory": "app-mockup",
+    "desc": "3D perspective tilted dashboard frame emphasizing multi-layer architecture"
+  },
+  {
+    "id": "HeroAppMockupGlass",
+    "name": "Hero App Mockup Glass Canvas",
+    "subcategory": "app-mockup",
+    "desc": "Translucent frosted glass UI container with hairline borders and backdrop blur"
+  },
+  {
+    "id": "HeroAppMockupInteractive",
+    "name": "Hero App Mockup Interactive Tabs",
+    "subcategory": "app-mockup",
+    "desc": "Application preview with switchable workflow tabs showing real feature states"
+  },
+  {
+    "id": "HeroVideoBackdropCinematic",
+    "name": "Hero Video Cinematic",
+    "subcategory": "video-backdrop",
+    "desc": "High-impact cinematic video background with dark overlay and bold typography"
+  },
+  {
+    "id": "HeroVideoBackdropModal",
+    "name": "Hero Video Modal Trigger",
+    "subcategory": "video-backdrop",
+    "desc": "Ambient loop backdrop with pulsating center play button opening video modal"
+  },
+  {
+    "id": "HeroVideoBackdropSplit",
+    "name": "Hero Video Split Showcase",
+    "subcategory": "video-backdrop",
+    "desc": "Split hero featuring embedded video player with custom sleek playback controls"
+  },
+  {
+    "id": "HeroVideoBackdropMinimal",
+    "name": "Hero Video Subtle Loop",
+    "subcategory": "video-backdrop",
+    "desc": "Minimal headline over muted monochrome motion texture"
+  },
+  {
+    "id": "HeroVideoBackdropProduct",
+    "name": "Hero Video Product Reel",
+    "subcategory": "video-backdrop",
+    "desc": "Product feature reel showcase with synchronized bullet points"
+  },
+  {
+    "id": "HeroVideoBackdropTestimonial",
+    "name": "Hero Video Founder Story",
+    "subcategory": "video-backdrop",
+    "desc": "Story-driven hero with founder narrative video preview and quote snippet"
+  },
+  {
+    "id": "HeroMultiDeviceDesktopMobile",
+    "name": "Hero Desktop & Mobile Pair",
+    "subcategory": "multi-device",
+    "desc": "Desktop monitor mockup paired with responsive smartphone viewport overlay"
+  },
+  {
+    "id": "HeroMultiDeviceTrio",
+    "name": "Hero Device Ecosystem Trio",
+    "subcategory": "multi-device",
+    "desc": "Laptop, tablet, and mobile trio demonstrating cross-platform parity"
+  },
+  {
+    "id": "HeroMultiDeviceFloating",
+    "name": "Hero Floating Device Stack",
+    "subcategory": "multi-device",
+    "desc": "Dynamic layered smartphones showing native mobile app screens"
+  },
+  {
+    "id": "HeroMultiDeviceTabletFocus",
+    "name": "Hero Tablet POS Showcase",
+    "subcategory": "multi-device",
+    "desc": "Tablet point-of-sale interface preview with handheld terminal companion"
+  },
+  {
+    "id": "HeroMultiDeviceResponsive",
+    "name": "Hero Adaptive Layout Demo",
+    "subcategory": "multi-device",
+    "desc": "Side-by-side viewport demonstration with synchronized live interaction"
+  },
+  {
+    "id": "HeroMultiDeviceCardGrid",
+    "name": "Hero Multi-Device Micro-Screens",
+    "subcategory": "multi-device",
+    "desc": "Cluster of miniature device viewports highlighting modular capabilities"
+  },
+  {
+    "id": "HeroBentoAsymmetric",
+    "name": "Hero Bento Asymmetric 3-Tile",
+    "subcategory": "bento-hero",
+    "desc": "Asymmetric 3-tile bento hero blending key metric, live chart, and primary action"
+  },
+  {
+    "id": "HeroBentoInteractive",
+    "name": "Hero Bento Interactive Matrix",
+    "subcategory": "bento-hero",
+    "desc": "Bento hero featuring live tab switcher, code snippet tile, and customer quote"
+  },
+  {
+    "id": "HeroBentoFintech",
+    "name": "Hero Bento Treasury Grid",
+    "subcategory": "bento-hero",
+    "desc": "Treasury management bento hero with currency exchange tile and security seal"
+  },
+  {
+    "id": "HeroBentoSaaS",
+    "name": "Hero Bento Growth Engine",
+    "subcategory": "bento-hero",
+    "desc": "SaaS conversion bento hero with pipeline velocity gauge and user counter"
+  },
+  {
+    "id": "HeroBentoDarkGrid",
+    "name": "Hero Bento Dark Cyberpunk",
+    "subcategory": "bento-hero",
+    "desc": "High-contrast dark grid bento hero with neon green metric accents"
+  },
+  {
+    "id": "HeroBentoMinimal",
+    "name": "Hero Bento Clean Bento",
+    "subcategory": "bento-hero",
+    "desc": "Soft grayscale bento hero emphasizing clarity, typography, and whitespace"
+  },
+  {
+    "id": "HeroMinimalEditorial",
+    "name": "Hero Minimal Editorial",
+    "subcategory": "minimal-headline",
+    "desc": "Serif-infused editorial headline with elegant author byline and single link"
+  },
+  {
+    "id": "HeroMinimalSans",
+    "name": "Hero Minimal Pure Sans",
+    "subcategory": "minimal-headline",
+    "desc": "Ultra-clean Swiss modern typography hero with zero clutter"
+  },
+  {
+    "id": "HeroMinimalStatement",
+    "name": "Hero Minimal Bold Statement",
+    "subcategory": "minimal-headline",
+    "desc": "Monumental 72px statement headline designed for industry disruptors"
+  },
+  {
+    "id": "HeroMinimalBadgeOnly",
+    "name": "Hero Minimal Tagged Headline",
+    "subcategory": "minimal-headline",
+    "desc": "Understated headline preceded by dual category tags and read-time badge"
+  },
+  {
+    "id": "HeroMinimalSplitText",
+    "name": "Hero Minimal Split Typography",
+    "subcategory": "minimal-headline",
+    "desc": "Left-aligned massive headline with right-aligned contextual paragraph"
+  }
+]
