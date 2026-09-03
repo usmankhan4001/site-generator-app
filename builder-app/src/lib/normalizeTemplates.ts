@@ -34,6 +34,7 @@ import {
   HOSTING_TEMPLATES,
 } from '../data/templates';
 import type { UniversalTemplate } from '../data/templates';
+import { diversifyImages } from '../data/diversifyImages';
 
 /* ============================================================================
  * Small utilities
@@ -1143,7 +1144,10 @@ export function normalizeTemplate(t: UniversalTemplate): SiteContent {
     },
   };
 
-  return site;
+  // Spread images across the curated pool so templates that share the same
+  // factory-generated narrative (see `needsPersonalization`) don't also share
+  // the same handful of stock photos.
+  return diversifyImages(site);
 }
 
 export function normalizeAllTemplates(): SiteContent[] {
