@@ -2,15 +2,15 @@ import Link from 'next/link';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import type { HeroProps, SiteContent } from '@/site/schema';
 import { Button } from '@/site/ui/button';
-import { resolveVariant } from '@/site/layoutSystems';
+import { resolveVariant, resolveLayoutSystem } from '@/site/layoutSystems';
+import { resolveArchetype, archetypeHeroVariant, hasArchetype } from '@/site/archetypes';
 
-type HeroLayout = 'centered' | 'split' | 'stacked';
+type HeroLayout = 'centered' | 'split' | 'stacked' | 'editorial';
 
 /**
  * Hero — page opener. Renders the single <h1> for the home page.
  * `props.layout` is an explicit author override; otherwise the effective
- * layout is a deterministic per-template variant (see `resolveVariant`) so
- * two templates with an image don't all collapse onto the same skeleton.
+ * layout is determined by the site's archetype (or per-template hash variant).
  * CTAs are real <Link> navigations, never onClick handlers.
  */
 export default function Hero({ props, content }: { props: HeroProps; content: SiteContent }) {
@@ -27,7 +27,12 @@ export default function Hero({ props, content }: { props: HeroProps; content: Si
 
   const layout: HeroLayout = !image
     ? 'centered'
-    : (props.layout ?? (['split', 'centered', 'stacked'] as const)[resolveVariant(content, 'hero', 3)]);
+    : (props.layout ??
+      (hasArchetype(content)
+        ? archetypeHeroVariant(resolveArchetype(content))
+        : (['split', 'centered', 'stacked'] as const)[resolveVariant(content, 'hero', 3)]));
+
+  const isAtelier = resolveLayoutSystem(content) === 'atelier';
 
   const ctaButtons = (
     <>
@@ -55,6 +60,67 @@ export default function Hero({ props, content }: { props: HeroProps; content: Si
   ) : null;
 
   const trust = trustBadges?.length ? trustBadges : null;
+
+  if (layout === 'editorial') {
+    return (
+      <section className="relative pt-12 pb-20 md:pt-20 md:pb-32 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl space-y-6 md:space-y-8">
+            {badge &&
+              (isAtelier ? (
+                <span
+                  className="block text-sm italic text-primary tracking-wide"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  {badge}
+                </span>
+              ) : (
+                badgePill
+              ))}
+            <h1
+              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight text-foreground leading-[1.05]"
+              style={isAtelier ? { fontFamily: 'var(--font-display)' } : undefined}
+            >
+              {headline}
+              {accentText && (
+                <>
+                  {' '}
+                  <span className={isAtelier ? 'italic text-primary' : 'text-primary'}>
+                    {accentText}
+                  </span>
+                </>
+              )}
+            </h1>
+            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl font-light">
+              {subtitle}
+            </p>
+            <div className="flex flex-wrap items-center gap-4 pt-2">{ctaButtons}</div>
+            {trust && (
+              <div className="flex flex-wrap items-center gap-6 text-xs text-muted-foreground pt-4 border-t border-border/40">
+                {trust.map((t, idx) => (
+                  <div key={idx} className="inline-flex items-center gap-1.5 font-medium">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                    <span>{t}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {image && (
+            <div className="mt-12 md:mt-16 w-full overflow-hidden bg-muted">
+              <img
+                src={image}
+                alt={headline}
+                className="w-full h-auto max-h-[640px] md:max-h-[720px] object-cover object-center"
+                loading="eager"
+              />
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  }
 
   if (layout === 'split') {
     return (

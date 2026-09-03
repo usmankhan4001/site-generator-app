@@ -218,6 +218,23 @@ export function SelectField<T extends string>({
 
 /* ------------------------------------------------------------------- image -- */
 
+/* ------------------------------------------------------------------- image -- */
+
+type ImageTab = 'library' | 'upload' | 'stock';
+
+const POOL_CATEGORIES = [
+  { id: 'all', label: 'All' },
+  { id: 'tech-abstract', label: 'Tech' },
+  { id: 'office-team', label: 'Team' },
+  { id: 'infrastructure', label: 'Infrastructure' },
+  { id: 'retail-product', label: 'Products' },
+  { id: 'luxury-goods', label: 'Luxury' },
+  { id: 'workshop-craft', label: 'Craft' },
+  { id: 'cityscape', label: 'City' },
+  { id: 'people-portrait', label: 'Portraits' },
+  { id: 'nature-clean', label: 'Nature' },
+];
+
 export function ImageField({
   label = 'Image URL',
   value,
@@ -229,8 +246,82 @@ export function ImageField({
   onChange: (v: string | undefined) => void;
   hint?: string;
 }) {
-  const pool = useImagePool();
+  const optionalPool = useImagePool();
   const [picking, setPicking] = useState(false);
+  const [activeTab, setActiveTab] = useState<ImageTab>('library');
+
+  // Library tab state
+  const [libCategory, setLibCategory] = useState('all');
+  const [libQuery, setLibQuery] = useState('');
+
+  // Upload tab state
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  // Stock tab state
+  const [stockQuery, setStockQuery] = useState('');
+  const [stockLoading, setStockLoading] = useState(false);
+  const [stockConfigured, setStockConfigured] = useState<boolean | null>(null);
+  const [stockResults, setStockResults] = useState<
+    { url: string; thumb: string; alt: string; credit?: string }[]
+  >([]);
+  const [hasSearchedStock, setHasSearchedStock] = useState(false);
+
+  // Filter library images
+  const poolImages = optionalPool ?? [];
+  const filteredPool = poolImages.filter((img) => {
+    if (libCategory !== 'all' && img.category && img.category !== libCategory) return false;
+    if (libQuery.trim()) {
+      const q = libQuery.toLowerCase();
+      const matchLabel = img.label?.toLowerCase().includes(q);
+      const matchCat = img.category?.toLowerCase().includes(q);
+      const matchUrl = img.url.toLowerCase().includes(q);
+      if (!matchLabel && !matchCat && !matchUrl) return false;
+    }
+    return true;
+  });
+
+  const handleFileUpload = async (file: File) => {
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/uploads', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Upload failed');
+      }
+      onChange(data.url);
+      setPicking(false);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSearchStock = async (queryText: string) => {
+    const term = queryText.trim();
+    if (!term) return;
+    setStockLoading(true);
+    setHasSearchedStock(true);
+    try {
+      const res = await fetch(`/api/images/stock?q=${encodeURIComponent(term)}`);
+      const data = await res.json();
+      setStockConfigured(Boolean(data.configured));
+      setStockResults(data.results ?? []);
+    } catch {
+      setStockConfigured(false);
+      setStockResults([]);
+    } finally {
+      setStockLoading(false);
+    }
+  };
 
   return (
     <FieldShell label={label} hint={hint}>
@@ -253,23 +344,22 @@ export function ImageField({
             className="h-9"
           />
           <div className="flex items-center gap-2">
-            {pool && pool.length ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-7 px-2 text-xs"
-                onClick={() => setPicking((p) => !p)}
-              >
-                {picking ? 'Close' : 'Pick from pool'}
-              </Button>
-            ) : null}
+            <Button
+              type="button"
+              variant={picking ? 'secondary' : 'outline'}
+              size="sm"
+              className="h-7 px-2.5 text-xs"
+              onClick={() => setPicking((p) => !p)}
+            >
+              <ImageIcon className="mr-1.5 h-3.5 w-3.5" />
+              {picking ? 'Close picker' : value ? 'Change image' : 'Pick image'}
+            </Button>
             {value ? (
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-7 px-2 text-xs text-muted-foreground"
+                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
                 onClick={() => onChange(undefined)}
               >
                 Clear
@@ -279,26 +369,266 @@ export function ImageField({
         </div>
       </div>
 
-      {picking && pool ? (
-        <div className="mt-2 grid max-h-48 grid-cols-3 gap-2 overflow-y-auto thin-scroll rounded-md border border-border bg-background p-2">
-          {pool.map((img) => (
+      {picking ? (
+        <div className="mt-2.5 space-y-3 rounded-lg border border-border bg-card p-3 shadow-xs">
+          {/* Tabs bar */}
+          <div className="flex items-center gap-1 border-b border-border pb-2">
             <button
-              key={img.url}
               type="button"
-              title={img.label ?? img.url}
-              onClick={() => {
-                onChange(img.url);
-                setPicking(false);
-              }}
+              onClick={() => setActiveTab('library')}
               className={cn(
-                'aspect-video overflow-hidden rounded border transition-colors',
-                value === img.url ? 'border-primary' : 'border-border hover:border-primary/50',
+                'rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+                activeTab === 'library'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
               )}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img.url} alt={img.label ?? ''} className="h-full w-full object-cover" />
+              Curated Library
             </button>
-          ))}
+            <button
+              type="button"
+              onClick={() => setActiveTab('upload')}
+              className={cn(
+                'rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+                activeTab === 'upload'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+              )}
+            >
+              Upload
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('stock');
+                if (stockConfigured === null && !hasSearchedStock) {
+                  // Probe config status if not done yet
+                  fetch('/api/images/stock?q=business')
+                    .then((r) => r.json())
+                    .then((d) => {
+                      setStockConfigured(Boolean(d.configured));
+                      if (d.results) setStockResults(d.results);
+                      setHasSearchedStock(true);
+                    })
+                    .catch(() => setStockConfigured(false));
+                }
+              }}
+              className={cn(
+                'rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+                activeTab === 'stock'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+              )}
+            >
+              Stock Search
+            </button>
+          </div>
+
+          {/* Tab 1: Library */}
+          {activeTab === 'library' && (
+            <div className="space-y-2.5">
+              <div className="flex gap-1.5 overflow-x-auto pb-1 thin-scroll">
+                {POOL_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setLibCategory(cat.id)}
+                    className={cn(
+                      'shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors',
+                      libCategory === cat.id
+                        ? 'bg-secondary text-secondary-foreground font-semibold border border-border'
+                        : 'text-muted-foreground hover:bg-muted',
+                    )}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              <Input
+                value={libQuery}
+                placeholder="Filter library images..."
+                onChange={(e) => setLibQuery(e.target.value)}
+                className="h-8 text-xs"
+              />
+
+              <div className="grid max-h-56 grid-cols-3 gap-2 overflow-y-auto thin-scroll rounded-md border border-border/70 bg-background/50 p-2">
+                {filteredPool.length > 0 ? (
+                  filteredPool.slice(0, 90).map((img) => (
+                    <button
+                      key={img.url}
+                      type="button"
+                      title={img.label ?? img.category ?? img.url}
+                      onClick={() => {
+                        onChange(img.url);
+                        setPicking(false);
+                      }}
+                      className={cn(
+                        'group relative aspect-video overflow-hidden rounded border transition-all',
+                        value === img.url
+                          ? 'border-primary ring-2 ring-primary/30'
+                          : 'border-border hover:border-primary/60 hover:opacity-90',
+                      )}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={img.url}
+                        alt={img.label ?? ''}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </button>
+                  ))
+                ) : (
+                  <div className="col-span-3 py-6 text-center text-xs text-muted-foreground">
+                    No images match the selected filter.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Tab 2: Upload */}
+          {activeTab === 'upload' && (
+            <div className="space-y-3">
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(true);
+                }}
+                onDragLeave={() => setIsDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(false);
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) handleFileUpload(file);
+                }}
+                className={cn(
+                  'flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-5 text-center transition-colors',
+                  isDragOver
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border bg-background/50 hover:border-muted-foreground/40',
+                )}
+              >
+                <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                  <ImageIcon className="h-5 w-5" />
+                </div>
+                <p className="text-xs font-medium text-foreground">
+                  Drag & drop an image here, or browse
+                </p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  PNG, JPEG, WebP, SVG or GIF up to 5 MB
+                </p>
+                <label className="mt-3 cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif"
+                    className="sr-only"
+                    disabled={uploading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file);
+                    }}
+                  />
+                  <span className="inline-flex h-8 items-center rounded-md border border-input bg-background px-3 text-xs font-medium shadow-xs hover:bg-accent hover:text-accent-foreground">
+                    {uploading ? 'Uploading...' : 'Choose file'}
+                  </span>
+                </label>
+              </div>
+
+              {uploadError && (
+                <div className="rounded-md border border-destructive/30 bg-destructive/10 p-2 text-xs text-destructive">
+                  {uploadError}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 3: Stock Search */}
+          {activeTab === 'stock' && (
+            <div className="space-y-3">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSearchStock(stockQuery);
+                }}
+                className="flex gap-2"
+              >
+                <Input
+                  value={stockQuery}
+                  placeholder="Search Unsplash photos (e.g. finance, office, city)..."
+                  onChange={(e) => setStockQuery(e.target.value)}
+                  className="h-8 text-xs"
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 px-3 text-xs"
+                  disabled={stockLoading || !stockQuery.trim()}
+                >
+                  {stockLoading ? 'Searching...' : 'Search'}
+                </Button>
+              </form>
+
+              {stockConfigured === false ? (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+                  <p className="font-semibold text-amber-400">Stock Search Not Configured</p>
+                  <p className="mt-1 text-amber-200/90 leading-relaxed">
+                    Live Unsplash stock search requires an API access key. Set{' '}
+                    <code className="rounded bg-black/40 px-1 py-0.5 text-amber-300 font-mono text-[11px]">
+                      STOCK_IMAGE_API_KEY
+                    </code>{' '}
+                    in your environment to enable real-time search. You can freely use the curated
+                    Library tab or Upload your own photos.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid max-h-56 grid-cols-3 gap-2 overflow-y-auto thin-scroll rounded-md border border-border/70 bg-background/50 p-2">
+                  {stockResults.length > 0 ? (
+                    stockResults.map((photo) => (
+                      <button
+                        key={photo.url}
+                        type="button"
+                        title={photo.credit ?? photo.alt}
+                        onClick={() => {
+                          onChange(photo.url);
+                          setPicking(false);
+                        }}
+                        className={cn(
+                          'group relative aspect-video overflow-hidden rounded border transition-all',
+                          value === photo.url
+                            ? 'border-primary ring-2 ring-primary/30'
+                            : 'border-border hover:border-primary/60 hover:opacity-90',
+                        )}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={photo.thumb || photo.url}
+                          alt={photo.alt}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                        {photo.credit && (
+                          <span className="absolute inset-x-0 bottom-0 truncate bg-black/60 px-1 py-0.5 text-[9px] text-white opacity-0 transition-opacity group-hover:opacity-100">
+                            {photo.credit}
+                          </span>
+                        )}
+                      </button>
+                    ))
+                  ) : hasSearchedStock && !stockLoading ? (
+                    <div className="col-span-3 py-6 text-center text-xs text-muted-foreground">
+                      No stock photos found. Try a different search query.
+                    </div>
+                  ) : (
+                    <div className="col-span-3 py-6 text-center text-xs text-muted-foreground">
+                      Search for high-resolution stock photography.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       ) : null}
     </FieldShell>

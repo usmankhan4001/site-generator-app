@@ -1,9 +1,19 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { AlertCircle, Loader2, Plus, RefreshCw } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  AlertCircle,
+  FolderGit2,
+  Layers,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Search,
+  Sparkles,
+} from 'lucide-react';
 import type { ProjectSummary } from '@/lib/studio/projects';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +27,7 @@ import { ProjectCard } from './ProjectCard';
 export function DashboardClient({ templates }: { templates: TemplateOption[] }) {
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [newOpen, setNewOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ProjectSummary | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -75,37 +86,67 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
     }
   }
 
+  const filteredProjects = useMemo(() => {
+    if (!projects) return [];
+    if (!searchQuery.trim()) return projects;
+    const q = searchQuery.toLowerCase().trim();
+    return projects.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        (p.domain && p.domain.toLowerCase().includes(q)) ||
+        (p.templateId && p.templateId.toLowerCase().includes(q)),
+    );
+  }, [projects, searchQuery]);
+
   const loading = projects === null;
   const empty = !loading && projects.length === 0;
 
   return (
-    <>
-      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
+    <div className="space-y-8 pb-16">
+      {/* Top Header */}
+      <header className="flex flex-col justify-between gap-4 border-b border-border/70 pb-6 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">
-            Airwallex Site Cloner
+          <div className="flex items-center gap-2">
+            <span className="flex h-6 items-center gap-1.5 rounded-full border border-border/80 bg-muted/30 px-2.5 text-[11px] font-semibold tracking-wide text-foreground">
+              <Sparkles className="h-3 w-3 text-primary" />
+              Studio Dashboard
+            </span>
+            {projects && projects.length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                ({projects.length} {projects.length === 1 ? 'site' : 'sites'})
+              </span>
+            )}
+          </div>
+          <h1 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Sites & Digital Properties
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Your sites — build, theme and deploy compliant multi-page business
-            sites.
+          <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+            Manage, theme, and deploy your multi-page business archetypes and compliant storefronts.
           </p>
         </div>
-        <Button onClick={() => setNewOpen(true)}>
-          <Plus className="h-4 w-4" />
-          New site
-        </Button>
+
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setNewOpen(true)}
+            className="h-9 gap-1.5 px-4 shadow-sm"
+          >
+            <Plus className="h-4 w-4" />
+            <span>New Site</span>
+          </Button>
+        </div>
       </header>
 
+      {/* Global Error Banner */}
       {error && (
-        <div className="mt-6 flex items-center justify-between gap-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs text-red-300">
           <span className="inline-flex items-center gap-2">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="h-4 w-4 shrink-0" />
             {error}
           </span>
           <button
             type="button"
             onClick={() => void load()}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium hover:bg-red-500/10"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium hover:bg-red-500/15 transition-colors"
           >
             <RefreshCw className="h-3 w-3" />
             Retry
@@ -113,69 +154,104 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
         </div>
       )}
 
+      {/* Filter / Search Bar if projects exist */}
+      {!loading && !empty && projects.length > 2 && (
+        <div className="flex items-center justify-between gap-3">
+          <div className="relative w-full max-w-sm">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search your sites by name, domain, archetype..."
+              className="h-9 pl-9 text-xs"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Loading Skeletons */}
       {loading && (
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-[132px] animate-pulse rounded-xl border border-border bg-card"
+              className="h-[170px] animate-pulse rounded-xl border border-border/60 bg-card/40"
             />
           ))}
         </div>
       )}
 
+      {/* Empty State */}
       {empty && (
-        <div className="mt-10 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/40 px-6 py-16 text-center">
-          <h2 className="text-base font-semibold">No sites yet</h2>
-          <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            Start from one of {templates.length} templates — swap in your company
-            details, tweak sections and theme, then deploy.
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-card/20 px-6 py-16 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-muted/40 text-muted-foreground shadow-sm">
+            <Layers className="h-6 w-6 text-foreground/70" />
+          </div>
+          <h2 className="mt-4 text-base font-semibold text-foreground">No sites created yet</h2>
+          <p className="mt-1.5 max-w-md text-xs leading-relaxed text-muted-foreground sm:text-sm">
+            Launch your first site in seconds. Choose from 6 curated archetypes (SaaS, Agency, Luxury, Services, Store, Local Business) with ready-made niche starter kits.
           </p>
-          <Button className="mt-5" onClick={() => setNewOpen(true)}>
+
+          <Button className="mt-6 gap-1.5 shadow-sm" onClick={() => setNewOpen(true)}>
             <Plus className="h-4 w-4" />
-            New site
+            Create Your First Site
           </Button>
         </div>
       )}
 
+      {/* Projects Grid */}
       {!loading && !empty && (
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              busy={busyId === project.id}
-              onDuplicate={handleDuplicate}
-              onDelete={setDeleteTarget}
-            />
-          ))}
-        </div>
+        <>
+          {filteredProjects.length === 0 ? (
+            <div className="py-12 text-center text-xs text-muted-foreground">
+              No sites match “{searchQuery}”.
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredProjects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  busy={busyId === project.id}
+                  onDuplicate={handleDuplicate}
+                  onDelete={setDeleteTarget}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
+      {/* Archetype & Starter Set Picker Dialog */}
       <NewProjectDialog
         templates={templates}
         open={newOpen}
         onOpenChange={setNewOpen}
       />
 
+      {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteTarget !== null}
         onOpenChange={(open) => {
           if (!open && !deleting) setDeleteTarget(null);
         }}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="border-border/80 bg-background/95 shadow-2xl backdrop-blur-xl sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete site</DialogTitle>
-            <DialogDescription>
-              This permanently deletes{' '}
-              <span className="text-foreground">{deleteTarget?.name}</span> and
-              its content. This cannot be undone.
+            <DialogTitle className="text-base font-semibold text-foreground">
+              Delete Site
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              This action will permanently delete{' '}
+              <span className="font-semibold text-foreground">{deleteTarget?.name}</span> and
+              its configured pages and assets. This cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end gap-2">
+
+          <div className="mt-4 flex justify-end gap-2 border-t border-border/50 pt-3">
             <Button
               variant="outline"
+              size="sm"
               onClick={() => setDeleteTarget(null)}
               disabled={deleting}
             >
@@ -183,21 +259,22 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
             </Button>
             <Button
               variant="destructive"
+              size="sm"
               onClick={confirmDelete}
               disabled={deleting}
             >
               {deleting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                   Deleting…
                 </>
               ) : (
-                'Delete'
+                'Delete Site'
               )}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

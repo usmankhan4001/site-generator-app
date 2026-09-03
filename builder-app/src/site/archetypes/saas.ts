@@ -101,7 +101,7 @@ export const saas: ArchetypeMeta = {
     ],
     footer: { showLegalBar: true, showPaymentBadges: false },
   },
-  starterSetIds: [],
+  starterSetIds: ['saas-devops', 'saas-analytics'],
 };
 
 export default saas;

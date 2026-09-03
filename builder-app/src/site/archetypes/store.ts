@@ -98,7 +98,7 @@ export const store: ArchetypeMeta = {
     ],
     footer: { showLegalBar: true, showPaymentBadges: true },
   },
-  starterSetIds: [],
+  starterSetIds: ['store-apparel', 'store-living'],
 };
 
 export default store;

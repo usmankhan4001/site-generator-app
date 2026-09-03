@@ -28,9 +28,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   let body: {
     name?: string;
     domain?: string | null;
+    customDomain?: string | null;
+    domainStatus?: string | null;
+    publishRequestedAt?: string | null;
     status?: string;
     content?: SiteContent;
-    action?: 'duplicate';
+    action?: 'duplicate' | 'request_publish' | 'cancel_publish';
   };
   try {
     body = await req.json();
@@ -44,11 +47,24 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ project: copy }, { status: 201 });
   }
 
+  let publishRequestedAt = body.publishRequestedAt;
+  let domainStatus = body.domainStatus;
+  if (body.action === 'request_publish') {
+    publishRequestedAt = new Date().toISOString();
+    domainStatus = 'pending_review';
+  } else if (body.action === 'cancel_publish') {
+    publishRequestedAt = null;
+    domainStatus = null;
+  }
+
   const project = await updateProject(
     id,
     {
       name: body.name,
       domain: body.domain,
+      customDomain: body.customDomain,
+      domainStatus,
+      publishRequestedAt,
       status: body.status,
       content: body.content,
     },

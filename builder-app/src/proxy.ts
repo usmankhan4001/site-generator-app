@@ -17,7 +17,15 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(signIn);
   }
 
-  const user = session.user as { onboardingCompletedAt?: Date | string | null };
+  const user = session.user as {
+    onboardingCompletedAt?: Date | string | null;
+    role?: string | null;
+  };
+
+  if (pathname.startsWith('/admin') && user.role !== 'admin') {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
   if (pathname === '/' && !user.onboardingCompletedAt) {
     return NextResponse.redirect(new URL('/onboarding', request.url));
   }

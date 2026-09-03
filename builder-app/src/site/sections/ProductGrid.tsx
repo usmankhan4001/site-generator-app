@@ -6,7 +6,15 @@ import { Separator } from '@/site/ui/separator';
 import { formatPrice } from '@/site/lib/format';
 import { cn } from '@/site/lib/cn';
 import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
-import { resolveLayoutSystem } from '@/site/layoutSystems';
+import {
+  resolveArchetypeStyle,
+  sectionPadding,
+  cardClass,
+  gridGap,
+  imageWrapClass,
+  dividerClass,
+  ctaProps,
+} from '@/site/archetypes';
 
 function priceLabel(item: CatalogItem, sectionCurrency: string | undefined, fallbackUnit?: string) {
   if (item.price === 0) return 'Custom';
@@ -64,15 +72,19 @@ export default function ProductGrid({
     cta,
   } = props;
 
+  const s = resolveArchetypeStyle(content);
+  const ctaBtn = ctaProps(s);
+  const isAtelier = s.treatment === 'atelier';
+
   return (
-    <section id="catalog" className="py-20 md:py-28">
+    <section id="catalog" className={sectionPadding(s)}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          system={resolveLayoutSystem(content)}
+          system={s.treatment}
           eyebrow={eyebrow}
           title={title}
           description={description}
-          align="center"
+          align={s.headerAlign}
           className="mb-12"
         />
 
@@ -93,18 +105,24 @@ export default function ProductGrid({
         ) : null}
 
         {layout === 'plans' ? (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+          <div className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-stretch', gridGap(s))}>
             {items.map((item) => (
               <div
                 key={item.id}
                 className={cn(
-                  'card-elevated flex flex-col rounded-xl border bg-card',
-                  item.popular ? 'border-primary' : 'border-border/80',
+                  'flex flex-col',
+                  cardClass(s),
+                  item.popular && 'border-primary',
                 )}
               >
                 <div className="p-6 pb-4">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-lg font-bold text-foreground">{item.name}</h3>
+                    <h3
+                      className="text-lg font-bold text-foreground"
+                      style={isAtelier ? { fontFamily: 'var(--font-display)' } : undefined}
+                    >
+                      {item.name}
+                    </h3>
                     {item.popular && (
                       <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-primary text-primary-foreground">
                         Popular
@@ -123,7 +141,7 @@ export default function ProductGrid({
                   </div>
                 </div>
 
-                <Separator />
+                <Separator className={dividerClass(s)} />
 
                 <div className="flex-1 p-6 space-y-5">
                   {item.specs && Object.keys(item.specs).length > 0 && (
@@ -162,8 +180,9 @@ export default function ProductGrid({
                 <div className="p-6 pt-0">
                   <Button
                     asChild
+                    size={ctaBtn.size}
                     className="w-full h-11 text-sm font-semibold"
-                    variant={item.popular ? 'default' : 'outline'}
+                    variant={item.popular ? 'default' : ctaBtn.variant}
                   >
                     <Link href="/contact">
                       <span>Configure</span>
@@ -175,13 +194,13 @@ export default function ProductGrid({
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
+          <div className={cn('grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-stretch', gridGap(s))}>
             {items.map((item) => (
               <div
                 key={item.id}
-                className="card-elevated flex flex-col overflow-hidden group rounded-xl border border-border/80 bg-card"
+                className={cn('flex flex-col overflow-hidden group', cardClass(s))}
               >
-                <div className="aspect-4/3 overflow-hidden bg-muted relative">
+                <div className={cn('aspect-4/3 overflow-hidden bg-muted relative', imageWrapClass(s))}>
                   {item.image ? (
                     <img
                       src={item.image}
@@ -214,7 +233,12 @@ export default function ProductGrid({
                       {item.category}
                     </span>
                   )}
-                  <h3 className="text-base font-bold text-foreground leading-snug">{item.name}</h3>
+                  <h3
+                    className="text-base font-bold text-foreground leading-snug"
+                    style={isAtelier ? { fontFamily: 'var(--font-display)' } : undefined}
+                  >
+                    {item.name}
+                  </h3>
                   <Stars rating={item.rating} count={item.reviewCount} />
                   {item.description && (
                     <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
@@ -230,7 +254,7 @@ export default function ProductGrid({
                         <span className="text-[11px] text-muted-foreground">SKU {item.sku}</span>
                       )}
                     </div>
-                    <Button asChild size="sm" variant={item.price > 0 ? 'default' : 'outline'}>
+                    <Button asChild size="sm" variant={item.price > 0 ? 'default' : ctaBtn.variant}>
                       <Link href={item.price > 0 ? '/checkout' : '/contact'}>
                         <span>{item.price > 0 ? 'Buy Now' : 'Enquire'}</span>
                         <ArrowRight className="ml-1 h-3.5 w-3.5" />
@@ -245,7 +269,7 @@ export default function ProductGrid({
 
         {cta && (
           <div className="text-center mt-12">
-            <Button asChild size="lg" variant="outline" className="h-12 px-7 text-base">
+            <Button asChild size={ctaBtn.size} variant={ctaBtn.variant} className="h-12 px-7 text-base">
               <Link href={cta.href}>
                 <span>{cta.label}</span>
                 <ArrowRight className="ml-2 h-4 w-4" />

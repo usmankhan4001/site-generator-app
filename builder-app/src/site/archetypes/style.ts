@@ -5,9 +5,15 @@
  * effective `ArchetypeStyle`. The class helpers turn one knob of that style
  * into a Tailwind class string.
  *
- * IMPORTANT: for the six default archetypes shipped today these helpers return
- * exactly the classes the section renderers already hard-code, so wiring a
- * renderer to a helper is a no-op visual change. New treatments differ.
+ * IMPORTANT: the combination a NO-archetype `SiteContent` resolves to
+ * (`resolveArchetype` falls back to `store` for ecommerce, else `services`)
+ * MUST make every helper below return exactly the classes the section
+ * renderers already hard-code today — wiring a renderer to a helper on that
+ * path is a zero-diff change. `services` and `store` share the same
+ * density / image / grid / divider / cta knobs and only ever differ in
+ * `headerAlign`, so every helper keeps its `regular` / `contained` / `even` /
+ * `hairline` / `solid` / `bordered`+`elevated` branch pinned to today's
+ * classes. New treatments (atelier / workshop / editorial) diverge.
  */
 
 import type { SiteContent } from '@/site/schema';
@@ -36,6 +42,11 @@ export function resolveArchetypeStyle(content: SiteContent): ArchetypeStyle {
     ...ARCHETYPES[resolveArchetype(content)].style,
     ...(content.layoutSystem ? { treatment: content.layoutSystem } : {}),
   };
+}
+
+/** True when the site was seeded from / pinned to an archetype. */
+export function hasArchetype(content: SiteContent): boolean {
+  return !!(content.archetype || content.source?.archetype);
 }
 
 /* ============================================================================
@@ -68,14 +79,16 @@ export function gridGap(s: ArchetypeStyle): string {
 
 /**
  * Card surface. `bordered` / `elevated` reproduce today's
- * `card-elevated rounded-xl border border-border/80 bg-card`.
+ * `card-elevated rounded-xl border border-border/80 bg-card` (both the
+ * no-archetype `services` and `store` fall here). `editorial` drops the card
+ * entirely; `flat` is the sturdy workshop panel.
  */
 export function cardClass(s: ArchetypeStyle): string {
   switch (s.card) {
     case 'editorial':
       return '';
     case 'flat':
-      return 'bg-transparent';
+      return 'rounded-none border border-border bg-card';
     case 'outline-hover':
       return 'rounded-xl border border-transparent hover:border-border bg-card/50 transition-colors';
     case 'bordered':
@@ -103,6 +116,24 @@ export function imageWrapClass(s: ArchetypeStyle): string {
 }
 
 /**
+ * A between-block / footer-of-card divider. Not on any no-archetype path — used
+ * only inside archetype-pinned section branches.
+ */
+export function dividerClass(s: ArchetypeStyle): string {
+  switch (s.divider) {
+    case 'rule':
+      return 'border-t-2 border-border';
+    case 'inset-rule':
+      return 'border-t border-border w-16';
+    case 'hairline':
+      return 'border-t border-border/60';
+    case 'none':
+    default:
+      return '';
+  }
+}
+
+/**
  * Props for the site-kit `<Button>` that renders a section's primary CTA.
  * `solid` reproduces today's default filled button.
  */
@@ -121,5 +152,28 @@ export function ctaProps(s: ArchetypeStyle): {
     case 'solid':
     default:
       return { variant: 'default', size: 'lg', withArrow: false };
+  }
+}
+
+/**
+ * The hero layout an archetype pins (used only when the site has an archetype
+ * AND the hero has an image). No-archetype heroes keep the deterministic
+ * per-template hash variant.
+ *
+ *  luxury / agency  -> editorial (full-bleed image, serif display, minimal chrome)
+ *  store            -> stacked
+ *  saas / services / local -> split
+ */
+export function archetypeHeroVariant(
+  id: ArchetypeId,
+): 'split' | 'stacked' | 'editorial' {
+  switch (id) {
+    case 'luxury':
+    case 'agency':
+      return 'editorial';
+    case 'store':
+      return 'stacked';
+    default:
+      return 'split';
   }
 }

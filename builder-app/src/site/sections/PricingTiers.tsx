@@ -6,7 +6,14 @@ import { Separator } from '@/site/ui/separator';
 import { formatPrice } from '@/site/lib/format';
 import { cn } from '@/site/lib/cn';
 import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
-import { resolveLayoutSystem } from '@/site/layoutSystems';
+import {
+  resolveArchetypeStyle,
+  sectionPadding,
+  cardClass,
+  gridGap,
+  dividerClass,
+  ctaProps,
+} from '@/site/archetypes';
 
 /** Grid column class that adapts to 1–4 tiers. */
 function gridColsClass(count: number): string {
@@ -45,20 +52,23 @@ export default function PricingTiers({
   } = props;
 
   const href = ctaHref ?? '/checkout';
+  const s = resolveArchetypeStyle(content);
+  const cta = ctaProps(s);
+  const isAtelier = s.treatment === 'atelier';
 
   return (
-    <section id="offerings" className="py-20 md:py-28 bg-muted/30 border-y border-border">
+    <section id="offerings" className={cn(sectionPadding(s), 'bg-muted/30 border-y border-border')}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          system={resolveLayoutSystem(content)}
+          system={s.treatment}
           eyebrow={eyebrow}
           title={title}
           description={description}
-          align="center"
+          align={s.headerAlign}
           className="mb-16"
         />
 
-        <div className={cn('grid grid-cols-1 gap-8 items-stretch', gridColsClass(tiers.length))}>
+        <div className={cn('grid grid-cols-1 items-stretch', gridColsClass(tiers.length), gridGap(s))}>
           {tiers.map((tier) => {
             const priceLabel =
               tier.price === 0
@@ -71,8 +81,9 @@ export default function PricingTiers({
               <div
                 key={tier.id}
                 className={cn(
-                  'card-elevated flex flex-col justify-between relative rounded-xl border bg-card',
-                  tier.popular ? 'border-primary' : 'border-border/80',
+                  'flex flex-col justify-between relative',
+                  cardClass(s),
+                  tier.popular && 'border-primary',
                 )}
               >
                 {tier.popular && (
@@ -92,7 +103,12 @@ export default function PricingTiers({
                 )}
 
                 <div className="p-6 pb-4">
-                  <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
+                  <h3
+                    className="text-xl font-bold text-foreground"
+                    style={isAtelier ? { fontFamily: 'var(--font-display)' } : undefined}
+                  >
+                    {tier.name}
+                  </h3>
                   <p className="text-xs text-muted-foreground mt-2 leading-relaxed min-h-[36px]">
                     {tier.description}
                   </p>
@@ -104,7 +120,7 @@ export default function PricingTiers({
                 </div>
 
                 <div className="flex-1 px-6 pb-4">
-                  <Separator className="mb-4" />
+                  <Separator className={cn('mb-4', dividerClass(s))} />
                   <ul className="space-y-3 text-xs sm:text-sm text-muted-foreground">
                     {tier.features.map((f, fIdx) => (
                       <li key={fIdx} className="flex items-start gap-2.5">
@@ -118,8 +134,9 @@ export default function PricingTiers({
                 <div className="p-6 pt-4">
                   <Button
                     asChild
+                    size={cta.size}
                     className="w-full h-11 text-sm font-semibold shadow-sm"
-                    variant={tier.popular ? 'default' : 'outline'}
+                    variant={tier.popular ? 'default' : cta.variant}
                   >
                     <Link href={href}>
                       <span>Select {tier.name}</span>

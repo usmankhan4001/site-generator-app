@@ -288,7 +288,7 @@ export interface HeroProps {
   secondaryCta?: CtaLink;
   image?: string;
   trustBadges?: string[];
-  layout?: 'centered' | 'split';
+  layout?: 'centered' | 'split' | 'stacked' | 'editorial';
 }
 
 export interface StatsBarProps {
@@ -577,6 +577,8 @@ export interface SiteContent {
   brand: {
     /** Text shown next to the logo mark. Defaults to `business.shortName`. */
     logoText: string;
+    /** Brand logo image URL when uploaded. */
+    logoUrl?: string;
   };
 
   nav: NavItem[];

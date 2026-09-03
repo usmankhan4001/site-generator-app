@@ -5,8 +5,12 @@
  */
 
 import { prisma } from '@/lib/db';
-import type { SiteContent } from '@/site/schema';
+import type { BusinessInfo, SiteContent } from '@/site/schema';
 import type { Actor } from '@/lib/session';
+import type { ArchetypeId } from '@/site/archetypes/types';
+import { ARCHETYPES, STARTER_SETS } from '@/site/archetypes';
+import { createSiteContentFromArchetype } from '@/site/archetypes/compose';
+import { buildPolicyPage } from '@/site/archetypes/policies';
 import { getNormalizedTemplate, NORMALIZED_TEMPLATES } from '@/lib/normalizeTemplates';
 
 export interface ProjectSummary {
@@ -16,6 +20,10 @@ export interface ProjectSummary {
   mode: string;
   themeId: string;
   domain: string | null;
+  customDomain: string | null;
+  domainStatus: string | null;
+  hostingStatus: string;
+  publishRequestedAt: string | null;
   status: string;
   repoUrl: string | null;
   liveUrl: string | null;
@@ -29,7 +37,9 @@ export interface ProjectDetail extends ProjectSummary {
 
 function toSummary(p: {
   id: string; name: string; templateId: string | null; mode: string;
-  themeId: string; domain: string | null; status: string;
+  themeId: string; domain: string | null; customDomain?: string | null;
+  domainStatus?: string | null; hostingStatus?: string;
+  publishRequestedAt?: Date | null; status: string;
   repoUrl: string | null; liveUrl: string | null;
   createdAt: Date; updatedAt: Date;
 }): ProjectSummary {
@@ -40,6 +50,10 @@ function toSummary(p: {
     mode: p.mode,
     themeId: p.themeId,
     domain: p.domain,
+    customDomain: p.customDomain ?? null,
+    domainStatus: p.domainStatus ?? null,
+    hostingStatus: p.hostingStatus ?? 'none',
+    publishRequestedAt: p.publishRequestedAt ? p.publishRequestedAt.toISOString() : null,
     status: p.status,
     repoUrl: p.repoUrl,
     liveUrl: p.liveUrl,
@@ -117,6 +131,125 @@ export async function createProjectFromTemplate(
       mode: content.mode,
       themeId: content.themeId,
       domain: null,
+      customDomain: null,
+      domainStatus: null,
+      hostingStatus: 'none',
+      publishRequestedAt: null,
+      content: JSON.stringify(content),
+      status: 'draft',
+      ownerId: actor.userId,
+    },
+  });
+  return { ...toSummary(p), content };
+}
+
+export async function createProjectFromArchetype(
+  archetypeId: ArchetypeId,
+  starterSetId: string | null | undefined,
+  name: string | undefined,
+  actor: Actor,
+): Promise<ProjectDetail> {
+  const arch = ARCHETYPES[archetypeId];
+  if (!arch) throw new Error(`Unknown archetype: ${archetypeId}`);
+
+  let content = createSiteContentFromArchetype(archetypeId, starterSetId ?? null);
+
+  // Check user profile and onboarding-legal Setting
+  const [user, legalSetting] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: actor.userId },
+      select: { brandColor: true, logoUrl: true },
+    }),
+    prisma.setting.findUnique({
+      where: { key: `onboarding-legal:${actor.userId}` },
+    }),
+  ]);
+
+  if (user?.brandColor) {
+    content.accent = user.brandColor;
+  }
+  if (user?.logoUrl) {
+    content.brand = { ...content.brand, logoUrl: user.logoUrl };
+  }
+
+  if (legalSetting?.value) {
+    try {
+      const legal = JSON.parse(legalSetting.value);
+      if (legal && typeof legal === 'object') {
+        let updatedBusiness = false;
+        const patch: Partial<BusinessInfo> = {};
+        if (legal.entityName && typeof legal.entityName === 'string' && legal.entityName.trim()) {
+          patch.name = legal.entityName.trim();
+          patch.shortName = legal.entityName.trim();
+          content.brand.logoText = legal.entityName.trim();
+          content.meta.title = legal.entityName.trim();
+          updatedBusiness = true;
+        }
+        if (legal.registrationNumber && typeof legal.registrationNumber === 'string' && legal.registrationNumber.trim()) {
+          patch.registrationNumber = legal.registrationNumber.trim();
+          updatedBusiness = true;
+        }
+        if (legal.jurisdiction && typeof legal.jurisdiction === 'string' && legal.jurisdiction.trim()) {
+          patch.jurisdiction = legal.jurisdiction.trim();
+          patch.governingLaw = `the laws of ${legal.jurisdiction.trim()}`;
+          updatedBusiness = true;
+        }
+        if (legal.registeredAddress && typeof legal.registeredAddress === 'string' && legal.registeredAddress.trim()) {
+          patch.registeredAddress = legal.registeredAddress.trim();
+          updatedBusiness = true;
+        }
+        if (legal.contactEmail && typeof legal.contactEmail === 'string' && legal.contactEmail.trim()) {
+          patch.email = legal.contactEmail.trim();
+          updatedBusiness = true;
+        }
+        if (legal.contactPhone && typeof legal.contactPhone === 'string' && legal.contactPhone.trim()) {
+          patch.phone = legal.contactPhone.trim();
+          updatedBusiness = true;
+        }
+
+        if (updatedBusiness) {
+          content.business = { ...content.business, ...patch };
+          if (arch.composition?.policies) {
+            for (const slug of arch.composition.policies) {
+              const idx = content.pages.findIndex((p) => p.key === `policy:${slug}`);
+              if (idx !== -1) {
+                content.pages[idx] = buildPolicyPage(slug, content.business);
+              }
+            }
+          }
+        }
+      }
+    } catch {
+      // Ignore JSON parse error on setting
+    }
+  }
+
+  // Ensure JSON clean serialization without undefined fields
+  content = JSON.parse(JSON.stringify(content)) as SiteContent;
+
+  const existing = new Set(
+    (await prisma.project.findMany({ where: { ownerId: actor.userId }, select: { name: true } })).map(
+      (r) => r.name,
+    ),
+  );
+  const starterSet = starterSetId ? STARTER_SETS[starterSetId] : undefined;
+  const defaultBaseName = starterSet?.name || arch.name || content.business.name || 'Untitled site';
+  const finalName = uniqueName(
+    name?.trim() || defaultBaseName,
+    existing,
+  );
+
+  const p = await prisma.project.create({
+    data: {
+      name: finalName,
+      templateId: `archetype:${archetypeId}${starterSetId ? `:${starterSetId}` : ''}`,
+      mode: content.mode,
+      themeId: content.themeId,
+      domain: null,
+      customDomain: null,
+      domainStatus: null,
+      hostingStatus: 'none',
+      publishRequestedAt: null,
       content: JSON.stringify(content),
       status: 'draft',
       ownerId: actor.userId,
@@ -127,7 +260,16 @@ export async function createProjectFromTemplate(
 
 export async function updateProject(
   id: string,
-  patch: Partial<{ name: string; domain: string | null; content: SiteContent; status: string }>,
+  patch: Partial<{
+    name: string;
+    domain: string | null;
+    customDomain: string | null;
+    domainStatus: string | null;
+    hostingStatus: string;
+    publishRequestedAt: Date | string | null;
+    content: SiteContent;
+    status: string;
+  }>,
   actor: Actor,
 ): Promise<ProjectDetail | null> {
   if (!(await findOwnedProject(id, actor))) return null;
@@ -135,6 +277,17 @@ export async function updateProject(
   const data: Record<string, unknown> = {};
   if (patch.name !== undefined) data.name = patch.name;
   if (patch.domain !== undefined) data.domain = patch.domain;
+  if (patch.customDomain !== undefined) data.customDomain = patch.customDomain;
+  if (patch.domainStatus !== undefined) data.domainStatus = patch.domainStatus;
+  if (patch.hostingStatus !== undefined) data.hostingStatus = patch.hostingStatus;
+  if (patch.publishRequestedAt !== undefined) {
+    data.publishRequestedAt =
+      patch.publishRequestedAt === null
+        ? null
+        : typeof patch.publishRequestedAt === 'string'
+        ? new Date(patch.publishRequestedAt)
+        : patch.publishRequestedAt;
+  }
   if (patch.status !== undefined) data.status = patch.status;
   if (patch.content !== undefined) {
     data.content = JSON.stringify(patch.content);

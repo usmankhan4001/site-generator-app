@@ -100,7 +100,7 @@ export const local: ArchetypeMeta = {
     ],
     footer: { showLegalBar: true, showPaymentBadges: false },
   },
-  starterSetIds: [],
+  starterSetIds: ['local-plumbing', 'local-electrical'],
 };
 
 export default local;

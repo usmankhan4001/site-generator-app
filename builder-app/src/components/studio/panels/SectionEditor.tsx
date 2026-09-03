@@ -141,6 +141,8 @@ function HeroEditor({ props, patch }: { props: HeroProps; patch: (p: Partial<Her
         options={[
           { value: 'centered', label: 'Centered' },
           { value: 'split', label: 'Split (image right)' },
+          { value: 'stacked', label: 'Stacked (image banner)' },
+          { value: 'editorial', label: 'Editorial (high-impact)' },
         ]}
       />
       <ImageField value={props.image} onChange={(v) => patch({ image: v })} />

@@ -3,21 +3,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring/50",
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground shadow-xs hover:bg-primary/80",
+        default: "border-transparent bg-primary text-primary-foreground",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border-transparent bg-secondary text-secondary-foreground",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/80",
-        outline: "text-foreground border-border",
+          "border-transparent bg-destructive text-destructive-foreground",
+        outline: "text-muted-foreground border-border bg-card",
         success:
           "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300",
-        pill: "border-border bg-accent/60 text-accent-foreground gap-1.5 py-1 px-3 text-xs font-medium",
-        subtle: "border-primary/20 bg-primary/10 text-primary font-medium",
+        pill: "border-border bg-muted text-muted-foreground gap-1.5 py-0.5 px-2.5",
+        subtle: "border-primary/15 bg-accent text-accent-foreground",
       },
     },
     defaultVariants: {

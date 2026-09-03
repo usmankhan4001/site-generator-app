@@ -41,49 +41,55 @@
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
+/*
+  Studio palette — a quiet workbench, not a brand statement. Cool near-neutral
+  greys, one calm blue for interactive state, hairline borders instead of
+  shadows (the Vercel/Notion tell). All personality lives in the sites the
+  studio produces, never in the studio chrome.
+*/
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.995 0.002 260);
-  --foreground: oklch(0.19 0.015 260);
+  --radius: 0.5rem;
+  --background: oklch(0.986 0.002 265);
+  --foreground: oklch(0.21 0.006 265);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.19 0.015 260);
+  --card-foreground: oklch(0.21 0.006 265);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.19 0.015 260);
-  --primary: oklch(0.55 0.19 264);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0.006 260);
-  --secondary-foreground: oklch(0.19 0.015 260);
-  --muted: oklch(0.96 0.006 260);
-  --muted-foreground: oklch(0.48 0.015 260);
-  --accent: oklch(0.94 0.02 264);
-  --accent-foreground: oklch(0.25 0.05 264);
-  --destructive: oklch(0.58 0.24 27);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.90 0.006 260);
-  --input: oklch(0.90 0.006 260);
-  --ring: oklch(0.55 0.19 264);
+  --popover-foreground: oklch(0.21 0.006 265);
+  --primary: oklch(0.52 0.16 258);
+  --primary-foreground: oklch(0.99 0.002 258);
+  --secondary: oklch(0.967 0.003 265);
+  --secondary-foreground: oklch(0.28 0.006 265);
+  --muted: oklch(0.967 0.003 265);
+  --muted-foreground: oklch(0.55 0.007 265);
+  --accent: oklch(0.955 0.012 258);
+  --accent-foreground: oklch(0.42 0.13 258);
+  --destructive: oklch(0.58 0.22 25);
+  --destructive-foreground: oklch(0.99 0.002 25);
+  --border: oklch(0.923 0.003 265);
+  --input: oklch(0.923 0.003 265);
+  --ring: oklch(0.52 0.16 258);
 }
 
 .dark {
-  --background: oklch(0.11 0.015 260);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.15 0.018 260);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.15 0.018 260);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.62 0.19 264);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.19 0.02 260);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.18 0.018 260);
-  --muted-foreground: oklch(0.64 0.015 260);
-  --accent: oklch(0.22 0.03 264);
-  --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.58 0.24 27);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.24 0.02 260);
-  --input: oklch(0.24 0.02 260);
-  --ring: oklch(0.62 0.19 264);
+  --background: oklch(0.16 0.006 265);
+  --foreground: oklch(0.96 0.002 265);
+  --card: oklch(0.196 0.007 265);
+  --card-foreground: oklch(0.96 0.002 265);
+  --popover: oklch(0.196 0.007 265);
+  --popover-foreground: oklch(0.96 0.002 265);
+  --primary: oklch(0.64 0.15 258);
+  --primary-foreground: oklch(0.15 0.01 258);
+  --secondary: oklch(0.25 0.008 265);
+  --secondary-foreground: oklch(0.92 0.003 265);
+  --muted: oklch(0.24 0.008 265);
+  --muted-foreground: oklch(0.65 0.008 265);
+  --accent: oklch(0.28 0.02 258);
+  --accent-foreground: oklch(0.9 0.03 258);
+  --destructive: oklch(0.62 0.2 25);
+  --destructive-foreground: oklch(0.98 0.002 25);
+  --border: oklch(0.28 0.008 265);
+  --input: oklch(0.3 0.008 265);
+  --ring: oklch(0.64 0.15 258);
 }
 
 @layer base {
@@ -94,25 +100,37 @@
     background-color: var(--background);
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 }
 
-/* Canvas backdrop behind the live preview */
+/* Canvas backdrop behind the live preview — a soft framed ground, calm dots */
 .studio-canvas {
-  background-color: oklch(0.965 0.004 260);
-  background-image: radial-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-  background-size: 22px 22px;
+  background-color: oklch(0.958 0.003 265);
+  background-image: radial-gradient(oklch(0.2 0 0 / 0.04) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 .dark .studio-canvas {
-  background-color: oklch(0.09 0.012 260);
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-color: oklch(0.13 0.005 265);
+  background-image: radial-gradient(oklch(1 0 0 / 0.035) 1px, transparent 1px);
 }
 
 /* Sleek scrollbars for studio panels */
 .thin-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
 .thin-scroll::-webkit-scrollbar-track { background: transparent; }
-.thin-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 9999px; }
-.thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
-.dark .thin-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
-.dark .thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+.thin-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 9999px; }
+.thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.22); }
+.dark .thin-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+.dark .thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* Framed preview surface — the site-in-progress always looks presented */
+.preview-frame {
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 2px);
+  background: var(--card);
+  box-shadow: 0 1px 2px oklch(0.2 0 0 / 0.04), 0 8px 24px -12px oklch(0.2 0 0 / 0.12);
+}
+.dark .preview-frame {
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.3), 0 8px 24px -12px oklch(0 0 0 / 0.5);
+}

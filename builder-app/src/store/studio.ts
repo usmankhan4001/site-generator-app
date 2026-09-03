@@ -32,6 +32,10 @@ export interface ProjectMeta {
   name: string;
   status: string;
   domain: string | null;
+  customDomain: string | null;
+  domainStatus: string | null;
+  hostingStatus: string;
+  publishRequestedAt: string | null;
   repoUrl: string | null;
   liveUrl: string | null;
   templateId: string | null;
@@ -68,6 +72,11 @@ interface StudioState {
   setActivePage: (path: string) => void;
   selectSection: (id: string | null) => void;
   setDevice: (d: PreviewDevice) => void;
+
+  // --- publish & domain actions
+  setCustomDomain: (customDomain: string | null) => Promise<void>;
+  requestPublish: () => Promise<void>;
+  cancelPublishRequest: () => Promise<void>;
 
   // --- content mutations (all debounce-save)
   rename: (name: string) => void;
@@ -137,10 +146,14 @@ export const useStudio = create<StudioState>((set, get) => ({
           id: project.id,
           name: project.name,
           status: project.status,
-          domain: project.domain,
-          repoUrl: project.repoUrl,
-          liveUrl: project.liveUrl,
-          templateId: project.templateId,
+          domain: project.domain ?? null,
+          customDomain: project.customDomain ?? null,
+          domainStatus: project.domainStatus ?? null,
+          hostingStatus: project.hostingStatus ?? 'none',
+          publishRequestedAt: project.publishRequestedAt ?? null,
+          repoUrl: project.repoUrl ?? null,
+          liveUrl: project.liveUrl ?? null,
+          templateId: project.templateId ?? null,
         },
         content: project.content,
         activePagePath: project.content.pages[0]?.path ?? '/',
@@ -199,6 +212,84 @@ export const useStudio = create<StudioState>((set, get) => ({
   setActivePage: (activePagePath) => set({ activePagePath, selectedSectionId: null }),
   selectSection: (selectedSectionId) => set({ selectedSectionId }),
   setDevice: (device) => set({ device }),
+
+  setCustomDomain: async (customDomain: string | null) => {
+    const { meta } = get();
+    if (!meta) return;
+    try {
+      const res = await fetch(`/api/projects/${meta.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customDomain: customDomain?.trim() || null,
+          domainStatus: customDomain?.trim() ? 'pending_dns' : null,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to update custom domain');
+      const { project } = await res.json();
+      set((s) => ({
+        meta: s.meta
+          ? {
+              ...s.meta,
+              customDomain: project.customDomain ?? null,
+              domainStatus: project.domainStatus ?? null,
+            }
+          : null,
+      }));
+    } catch (e) {
+      set({ error: e instanceof Error ? e.message : 'Failed to update domain' });
+    }
+  },
+
+  requestPublish: async () => {
+    const { meta } = get();
+    if (!meta) return;
+    try {
+      const res = await fetch(`/api/projects/${meta.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'request_publish' }),
+      });
+      if (!res.ok) throw new Error('Failed to request publish');
+      const { project } = await res.json();
+      set((s) => ({
+        meta: s.meta
+          ? {
+              ...s.meta,
+              publishRequestedAt: project.publishRequestedAt ?? null,
+              domainStatus: project.domainStatus ?? null,
+            }
+          : null,
+      }));
+    } catch (e) {
+      set({ error: e instanceof Error ? e.message : 'Failed to request publish' });
+    }
+  },
+
+  cancelPublishRequest: async () => {
+    const { meta } = get();
+    if (!meta) return;
+    try {
+      const res = await fetch(`/api/projects/${meta.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'cancel_publish' }),
+      });
+      if (!res.ok) throw new Error('Failed to cancel publish request');
+      const { project } = await res.json();
+      set((s) => ({
+        meta: s.meta
+          ? {
+              ...s.meta,
+              publishRequestedAt: project.publishRequestedAt ?? null,
+              domainStatus: project.domainStatus ?? null,
+            }
+          : null,
+      }));
+    } catch (e) {
+      set({ error: e instanceof Error ? e.message : 'Failed to cancel publish request' });
+    }
+  },
 
   mutate: (recipe) => {
     const { content } = get();

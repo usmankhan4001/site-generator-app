@@ -138,3 +138,19 @@ model Verification {
 
   @@index([identifier])
 }
+
+// ---------------------------------------------------------------------------
+// Invite flow. An admin creates an Invite; the invitee opens /sign-up?token=…,
+// signs up, and the accept route stamps `acceptedAt`.
+// coordinator runs `npm run db:push` to apply
+// ---------------------------------------------------------------------------
+
+model Invite {
+  id         String    @id @default(cuid())
+  email      String
+  token      String    @unique
+  invitedBy  String
+  acceptedAt DateTime?
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+}
