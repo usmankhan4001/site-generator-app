@@ -11,6 +11,13 @@ build/
 *.tsbuildinfo
 next-env.d.ts
 
+# Next.js 16 auto-generated agent rules (regenerated on every build)
+AGENTS.md
+CLAUDE.md
+
+# Site kit — vendored copy inside the template (source of truth is builder-app/src/site)
+template/src/site/
+
 # Databases (local dev)
 *.db
 *.db-shm

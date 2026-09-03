@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "../site/site-kit.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -35,20 +36,13 @@
 }
 
 :root {
-  --radius: 0.75rem;
-  --radius-badge: 9999px;
-  --radius-button: 0.5rem;
-  --radius-card: 0.75rem;
-  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --ring-subtle: 0 0 0 1px var(--border);
   --background: oklch(0.99 0.003 260);
   --foreground: oklch(0.14 0.03 260);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.14 0.03 260);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.14 0.03 260);
-  --primary: oklch(0.48 0.24 275);
+  --primary: #6366f1;
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.96 0.008 260);
   --secondary-foreground: oklch(0.14 0.03 260);
@@ -59,7 +53,13 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.92 0.008 260);
   --input: oklch(0.92 0.008 260);
-  --ring: oklch(0.48 0.24 275);
+  --ring: #6366f1;
+  --radius: 0.75rem;
+  --radius-badge: 9999px;
+  --radius-button: calc(0.75rem - 0.25rem);
+  --radius-card: 0.75rem;
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
@@ -76,48 +76,6 @@
   }
 }
 
-/* ========== Untitled UI Core Utilities ========== */
-.ring-subtle {
-  box-shadow: var(--ring-subtle, 0 0 0 1px var(--border));
-}
-
-.card-elevated {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card, 0.75rem);
-  box-shadow: 
-    0 1px 3px 0 rgba(0, 0, 0, 0.25),
-    0 1px 2px -1px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
-  position: relative;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-elevated:hover {
-  border-color: color-mix(in oklch, var(--border) 70%, var(--primary) 30%);
-  box-shadow: 
-    0 12px 28px -6px rgba(0, 0, 0, 0.4),
-    0 8px 12px -6px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-.dot-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-badge, 9999px);
-  font-size: 0.75rem;
-  font-weight: 500;
-  background: var(--secondary);
-  color: var(--secondary-foreground);
-  border: 1px solid var(--border);
-}
-
-.dot-indicator {
-  width: 0.375rem;
-  height: 0.375rem;
-  border-radius: var(--radius-badge, 9999px);
-  background: var(--primary);
-}
+/* .ring-subtle / .card-elevated / .dot-pill / .dot-indicator now live in
+   src/site/site-kit.css (imported above) so the studio preview and every
+   generated site share one definition. */

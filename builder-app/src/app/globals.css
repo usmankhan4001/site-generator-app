@@ -1,9 +1,12 @@
 @import "tailwindcss";
+@import "../site/site-kit.css";
 
 /*
   Studio shell theme — the builder-app UI itself (dark "obsidian").
   Generated sites get their own scoped theme via <SiteRenderer> / themeToCssVars();
   nothing here leaks into the preview iframe.
+  The site-kit utility classes (.card-elevated, .dot-pill) are imported above so
+  the live preview renders identically to a generated site.
 */
 
 @theme inline {
