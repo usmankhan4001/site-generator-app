@@ -9,12 +9,13 @@ import { DeployPanel } from './DeployPanel';
 import { Inspector } from './Inspector';
 
 /** Dispatcher rendered by `Workspace`'s `<RightPanel>` — picks the panel for the
- *  active step, or the section Inspector when a section is selected. */
+ *  active nav destination, or the section Inspector whenever a section is
+ *  selected on the canvas (regardless of which destination is active). */
 export function RightPanelContent() {
   const step = useStudio((s) => s.step);
   const selectedSectionId = useStudio((s) => s.selectedSectionId);
 
-  if (step === 'sections' && selectedSectionId) return <Inspector />;
+  if (selectedSectionId) return <Inspector />;
 
   switch (step) {
     case 'template':

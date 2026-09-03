@@ -133,7 +133,7 @@ function WorkspaceSkeleton() {
       </div>
       <div className="flex min-h-0 flex-1">
         <div className="flex w-56 shrink-0 flex-col gap-2 border-r border-border bg-card p-3">
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-12 w-full animate-pulse rounded-lg bg-muted" />
           ))}
         </div>

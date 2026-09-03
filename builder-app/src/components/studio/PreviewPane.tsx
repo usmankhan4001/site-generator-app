@@ -100,11 +100,15 @@ export function PreviewPane() {
         skipScrollRef.current = true; // it's already on screen — don't yank the view
         selectSection(d.id);
         setStep('sections');
+      } else if (d.type === 'navigate' && typeof d.path === 'string') {
+        // A link inside the preview was clicked — switch the previewed page
+        // here instead of letting the iframe navigate itself (containment).
+        setActivePage(d.path);
       }
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, [selectSection, setStep]);
+  }, [selectSection, setStep, setActivePage]);
 
   // src changes (page switch / save nonce) reload the iframe → wait for `ready`
   useEffect(() => {
@@ -189,6 +193,7 @@ export function PreviewPane() {
               ref={iframeRef}
               src={src}
               title="Site preview"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
               className="block border-0 bg-white"
               style={{
                 width: dw,

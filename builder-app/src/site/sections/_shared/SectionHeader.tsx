@@ -95,6 +95,37 @@ export function SectionHeader({
     );
   }
 
+  if (system === 'workshop') {
+    return (
+      <div className={cn('max-w-2xl', centered && 'mx-auto text-center', className)}>
+        {eyebrow ? (
+          <div className={cn('flex items-center gap-2 mb-3', centered && 'justify-center')}>
+            <span className="h-2.5 w-2.5 shrink-0 bg-primary" aria-hidden />
+            <span className="text-xs font-bold tracking-[0.16em] uppercase text-primary [font-stretch:condensed]">
+              {index ? `${index} · ` : ''}
+              {eyebrow.toUpperCase()}
+            </span>
+          </div>
+        ) : null}
+        {title ? (
+          <h2 className="text-3xl sm:text-[2.5rem] font-extrabold tracking-tight leading-[1.05] text-foreground uppercase [font-stretch:condensed]">
+            {title}
+          </h2>
+        ) : null}
+        {description ? (
+          <p
+            className={cn(
+              'mt-4 text-base font-medium text-muted-foreground leading-relaxed',
+              centered ? 'mx-auto max-w-xl' : 'max-w-xl',
+            )}
+          >
+            {description}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
   // signal (default)
   return (
     <div className={cn('max-w-2xl', centered && 'mx-auto text-center', className)}>

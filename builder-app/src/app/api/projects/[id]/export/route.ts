@@ -3,6 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { getProject } from '@/lib/studio/projects';
+import { getActor } from '@/lib/session';
 import { assembleSite } from '@/lib/assemble';
 import { zipDir } from '@/lib/zipDir';
 
@@ -18,8 +19,11 @@ function slugify(name: string): string {
 }
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const actor = await getActor();
+  if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const { id } = await params;
-  const project = await getProject(id);
+  const project = await getProject(id, actor);
   if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   let tempDir: string | null = null;

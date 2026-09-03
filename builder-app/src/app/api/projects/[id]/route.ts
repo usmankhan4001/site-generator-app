@@ -6,17 +6,24 @@ import {
   deleteProject,
   duplicateProject,
 } from '@/lib/studio/projects';
+import { getActor } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const actor = await getActor();
+  if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const { id } = await params;
-  const project = await getProject(id);
+  const project = await getProject(id, actor);
   if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json({ project });
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const actor = await getActor();
+  if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const { id } = await params;
   let body: {
     name?: string;
@@ -32,27 +39,31 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 
   if (body.action === 'duplicate') {
-    const copy = await duplicateProject(id);
+    const copy = await duplicateProject(id, actor);
     if (!copy) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json({ project: copy }, { status: 201 });
   }
 
-  const project = await updateProject(id, {
-    name: body.name,
-    domain: body.domain,
-    status: body.status,
-    content: body.content,
-  });
+  const project = await updateProject(
+    id,
+    {
+      name: body.name,
+      domain: body.domain,
+      status: body.status,
+      content: body.content,
+    },
+    actor,
+  );
   if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json({ project });
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const actor = await getActor();
+  if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const { id } = await params;
-  try {
-    await deleteProject(id);
-  } catch {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  }
+  const deleted = await deleteProject(id, actor);
+  if (!deleted) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json({ ok: true });
 }

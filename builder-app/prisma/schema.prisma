@@ -1,3 +1,5 @@
+// NOTE: run `npm run db:push` against a fresh dev.db to apply — coordinator does this at integration
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -23,7 +25,16 @@ model Project {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
+  ownerId            String
+  owner              User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  hostingStatus      String    @default("none")
+  publishRequestedAt DateTime?
+  customDomain       String?
+  domainStatus       String?
+
   deployments Deployment[]
+
+  @@index([ownerId])
 }
 
 /// One deploy attempt for a project.
@@ -44,4 +55,86 @@ model Setting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Better Auth tables.
+//
+// Hand-written from the installed better-auth@1.7.2 schema reference
+// (node_modules/@better-auth/core/dist/db/get-tables.mjs) — the `@better-auth/cli`
+// package only publishes up to 1.4.x and running a mismatched generator against a
+// 1.7.2 config risks an out-of-date schema (e.g. the `Account.issuer` column and
+// the `[issuer, accountId]` unique index are 1.7-era additions). Model names are
+// PascalCase so the Prisma client accessors (`prisma.user`, `prisma.session`, …)
+// match better-auth's default lowercase model names.
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // better-auth additionalFields (see src/lib/auth.ts) + onboarding profile
+  role                 String    @default("user")
+  niche                String?
+  preferredMode        String?
+  stylePref            String?
+  logoUrl              String?
+  brandColor           String?
+  existingUrl          String?
+  onboardingCompletedAt DateTime?
+
+  sessions Session[]
+  accounts Account[]
+  projects Project[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  issuer                String
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([issuer, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
 }

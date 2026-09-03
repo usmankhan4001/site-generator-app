@@ -13,6 +13,7 @@
  */
 
 import type { LayoutSystem, SiteContent } from '@/site/schema';
+import { ARCHETYPES, resolveArchetype } from '@/site/archetypes';
 
 export const FONT_MONO =
   "ui-monospace, 'SF Mono', 'Space Mono', Menlo, Consolas, monospace";
@@ -40,15 +41,27 @@ export const LAYOUT_SYSTEMS: LayoutSystemMeta[] = [
     name: 'Foundation',
     description: 'Dense infra spec-sheet — bracketed labels, grid-aligned, clinical precision.',
   },
+  {
+    id: 'workshop',
+    name: 'Workshop',
+    description: 'Trade & local services — sturdy, direct, high-contrast.',
+  },
 ];
 
 /**
- * Resolve the effective layout system for a site: explicit override, else
- * the sector's default, else the site mode's default. Every section renderer
+ * Resolve the effective layout system for a site: explicit override, else the
+ * archetype's `treatment` (only when an archetype is actually set), else the
+ * source sector's default, else the site mode's default. Every section renderer
  * calls this on `content` rather than reading `content.layoutSystem` raw.
+ *
+ * Existing normalized templates set neither `archetype` nor `source.archetype`,
+ * so they fall straight through to the unchanged sector logic below.
  */
 export function resolveLayoutSystem(content: SiteContent): LayoutSystem {
   if (content.layoutSystem) return content.layoutSystem;
+  if (content.archetype || content.source?.archetype) {
+    return ARCHETYPES[resolveArchetype(content)].treatment;
+  }
   const sector = content.source?.sector;
   if (sector === 'tech') return 'signal';
   if (sector === 'hosting') return 'foundation';

@@ -508,8 +508,29 @@ export type SiteMode = 'services' | 'ecommerce';
  *  signal     - confident technical B2B (SaaS / dev tools / consulting)
  *  atelier    - editorial, image-forward (retail, luxury goods)
  *  foundation - dense infra/spec-sheet (hosting, datacenter, network)
+ *  workshop   - trade & local services (sturdy, direct, high-contrast)
  */
-export type LayoutSystem = 'signal' | 'atelier' | 'foundation';
+export type LayoutSystem = 'signal' | 'atelier' | 'foundation' | 'workshop';
+
+/**
+ * High-level site archetype — the "kind of business" a site is, which seeds a
+ * whole composition (page/section blueprint), a default theme, a layout
+ * `treatment` and copy tone. Orthogonal to `themeId` (colour) and to
+ * `layoutSystem` (which, when set, overrides the archetype's `treatment`).
+ *
+ * Kept here as a bare string-literal union (not imported from
+ * `@/site/archetypes/types`) so `schema.ts` stays import-free and no
+ * `schema.ts` <-> `archetypes/types.ts` cycle can form; `types.ts` re-exports
+ * this as the canonical `ArchetypeId`.
+ *
+ *  saas     - product-led software (signal)
+ *  agency   - studios / consultancies (atelier)
+ *  luxury   - high-end retail & goods (atelier)
+ *  services - professional / B2B services (signal)
+ *  store    - general e-commerce (signal)
+ *  local    - trade & local services (workshop)
+ */
+export type ArchetypeId = 'saas' | 'agency' | 'luxury' | 'services' | 'store' | 'local';
 
 export interface SitePage {
   /** Stable key: 'home' | 'about' | 'offerings' | 'contact' | 'policy:privacy' … */
@@ -536,6 +557,13 @@ export interface SiteContent {
   accent?: string;
   /** Structural design language override. Defaults from `source.sector` / `mode` — see `resolveLayoutSystem()`. */
   layoutSystem?: LayoutSystem;
+  /**
+   * Site archetype override. When set (here or on `source.archetype`), it
+   * seeds the layout `treatment` via `resolveLayoutSystem()` and is the key
+   * the composer reads. Unset on every normalized template today, so existing
+   * templates keep their sector-based defaults untouched.
+   */
+  archetype?: ArchetypeId;
   /** Formspree form id; when set the contact form also forwards there. */
   formspreeId?: string;
   /**
@@ -573,12 +601,28 @@ export interface SiteContent {
     ogImage?: string;
   };
 
-  /** Provenance — set by the normalizer, used by the studio + Phase-4 AI. */
+  /** Provenance — set by the normalizer / archetype composer, used by the studio + Phase-4 AI. */
   source?: {
+    /**
+     * Id of the `UniversalTemplate` this site was normalized from. Still set by
+     * every normalized template; the archetype composer will populate it (or a
+     * synthetic id) too. Kept required for now — `normalizeTemplates.ts` and the
+     * harvested-entity / project projections rely on it — and is widened to
+     * optional in the task that retires the normalizer.
+     */
     templateId: string;
+    /** Sector of the source template (normalizer). */
     sector: 'tech' | 'retail' | 'hosting';
+    /** Archetype this site was composed from (archetype system). */
+    archetype?: ArchetypeId;
+    /** Starter content set applied on top of the archetype composition. */
+    starterSetId?: string;
     /** Factory-generated copy that should be personalised before shipping. */
     needsPersonalization: boolean;
+    /** Free-text niche label, e.g. "dental clinic", "boutique roastery". */
+    niche?: string;
+    /** Discovery / filter tags. */
+    tags?: string[];
   };
 }
 

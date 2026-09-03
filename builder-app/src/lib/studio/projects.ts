@@ -6,6 +6,7 @@
 
 import { prisma } from '@/lib/db';
 import type { SiteContent } from '@/site/schema';
+import type { Actor } from '@/lib/session';
 import { getNormalizedTemplate, NORMALIZED_TEMPLATES } from '@/lib/normalizeTemplates';
 
 export interface ProjectSummary {
@@ -56,13 +57,28 @@ function parseContent(raw: string): SiteContent | null {
   }
 }
 
-export async function listProjects(): Promise<ProjectSummary[]> {
-  const rows = await prisma.project.findMany({ orderBy: { updatedAt: 'desc' } });
+/**
+ * Look up a project the actor is allowed to touch. Admins see every project;
+ * everyone else is scoped to the ones they own. Returns `null` both when the id
+ * doesn't exist and when it belongs to someone else — callers must not
+ * distinguish the two.
+ */
+async function findOwnedProject(id: string, actor: Actor) {
+  return prisma.project.findFirst({
+    where: { id, ...(actor.isAdmin ? {} : { ownerId: actor.userId }) },
+  });
+}
+
+export async function listProjects(actor: Actor): Promise<ProjectSummary[]> {
+  const rows = await prisma.project.findMany({
+    where: actor.isAdmin ? {} : { ownerId: actor.userId },
+    orderBy: { updatedAt: 'desc' },
+  });
   return rows.map(toSummary);
 }
 
-export async function getProject(id: string): Promise<ProjectDetail | null> {
-  const p = await prisma.project.findUnique({ where: { id } });
+export async function getProject(id: string, actor: Actor): Promise<ProjectDetail | null> {
+  const p = await findOwnedProject(id, actor);
   if (!p) return null;
   const content = parseContent(p.content);
   if (!content) return null;
@@ -78,12 +94,17 @@ function uniqueName(base: string, existing: Set<string>): string {
 
 export async function createProjectFromTemplate(
   templateId: string,
-  name?: string,
+  name: string | undefined,
+  actor: Actor,
 ): Promise<ProjectDetail> {
   const content = getNormalizedTemplate(templateId);
   if (!content) throw new Error(`Unknown template: ${templateId}`);
 
-  const existing = new Set((await prisma.project.findMany({ select: { name: true } })).map((r) => r.name));
+  const existing = new Set(
+    (await prisma.project.findMany({ where: { ownerId: actor.userId }, select: { name: true } })).map(
+      (r) => r.name,
+    ),
+  );
   const finalName = uniqueName(
     name?.trim() || content.business.name || 'Untitled site',
     existing,
@@ -98,6 +119,7 @@ export async function createProjectFromTemplate(
       domain: null,
       content: JSON.stringify(content),
       status: 'draft',
+      ownerId: actor.userId,
     },
   });
   return { ...toSummary(p), content };
@@ -106,7 +128,10 @@ export async function createProjectFromTemplate(
 export async function updateProject(
   id: string,
   patch: Partial<{ name: string; domain: string | null; content: SiteContent; status: string }>,
+  actor: Actor,
 ): Promise<ProjectDetail | null> {
+  if (!(await findOwnedProject(id, actor))) return null;
+
   const data: Record<string, unknown> = {};
   if (patch.name !== undefined) data.name = patch.name;
   if (patch.domain !== undefined) data.domain = patch.domain;
@@ -121,10 +146,14 @@ export async function updateProject(
   return content ? { ...toSummary(p), content } : null;
 }
 
-export async function duplicateProject(id: string): Promise<ProjectDetail | null> {
-  const src = await prisma.project.findUnique({ where: { id } });
+export async function duplicateProject(id: string, actor: Actor): Promise<ProjectDetail | null> {
+  const src = await findOwnedProject(id, actor);
   if (!src) return null;
-  const existing = new Set((await prisma.project.findMany({ select: { name: true } })).map((r) => r.name));
+  const existing = new Set(
+    (await prisma.project.findMany({ where: { ownerId: actor.userId }, select: { name: true } })).map(
+      (r) => r.name,
+    ),
+  );
   const p = await prisma.project.create({
     data: {
       name: uniqueName(`${src.name} copy`, existing),
@@ -134,14 +163,18 @@ export async function duplicateProject(id: string): Promise<ProjectDetail | null
       domain: null,
       content: src.content,
       status: 'draft',
+      ownerId: actor.userId,
     },
   });
   const content = parseContent(p.content);
   return content ? { ...toSummary(p), content } : null;
 }
 
-export async function deleteProject(id: string): Promise<void> {
+/** Returns `false` when the project doesn't exist or isn't the actor's. */
+export async function deleteProject(id: string, actor: Actor): Promise<boolean> {
+  if (!(await findOwnedProject(id, actor))) return false;
   await prisma.project.delete({ where: { id } });
+  return true;
 }
 
 /** Template catalogue for the "new project" picker. */

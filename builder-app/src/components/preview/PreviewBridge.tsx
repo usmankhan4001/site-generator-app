@@ -4,8 +4,13 @@ import { useEffect } from 'react';
 
 /**
  * Rendered inside the preview (iframe). Bridges section selection between the
- * generated page and the studio workspace:
- *  - click on a `[data-section-id]` element  → postMessage `{ type: 'section:select', id }`
+ * generated page and the studio workspace, and keeps navigation contained:
+ *  - click on an in-app `<a href="/...">` → `e.preventDefault()` + postMessage
+ *    `{ type: 'navigate', path }` so the studio (not the iframe) drives page changes
+ *  - click on an `<a href="#...">` → smooth-scroll to the target in-frame
+ *  - click on an external / `mailto:` / `tel:` link → open in a new tab
+ *  - click on a `[data-section-id]` element (not an anchor/button) → postMessage
+ *    `{ type: 'section:select', id }`
  *  - message `{ type: 'section:scrollTo', id }` from parent → smooth-scroll to it
  *  - message `{ type: 'section:highlight', id }` → outline that section
  */
@@ -23,11 +28,58 @@ export function PreviewBridge() {
     };
 
     const onClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      const anchor = target?.closest?.('a') as HTMLAnchorElement | null;
+
+      if (anchor) {
+        const href = anchor.getAttribute('href');
+        if (!href) {
+          e.preventDefault();
+          return;
+        }
+
+        // In-page anchor → scroll to it inside the frame.
+        if (href.startsWith('#')) {
+          e.preventDefault();
+          if (href.length > 1) {
+            try {
+              document
+                .querySelector(href)
+                ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch {
+              /* invalid selector — ignore */
+            }
+          }
+          return;
+        }
+
+        // External / protocol links → new tab, never navigate the iframe.
+        if (href.startsWith('//') || /^(https?:|mailto:|tel:)/i.test(href)) {
+          e.preventDefault();
+          window.open(href, '_blank', 'noopener');
+          return;
+        }
+
+        // In-app route → let the studio switch the previewed page.
+        if (href.startsWith('/')) {
+          e.preventDefault();
+          const path = href.split(/[?#]/)[0] || '/';
+          window.parent?.postMessage(
+            { source: 'site-preview', type: 'navigate', path },
+            '*',
+          );
+          return;
+        }
+
+        // Anything else (relative paths, unknown schemes) → contain it.
+        e.preventDefault();
+        return;
+      }
+
+      // Non-anchor clicks: keep click-to-select, but leave buttons alone.
+      if (target?.closest?.('button')) return;
       const section = findSection(e.target);
       if (!section) return;
-      // Let real navigation links work; only intercept plain content clicks.
-      const anchor = (e.target as HTMLElement).closest('a,button');
-      if (anchor) return;
       e.preventDefault();
       window.parent?.postMessage(
         { source: 'site-preview', type: 'section:select', id: section.dataset.sectionId },

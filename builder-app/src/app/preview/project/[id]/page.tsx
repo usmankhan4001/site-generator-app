@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import { SiteRenderer } from '@/site/SiteRenderer';
 import { getTheme, themeToStyleObject } from '@/site/themes';
 import { getProject } from '@/lib/studio/projects';
+import { getActor } from '@/lib/session';
 import { PreviewBridge } from '@/components/preview/PreviewBridge';
 
 export const dynamic = 'force-dynamic';
@@ -29,7 +30,10 @@ export default async function ProjectPreviewPage({
   const { id } = await params;
   const { page = '/' } = await searchParams;
 
-  const project = await getProject(id);
+  const actor = await getActor();
+  if (!actor) notFound();
+
+  const project = await getProject(id, actor);
   if (!project) notFound();
 
   const { content } = project;
