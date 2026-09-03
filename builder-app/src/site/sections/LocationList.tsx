@@ -1,5 +1,7 @@
 import { MapPin } from 'lucide-react';
 import type { LocationListProps, SiteContent } from '@/site/schema';
+import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
+import { resolveLayoutSystem } from '@/site/layoutSystems';
 
 /**
  * Locations / facilities. Rich `places` render as address cards; otherwise the
@@ -7,6 +9,7 @@ import type { LocationListProps, SiteContent } from '@/site/schema';
  */
 export default function LocationList({
   props,
+  content,
 }: {
   props: LocationListProps;
   content: SiteContent;
@@ -18,19 +21,14 @@ export default function LocationList({
   return (
     <section className="py-20 md:py-28 border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          {eyebrow ? (
-            <span className="text-xs font-semibold tracking-wider text-primary uppercase">
-              {eyebrow}
-            </span>
-          ) : null}
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mt-2 mb-4 text-foreground">
-            {title ?? 'Locations'}
-          </h2>
-          {description ? (
-            <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-          ) : null}
-        </div>
+        <SectionHeader
+          system={resolveLayoutSystem(content)}
+          eyebrow={eyebrow}
+          title={title ?? 'Locations'}
+          description={description}
+          align="center"
+          className="mb-14"
+        />
 
         {places?.length ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

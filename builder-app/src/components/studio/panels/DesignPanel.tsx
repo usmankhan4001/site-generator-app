@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Check, RotateCcw, Store, Briefcase } from 'lucide-react';
 import { useStudio } from '@/store/studio';
 import { THEMES_LIST, getTheme } from '@/site/themes';
+import { LAYOUT_SYSTEMS, resolveLayoutSystem } from '@/site/layoutSystems';
 import { cn } from '@/lib/utils';
 import { PanelHeader, SectionLabel, FieldShell } from './fields';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ export function DesignPanel() {
   const setTheme = useStudio((s) => s.setTheme);
   const setAccent = useStudio((s) => s.setAccent);
   const setMode = useStudio((s) => s.setMode);
+  const setLayoutSystem = useStudio((s) => s.setLayoutSystem);
   const [accentDraft, setAccentDraft] = useState<string | null>(null);
 
   if (!content) return null;
@@ -49,6 +51,38 @@ export function DesignPanel() {
             onClick={() => setMode('ecommerce')}
           />
         </div>
+      </div>
+
+      <div className="space-y-3">
+        <SectionLabel>Layout system</SectionLabel>
+        <FieldShell hint="Structural composition — headers, card treatment, spacing rhythm. Independent of colour theme.">
+          <div className="space-y-2">
+            {LAYOUT_SYSTEMS.map((sys) => {
+              const active = resolveLayoutSystem(content) === sys.id;
+              return (
+                <button
+                  key={sys.id}
+                  type="button"
+                  onClick={() => setLayoutSystem(content.layoutSystem === sys.id ? undefined : sys.id)}
+                  className={cn(
+                    'flex w-full flex-col items-start gap-0.5 rounded-lg border p-3 text-left transition-colors',
+                    active ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/40',
+                  )}
+                >
+                  <span className="flex items-center gap-2 text-xs font-semibold text-foreground">
+                    {sys.name}
+                    {!content.layoutSystem && active ? (
+                      <span className="rounded-sm bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                        default for this site
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">{sys.description}</span>
+                </button>
+              );
+            })}
+          </div>
+        </FieldShell>
       </div>
 
       <div className="space-y-3">

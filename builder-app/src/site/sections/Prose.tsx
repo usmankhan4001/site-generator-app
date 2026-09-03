@@ -2,6 +2,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { CheckCircle2 } from 'lucide-react';
 import type { ProseProps, SiteContent } from '@/site/schema';
+import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
+import { resolveLayoutSystem } from '@/site/layoutSystems';
 
 /**
  * Narrative section: eyebrow + `<h2>` + a stack of body blocks (each with an
@@ -10,6 +12,7 @@ import type { ProseProps, SiteContent } from '@/site/schema';
  */
 export default function Prose({
   props,
+  content,
 }: {
   props: ProseProps;
   content: SiteContent;
@@ -21,23 +24,12 @@ export default function Prose({
   const body = (
     <div className="space-y-8">
       {(eyebrow || title || description) && (
-        <div>
-          {eyebrow && (
-            <span className="text-xs font-semibold tracking-wider text-primary uppercase">
-              {eyebrow}
-            </span>
-          )}
-          {title && (
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mt-2 mb-4 text-foreground">
-              {title}
-            </h2>
-          )}
-          {description && (
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-              {description}
-            </p>
-          )}
-        </div>
+        <SectionHeader
+          system={resolveLayoutSystem(content)}
+          eyebrow={eyebrow}
+          title={title}
+          description={description}
+        />
       )}
 
       {blocks?.length ? (

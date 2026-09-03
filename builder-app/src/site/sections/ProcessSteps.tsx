@@ -1,4 +1,6 @@
 import type { ProcessStepsProps, SiteContent } from '@/site/schema';
+import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
+import { resolveLayoutSystem } from '@/site/layoutSystems';
 
 const LG_COLS = ['', 'lg:grid-cols-1', 'lg:grid-cols-2', 'lg:grid-cols-3', 'lg:grid-cols-4'];
 
@@ -8,6 +10,7 @@ const LG_COLS = ['', 'lg:grid-cols-1', 'lg:grid-cols-2', 'lg:grid-cols-3', 'lg:g
  */
 export default function ProcessSteps({
   props,
+  content,
 }: {
   props: ProcessStepsProps;
   content: SiteContent;
@@ -21,19 +24,14 @@ export default function ProcessSteps({
   return (
     <section className="py-20 md:py-28 bg-muted/30 border-y border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          {eyebrow ? (
-            <span className="text-xs font-semibold tracking-wider text-primary uppercase">
-              {eyebrow}
-            </span>
-          ) : null}
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mt-2 mb-4 text-foreground">
-            {title ?? 'How We Work'}
-          </h2>
-          {description ? (
-            <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-          ) : null}
-        </div>
+        <SectionHeader
+          system={resolveLayoutSystem(content)}
+          eyebrow={eyebrow}
+          title={title ?? 'How We Work'}
+          description={description}
+          align="center"
+          className="mb-14"
+        />
 
         <ol className={`grid gap-8 ${lgCols}`}>
           {steps.map((s, i) => (

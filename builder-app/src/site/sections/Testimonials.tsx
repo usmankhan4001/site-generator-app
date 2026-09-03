@@ -1,6 +1,8 @@
 import { Star } from 'lucide-react';
 import type { TestimonialsProps, SiteContent } from '@/site/schema';
 import { cn } from '@/site/lib/cn';
+import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
+import { resolveLayoutSystem } from '@/site/layoutSystems';
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -21,6 +23,7 @@ function layoutClass(count: number): string {
  */
 export default function Testimonials({
   props,
+  content,
 }: {
   props: TestimonialsProps;
   content: SiteContent;
@@ -37,15 +40,14 @@ export default function Testimonials({
   return (
     <section id="testimonials" className="py-20 md:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs font-semibold tracking-wider text-primary uppercase">{eyebrow}</span>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mt-2 mb-4 text-foreground">
-            {title}
-          </h2>
-          {description && (
-            <p className="text-muted-foreground text-base leading-relaxed">{description}</p>
-          )}
-        </div>
+        <SectionHeader
+          system={resolveLayoutSystem(content)}
+          eyebrow={eyebrow}
+          title={title}
+          description={description}
+          align="center"
+          className="mb-16"
+        />
 
         <div className={cn('grid grid-cols-1 gap-8', layoutClass(items.length))}>
           {items.map((t, idx) => {

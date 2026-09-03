@@ -1,4 +1,6 @@
 import type { TimelineProps, SiteContent } from '@/site/schema';
+import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
+import { resolveLayoutSystem } from '@/site/layoutSystems';
 
 /**
  * Vertical timeline of milestones — a left rail with dots, `.card-elevated`
@@ -6,6 +8,7 @@ import type { TimelineProps, SiteContent } from '@/site/schema';
  */
 export default function Timeline({
   props,
+  content,
 }: {
   props: TimelineProps;
   content: SiteContent;
@@ -17,19 +20,14 @@ export default function Timeline({
   return (
     <section className="py-20 md:py-28 bg-muted/30 border-y border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          {eyebrow ? (
-            <span className="text-xs font-semibold tracking-wider text-primary uppercase">
-              {eyebrow}
-            </span>
-          ) : null}
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mt-2 mb-4 text-foreground">
-            {title ?? 'Our Journey'}
-          </h2>
-          {description ? (
-            <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-          ) : null}
-        </div>
+        <SectionHeader
+          system={resolveLayoutSystem(content)}
+          eyebrow={eyebrow}
+          title={title ?? 'Our Journey'}
+          description={description}
+          align="center"
+          className="mb-14"
+        />
 
         <div className="relative max-w-3xl mx-auto">
           <div

@@ -41,7 +41,7 @@ export default function Hero({ props }: { props: HeroProps; content: SiteContent
 
   const badgePill = badge ? (
     <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent text-accent-foreground text-xs font-semibold border border-border shadow-xs">
-      <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
       <span>{badge}</span>
     </div>
   ) : null;
@@ -77,14 +77,13 @@ export default function Hero({ props }: { props: HeroProps; content: SiteContent
 
             <div className="lg:col-span-5">
               {image && (
-                <div className="relative rounded-2xl overflow-hidden border border-border/80 shadow-2xl bg-card group">
+                <div className="relative rounded-xl overflow-hidden border border-border bg-card">
                   <img
                     src={image}
                     alt={headline}
-                    className="w-full h-auto aspect-4/3 object-cover object-center group-hover:scale-[1.02] transition-transform duration-500"
+                    className="w-full h-auto aspect-4/3 object-cover object-center"
                     loading="eager"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-transparent to-transparent pointer-events-none" />
                 </div>
               )}
             </div>
@@ -120,14 +119,13 @@ export default function Hero({ props }: { props: HeroProps; content: SiteContent
         </div>
 
         {image && (
-          <div className="mt-12 md:mt-16 rounded-2xl overflow-hidden border border-border/80 shadow-2xl relative bg-card max-w-5xl mx-auto">
+          <div className="mt-12 md:mt-16 rounded-xl overflow-hidden border border-border bg-card max-w-5xl mx-auto">
             <img
               src={image}
               alt={headline}
               className="w-full h-auto max-h-[540px] object-cover object-center"
               loading="eager"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent pointer-events-none" />
           </div>
         )}
       </div>

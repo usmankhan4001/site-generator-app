@@ -71,6 +71,7 @@ interface StudioState {
   setTheme: (themeId: string) => void;
   setAccent: (accent: string | undefined) => void;
   setMode: (mode: SiteContent['mode']) => void;
+  setLayoutSystem: (layoutSystem: SiteContent['layoutSystem']) => void;
   updateBusiness: (patch: Partial<SiteContent['business']>) => void;
   updateMeta: (patch: Partial<SiteContent['meta']>) => void;
   setFormspreeId: (id: string | undefined) => void;
@@ -253,6 +254,7 @@ export const useStudio = create<StudioState>((set, get) => ({
   setTheme: (themeId) => get().mutate((d) => { d.themeId = themeId; }),
   setAccent: (accent) => get().mutate((d) => { d.accent = accent || undefined; }),
   setMode: (mode) => get().mutate((d) => { d.mode = mode; }),
+  setLayoutSystem: (layoutSystem) => get().mutate((d) => { d.layoutSystem = layoutSystem || undefined; }),
   updateBusiness: (patch) => get().mutate((d) => { Object.assign(d.business, patch); }),
   updateMeta: (patch) => get().mutate((d) => { Object.assign(d.meta, patch); }),
   setFormspreeId: (id) => get().mutate((d) => { d.formspreeId = id || undefined; }),

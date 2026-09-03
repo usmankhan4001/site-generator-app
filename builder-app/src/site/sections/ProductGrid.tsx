@@ -5,6 +5,8 @@ import { Button } from '@/site/ui/button';
 import { Separator } from '@/site/ui/separator';
 import { formatPrice } from '@/site/lib/format';
 import { cn } from '@/site/lib/cn';
+import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
+import { resolveLayoutSystem } from '@/site/layoutSystems';
 
 function priceLabel(item: CatalogItem, sectionCurrency: string | undefined, fallbackUnit?: string) {
   if (item.price === 0) return 'Custom';
@@ -44,6 +46,7 @@ function Stars({ rating, count }: { rating?: number; count?: number }) {
  */
 export default function ProductGrid({
   props,
+  content,
 }: {
   props: ProductGridProps;
   content: SiteContent;
@@ -64,19 +67,14 @@ export default function ProductGrid({
   return (
     <section id="catalog" className="py-20 md:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          {eyebrow && (
-            <span className="text-xs font-semibold tracking-wider text-primary uppercase">
-              {eyebrow}
-            </span>
-          )}
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mt-2 mb-4 text-foreground">
-            {title}
-          </h2>
-          {description && (
-            <p className="text-muted-foreground text-base leading-relaxed">{description}</p>
-          )}
-        </div>
+        <SectionHeader
+          system={resolveLayoutSystem(content)}
+          eyebrow={eyebrow}
+          title={title}
+          description={description}
+          align="center"
+          className="mb-12"
+        />
 
         {categories?.length ? (
           <div className="flex flex-wrap justify-center gap-2 mb-10">
@@ -101,14 +99,14 @@ export default function ProductGrid({
                 key={item.id}
                 className={cn(
                   'card-elevated flex flex-col rounded-xl border bg-card',
-                  item.popular ? 'ring-2 ring-primary shadow-xl border-primary/40' : 'border-border/80',
+                  item.popular ? 'border-primary' : 'border-border/80',
                 )}
               >
                 <div className="p-6 pb-4">
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="text-lg font-bold text-foreground">{item.name}</h3>
                     {item.popular && (
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary text-primary-foreground">
+                      <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-primary text-primary-foreground">
                         Popular
                       </span>
                     )}

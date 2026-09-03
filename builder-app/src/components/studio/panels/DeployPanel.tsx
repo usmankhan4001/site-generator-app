@@ -1,6 +1,6 @@
 'use client';
 
-import { Rocket, Lock, Github, Server } from 'lucide-react';
+import { Rocket, Lock, Github, Server, Download, FolderArchive } from 'lucide-react';
 import { useStudio } from '@/store/studio';
 import { PanelHeader, SectionLabel, FieldShell } from './fields';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 /**
  * Phase 3 stub. The deploy pipeline (GitHub repo + Dokploy provisioning) needs
  * real credentials that aren't wired up yet — this panel is honest about that
- * rather than faking a deploy.
+ * rather than faking a deploy. Export needs no credentials, so it's live.
  */
 export function DeployPanel() {
   const content = useStudio((s) => s.content);
@@ -49,6 +49,24 @@ export function DeployPanel() {
         <Rocket className="h-4 w-4" />
         Deploy site
       </Button>
+
+      <div className="space-y-3 border-t border-border pt-5">
+        <SectionLabel>Self-host it yourself</SectionLabel>
+        <div className="flex gap-2.5 rounded-lg border border-border bg-card p-3 text-xs text-muted-foreground">
+          <FolderArchive className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <p>
+            Don&apos;t want to use our hosting? Export the full Next.js source — with this
+            site&apos;s content, theme, and pages already baked in — and deploy it wherever
+            you like.
+          </p>
+        </div>
+        <Button asChild variant="outline" className="w-full">
+          <a href={`/api/projects/${meta.id}/export`} download>
+            <Download className="h-4 w-4" />
+            Export source (.zip)
+          </a>
+        </Button>
+      </div>
     </div>
   );
 }

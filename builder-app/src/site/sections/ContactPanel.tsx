@@ -17,6 +17,8 @@ import { Input } from '@/site/ui/input';
 import { Textarea } from '@/site/ui/textarea';
 import { cn } from '@/site/lib/cn';
 import type { ContactPanelProps, SiteContent } from '@/site/schema';
+import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
+import { resolveLayoutSystem } from '@/site/layoutSystems';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
@@ -121,17 +123,12 @@ export default function ContactPanel({
         >
           {showDetails && (
             <div className="space-y-6">
-              <div>
-                <span className="text-xs font-semibold tracking-wider text-primary uppercase">
-                  {eyebrow}
-                </span>
-                <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mt-2 mb-3 text-foreground">
-                  {title}
-                </h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {description}
-                </p>
-              </div>
+              <SectionHeader
+                system={resolveLayoutSystem(content)}
+                eyebrow={eyebrow}
+                title={title}
+                description={description}
+              />
 
               <div className="space-y-4 pt-2">
                 <div className="flex items-start gap-3.5 p-3.5 rounded-xl bg-muted/30 border border-border/60">

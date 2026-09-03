@@ -5,6 +5,8 @@ import { Button } from '@/site/ui/button';
 import { Separator } from '@/site/ui/separator';
 import { formatPrice } from '@/site/lib/format';
 import { cn } from '@/site/lib/cn';
+import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
+import { resolveLayoutSystem } from '@/site/layoutSystems';
 
 /** Grid column class that adapts to 1–4 tiers. */
 function gridColsClass(count: number): string {
@@ -26,6 +28,7 @@ function gridColsClass(count: number): string {
  */
 export default function PricingTiers({
   props,
+  content,
 }: {
   props: PricingTiersProps;
   content: SiteContent;
@@ -46,13 +49,14 @@ export default function PricingTiers({
   return (
     <section id="offerings" className="py-20 md:py-28 bg-muted/30 border-y border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs font-semibold tracking-wider text-primary uppercase">{eyebrow}</span>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mt-2 mb-4 text-foreground">
-            {title}
-          </h2>
-          <p className="text-muted-foreground text-base leading-relaxed">{description}</p>
-        </div>
+        <SectionHeader
+          system={resolveLayoutSystem(content)}
+          eyebrow={eyebrow}
+          title={title}
+          description={description}
+          align="center"
+          className="mb-16"
+        />
 
         <div className={cn('grid grid-cols-1 gap-8 items-stretch', gridColsClass(tiers.length))}>
           {tiers.map((tier) => {
@@ -67,23 +71,21 @@ export default function PricingTiers({
               <div
                 key={tier.id}
                 className={cn(
-                  'card-elevated flex flex-col justify-between relative rounded-xl border bg-card transition-all duration-300',
-                  tier.popular
-                    ? 'ring-2 ring-primary shadow-xl md:-translate-y-1 border-primary/40'
-                    : 'border-border/80',
+                  'card-elevated flex flex-col justify-between relative rounded-xl border bg-card',
+                  tier.popular ? 'border-primary' : 'border-border/80',
                 )}
               >
                 {tier.popular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-primary text-primary-foreground shadow-md flex items-center gap-1">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="px-3 py-0.5 rounded-md text-xs font-bold bg-primary text-primary-foreground flex items-center gap-1">
                       <Zap className="h-3 w-3 fill-current" />
                       <span>Most Popular</span>
                     </span>
                   </div>
                 )}
                 {tier.badge && !tier.popular && (
-                  <div className="absolute -top-3.5 right-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-accent text-accent-foreground border border-border shadow-sm">
+                  <div className="absolute -top-3 right-4">
+                    <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-accent text-accent-foreground border border-border">
                       {tier.badge}
                     </span>
                   </div>

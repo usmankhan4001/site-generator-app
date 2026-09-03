@@ -1,4 +1,6 @@
 import type { TeamGridProps, SiteContent } from '@/site/schema';
+import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
+import { resolveLayoutSystem } from '@/site/layoutSystems';
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -13,6 +15,7 @@ function initials(name: string): string {
  */
 export default function TeamGrid({
   props,
+  content,
 }: {
   props: TeamGridProps;
   content: SiteContent;
@@ -31,19 +34,14 @@ export default function TeamGrid({
   return (
     <section className="py-20 md:py-28 border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          {eyebrow ? (
-            <span className="text-xs font-semibold tracking-wider text-primary uppercase">
-              {eyebrow}
-            </span>
-          ) : null}
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mt-2 mb-4 text-foreground">
-            {title ?? 'Executive Leadership'}
-          </h2>
-          {description ? (
-            <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-          ) : null}
-        </div>
+        <SectionHeader
+          system={resolveLayoutSystem(content)}
+          eyebrow={eyebrow}
+          title={title ?? 'Executive Leadership'}
+          description={description}
+          align="center"
+          className="mb-14"
+        />
 
         <div className={`grid gap-8 sm:grid-cols-2 ${lgCols}`}>
           {members.map((m, i) => (

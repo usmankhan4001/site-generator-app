@@ -1,6 +1,8 @@
 import { Building2 } from 'lucide-react';
 import { cn } from '@/site/lib/cn';
 import type { CorporateRegistrationProps, SiteContent } from '@/site/schema';
+import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
+import { resolveLayoutSystem } from '@/site/layoutSystems';
 
 /**
  * "Statutory Entity Profile" panel ported from the template about page — a
@@ -42,21 +44,14 @@ export default function CorporateRegistration({
   return (
     <section className="py-20 md:py-28 border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          {props.eyebrow ? (
-            <span className="text-xs font-semibold tracking-wider text-primary uppercase">
-              {props.eyebrow}
-            </span>
-          ) : null}
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mt-2 mb-4 text-foreground">
-            {props.title ?? 'Statutory Entity Profile'}
-          </h2>
-          {props.description ? (
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {props.description}
-            </p>
-          ) : null}
-        </div>
+        <SectionHeader
+          system={resolveLayoutSystem(content)}
+          eyebrow={props.eyebrow}
+          title={props.title ?? 'Statutory Entity Profile'}
+          description={props.description}
+          align="center"
+          className="mb-14"
+        />
 
         <div className="card-elevated rounded-2xl p-8 border border-border bg-card space-y-6 max-w-2xl mx-auto">
           <div className="flex items-center gap-3">

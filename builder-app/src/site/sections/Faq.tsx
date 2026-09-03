@@ -8,11 +8,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/site/ui/accordion';
+import { SectionHeader } from '@/site/sections/_shared/SectionHeader';
+import { resolveLayoutSystem } from '@/site/layoutSystems';
 
 /**
  * Faq — Radix single-collapsible accordion. Client component (accordion state).
  */
-export default function Faq({ props }: { props: FaqProps; content: SiteContent }) {
+export default function Faq({ props, content }: { props: FaqProps; content: SiteContent }) {
   if (!props.items?.length) return null;
 
   const {
@@ -25,13 +27,14 @@ export default function Faq({ props }: { props: FaqProps; content: SiteContent }
   return (
     <section id="faq" className="py-20 md:py-28 bg-muted/20 border-t border-border">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <span className="text-xs font-semibold tracking-wider text-primary uppercase">{eyebrow}</span>
-          <h2 className="text-3xl font-bold tracking-tight mt-2 text-foreground">{title}</h2>
-          {description && (
-            <p className="text-muted-foreground text-base leading-relaxed mt-3">{description}</p>
-          )}
-        </div>
+        <SectionHeader
+          system={resolveLayoutSystem(content)}
+          eyebrow={eyebrow}
+          title={title}
+          description={description}
+          align="center"
+          className="mb-12"
+        />
 
         <div className="card-elevated rounded-xl bg-card border border-border/80 p-4 sm:p-6 shadow-sm">
           <Accordion type="single" collapsible className="w-full space-y-2">

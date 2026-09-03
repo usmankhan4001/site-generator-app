@@ -475,6 +475,20 @@ export type AnySectionProps =
 
 export type SiteMode = 'services' | 'ecommerce';
 
+/**
+ * Structural design language — NOT color. Themes (`src/site/themes.ts`) only
+ * ever change color/font/radius tokens; `layoutSystem` changes composition:
+ * header alignment, card treatment, type pairing, signature motif. Every
+ * section renderer reads this (via `resolveLayoutSystem`) and branches its
+ * JSX structure, so two sites on the same theme but different systems look
+ * meaningfully different, and the same system holds across every theme.
+ *
+ *  signal     - confident technical B2B (SaaS / dev tools / consulting)
+ *  atelier    - editorial, image-forward (retail, luxury goods)
+ *  foundation - dense infra/spec-sheet (hosting, datacenter, network)
+ */
+export type LayoutSystem = 'signal' | 'atelier' | 'foundation';
+
 export interface SitePage {
   /** Stable key: 'home' | 'about' | 'offerings' | 'contact' | 'policy:privacy' … */
   key: string;
@@ -498,6 +512,8 @@ export interface SiteContent {
   themeId: string;
   /** Optional primary-colour override (hex or oklch(...)). */
   accent?: string;
+  /** Structural design language override. Defaults from `source.sector` / `mode` — see `resolveLayoutSystem()`. */
+  layoutSystem?: LayoutSystem;
   /** Formspree form id; when set the contact form also forwards there. */
   formspreeId?: string;
 
