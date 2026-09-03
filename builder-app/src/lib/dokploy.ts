@@ -1548,18 +1548,20 @@ export class DokployClient {
     }
 
     if (!baseReachable) {
-      onLog(`Edge probe note: Direct external ping to ${baseUrl} did not resolve yet (DNS/Cloudflare edge caching in progress).`, 'info');
-      onLog(`Dokploy container is initialized and healthy on internal network.`, 'success');
+      // Do NOT fabricate success here — this branch previously invented HTTP 200s
+      // for every route when the base probe never got a real response. Report the
+      // honest failure instead; the caller decides whether to keep polling.
+      onLog(`❌ Could not reach ${baseUrl}/ after ${maxRetries} attempts (DNS/TLS may still be propagating).`, 'error');
       for (const route of routes) {
         if (!verifiedRoutes[route]) {
-          verifiedRoutes[route] = { ok: true, status: 200, durationMs: 25 };
+          verifiedRoutes[route] = { ok: false, status: 0, durationMs: 0, error: 'Unreachable — base route never responded' };
         }
       }
       return {
-        verified: true,
+        verified: false,
         baseUrl,
         verifiedRoutes,
-        allOk: true,
+        allOk: false,
       };
     }
 
@@ -1598,9 +1600,13 @@ export class DokployClient {
       }
     }
 
-    onLog(`All multi-page routes verified live HTTP 200 OK for ${baseUrl}!`, 'success');
+    if (allOk) {
+      onLog(`All multi-page routes verified live HTTP 200 OK for ${baseUrl}!`, 'success');
+    } else {
+      onLog(`⚠️ ${baseUrl} is live, but one or more routes did not verify — see verifiedRoutes.`, 'warn');
+    }
     return {
-      verified: true,
+      verified: true, // base route confirmed reachable; check `allOk` for per-route status
       baseUrl,
       verifiedRoutes,
       allOk,
