@@ -132,9 +132,9 @@ function WorkspaceSkeleton() {
         <div className="ml-auto h-7 w-24 animate-pulse rounded bg-muted" />
       </div>
       <div className="flex min-h-0 flex-1">
-        <div className="flex w-14 shrink-0 flex-col items-center gap-3 border-r border-border bg-card py-4">
+        <div className="flex w-56 shrink-0 flex-col gap-2 border-r border-border bg-card p-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-9 w-9 animate-pulse rounded-lg bg-muted" />
+            <div key={i} className="h-12 w-full animate-pulse rounded-lg bg-muted" />
           ))}
         </div>
         <div className="hidden w-[380px] shrink-0 flex-col gap-4 border-r border-border bg-card p-4 lg:flex">

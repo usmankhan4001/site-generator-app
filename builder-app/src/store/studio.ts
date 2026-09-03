@@ -43,6 +43,8 @@ interface StudioState {
 
   // --- ui
   step: StudioStep;
+  /** Steps the user has visited this session — drives the step rail's "done" dots. */
+  visitedSteps: StudioStep[];
   activePagePath: string;
   selectedSectionId: string | null;
   device: PreviewDevice;
@@ -159,6 +161,7 @@ export const useStudio = create<StudioState>((set, get) => ({
   meta: null,
   content: null,
   step: 'company',
+  visitedSteps: ['template', 'company'],
   activePagePath: '/',
   selectedSectionId: null,
   device: 'desktop',
@@ -200,7 +203,8 @@ export const useStudio = create<StudioState>((set, get) => ({
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = null;
     set({
-      meta: null, content: null, step: 'company', activePagePath: '/',
+      meta: null, content: null, step: 'company', visitedSteps: ['template', 'company'],
+      activePagePath: '/',
       selectedSectionId: null, device: 'desktop', loading: false, dirty: false,
       saving: false, lastSavedAt: null, error: null, previewNonce: 0,
     });
@@ -233,7 +237,11 @@ export const useStudio = create<StudioState>((set, get) => ({
     }
   },
 
-  setStep: (step) => set({ step }),
+  setStep: (step) =>
+    set((s) => ({
+      step,
+      visitedSteps: s.visitedSteps.includes(step) ? s.visitedSteps : [...s.visitedSteps, step],
+    })),
   setActivePage: (activePagePath) => set({ activePagePath, selectedSectionId: null }),
   selectSection: (selectedSectionId) => set({ selectedSectionId }),
   setDevice: (device) => set({ device }),

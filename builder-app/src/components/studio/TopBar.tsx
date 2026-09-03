@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, Loader2, Check, Pencil, TriangleAlert, Rocket } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { ChevronLeft, Loader2, Check, Pencil, TriangleAlert, Rocket, Sun, Moon } from 'lucide-react';
 import { useStudio } from '@/store/studio';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +37,10 @@ export function TopBar() {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
+
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(name);
@@ -102,6 +107,19 @@ export function TopBar() {
           onRetry={() => void saveNow()}
         />
       </div>
+
+      {mounted && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0 text-muted-foreground"
+          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+          aria-label={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {resolvedTheme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </Button>
+      )}
 
       <Button size="sm" onClick={() => setStep('deploy')} className="shrink-0">
         <Rocket className="h-4 w-4" />

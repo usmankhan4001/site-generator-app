@@ -2,12 +2,16 @@
 @import "../site/site-kit.css";
 
 /*
-  Studio shell theme — the builder-app UI itself (dark "obsidian").
+  Studio shell theme — the builder-app UI itself. Light is the default (matches
+  mainstream builder products — Wix/Framer/Squarespace all default light); dark
+  is opt-in via the `.dark` class on <html>, toggled by next-themes.
   Generated sites get their own scoped theme via <SiteRenderer> / themeToCssVars();
   nothing here leaks into the preview iframe.
   The site-kit utility classes (.card-elevated, .dot-pill) are imported above so
   the live preview renders identically to a generated site.
 */
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --color-background: var(--background);
@@ -39,6 +43,28 @@
 
 :root {
   --radius: 0.625rem;
+  --background: oklch(0.995 0.002 260);
+  --foreground: oklch(0.19 0.015 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.19 0.015 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.19 0.015 260);
+  --primary: oklch(0.55 0.19 264);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.006 260);
+  --secondary-foreground: oklch(0.19 0.015 260);
+  --muted: oklch(0.96 0.006 260);
+  --muted-foreground: oklch(0.48 0.015 260);
+  --accent: oklch(0.94 0.02 264);
+  --accent-foreground: oklch(0.25 0.05 264);
+  --destructive: oklch(0.58 0.24 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.90 0.006 260);
+  --input: oklch(0.90 0.006 260);
+  --ring: oklch(0.55 0.19 264);
+}
+
+.dark {
   --background: oklch(0.11 0.015 260);
   --foreground: oklch(0.98 0 0);
   --card: oklch(0.15 0.018 260);
@@ -73,13 +99,20 @@
 
 /* Canvas backdrop behind the live preview */
 .studio-canvas {
+  background-color: oklch(0.965 0.004 260);
+  background-image: radial-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.dark .studio-canvas {
   background-color: oklch(0.09 0.012 260);
   background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 22px 22px;
 }
 
 /* Sleek scrollbars for studio panels */
 .thin-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
 .thin-scroll::-webkit-scrollbar-track { background: transparent; }
-.thin-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 9999px; }
-.thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+.thin-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 9999px; }
+.thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+.dark .thin-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
+.dark .thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
