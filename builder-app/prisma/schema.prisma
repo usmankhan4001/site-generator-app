@@ -4,54 +4,42 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
 
+/// A site the operator is building. `content` is a JSON-serialized SiteContent
+/// (see src/site/schema.ts) — the single source of truth for the generated site.
 model Project {
-  id           String       @id @default(cuid())
-  name         String
-  domain       String?
-  legalEntity  String?
-  regNumber    String?
-  address      String?
-  email        String?
-  phone        String?
-  governingLaw String?
-  archetypeId  String?
-  themeId      String?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id          String       @id @default(cuid())
+  name        String
+  templateId  String?
+  mode        String       @default("services") // 'services' | 'ecommerce'
+  themeId     String       @default("indigo-enterprise")
+  domain      String?
+  content     String        @default("{}") // JSON string of SiteContent
+  status      String        @default("draft") // draft | deploying | live | error
+  repoUrl     String?
+  liveUrl     String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
-  pages        Page[]
-  deployments  Deployment[]
+  deployments Deployment[]
 }
 
-model Page {
-  id          String   @id @default(cuid())
-  projectId   String?
-  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  route       String   @unique
-  title       String?
-  puckData    String   @default("{}") // JSON string
-  data        String?  // JSON string mirror
-  isPublished Boolean  @default(false)
-  updatedAt   DateTime @updatedAt
-  createdAt   DateTime @default(now())
-}
-
+/// One deploy attempt for a project.
 model Deployment {
-  id           String   @id @default(cuid())
-  projectId    String
-  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  dokployAppId String?
-  githubRepo   String?
-  liveUrl      String?
-  status       String   @default("pending")
-  logs         String?  // JSON string
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id         String   @id @default(cuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status     String   @default("pending") // pending | running | success | error
+  logs       String   @default("[]") // JSON array of log lines
+  repoUrl    String?
+  liveUrl    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
+/// Studio-level key/value config (GitHub token, OpenRouter key, Dokploy host/key…).
 model Setting {
   key       String   @id
   value     String
