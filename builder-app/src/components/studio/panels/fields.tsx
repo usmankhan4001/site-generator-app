@@ -45,19 +45,19 @@ export function FieldShell({
       {label ? (
         <label
           htmlFor={htmlFor}
-          className="block text-xs font-medium text-foreground"
+          className="block text-[13px] font-medium text-foreground"
         >
           {label}
         </label>
       ) : null}
       {children}
-      {hint ? <p className="text-[11px] leading-snug text-muted-foreground">{hint}</p> : null}
+      {hint ? <p className="text-xs leading-snug text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }
 
 const selectClass =
-  'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]';
+  'flex h-9 w-full rounded-md border border-input bg-card px-3 py-1 text-sm text-foreground shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]';
 
 /* ------------------------------------------------------------------ inputs -- */
 
@@ -996,16 +996,16 @@ export function IconBtn({
 
 export function PanelHeader({ title, hint }: { title: string; hint?: string }) {
   return (
-    <div className="space-y-0.5 border-b border-border pb-3">
-      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
+    <div className="space-y-1 border-b border-border pb-4">
+      <h2 className="text-base font-semibold tracking-tight text-foreground">{title}</h2>
+      {hint ? <p className="text-[13px] leading-snug text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="pt-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+    <div className="pt-1 text-xs font-semibold uppercase tracking-wide text-foreground/70">
       {children}
     </div>
   );

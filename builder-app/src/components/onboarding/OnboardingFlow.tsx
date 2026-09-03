@@ -76,7 +76,11 @@ export function OnboardingFlow({ firstName }: { firstName?: string }) {
         throw new Error(json.error || 'Failed to save onboarding answers.');
       }
 
-      router.push('/');
+      // Hand the just-submitted niche + mode to the dashboard so it can open
+      // "New Site" straight at Step 2 instead of re-asking what this site is for.
+      const params = new URLSearchParams({ newProject: '1', niche: data.niche });
+      if (data.preferredMode) params.set('mode', data.preferredMode);
+      router.push(`/?${params.toString()}`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred.');

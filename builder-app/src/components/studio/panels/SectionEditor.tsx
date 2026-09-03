@@ -1,6 +1,7 @@
 'use client';
 
 import { useStudio } from '@/store/studio';
+import { resolveLogoUrl } from '@/site/lib/logo';
 import type {
   Section,
   HeroProps,
@@ -184,11 +185,13 @@ function StatsBarEditor({ props, patch }: { props: StatsBarProps; patch: (p: Par
 /* -------------------------------------------------------------- trust bar -- */
 
 function TrustBarEditor({ props, patch }: { props: TrustBarProps; patch: (p: Partial<TrustBarProps>) => void }) {
+  const variant = props.variant ?? 'pills';
+
   return (
     <>
       <SelectField
         label="Style"
-        value={props.variant ?? 'pills'}
+        value={variant}
         onChange={(v) => patch({ variant: v })}
         options={[
           { value: 'pills', label: 'Text pills' },
@@ -196,12 +199,59 @@ function TrustBarEditor({ props, patch }: { props: TrustBarProps; patch: (p: Par
         ]}
       />
       <TextField label="Title" value={props.title} onChange={(v) => patch({ title: v || undefined })} />
-      <StringListField
-        label="Items"
-        items={props.items}
-        onChange={(v) => patch({ items: v })}
-        placeholder="AWS & GCP Certified"
-      />
+
+      {variant === 'logos' ? (
+        <ListField<Extract<TrustBarProps['items'][number], { name: string }>>
+          label="Companies"
+          hint="Enter the company name and its website domain (e.g. stripe.com) — the real logo is fetched live. Leave domain blank to show the name as text instead."
+          items={props.items.map((it) => (typeof it === 'string' ? { name: it } : it))}
+          onChange={(v) => patch({ items: v })}
+          newItem={() => ({ name: 'Company name', domain: '' })}
+          itemTitle={(item) => item.name}
+          addLabel="Add company"
+          renderItem={(item, update) => (
+            <div className="space-y-3 p-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-background">
+                  {item.domain ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={resolveLogoUrl(item.domain)}
+                      alt=""
+                      className="h-6 w-6 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.visibility = 'hidden';
+                      }}
+                    />
+                  ) : (
+                    <span className="text-[10px] text-muted-foreground">No logo</span>
+                  )}
+                </div>
+                <TextField
+                  label="Company name"
+                  value={item.name}
+                  onChange={(v) => update({ name: v })}
+                  placeholder="Stripe"
+                />
+              </div>
+              <TextField
+                label="Website domain"
+                value={item.domain}
+                onChange={(v) => update({ domain: v })}
+                placeholder="stripe.com"
+                hint="Just the domain, no https:// — used to fetch the real logo."
+              />
+            </div>
+          )}
+        />
+      ) : (
+        <StringListField
+          label="Items"
+          items={props.items.map((it) => (typeof it === 'string' ? it : it.name))}
+          onChange={(v) => patch({ items: v })}
+          placeholder="AWS & GCP Certified"
+        />
+      )}
     </>
   );
 }

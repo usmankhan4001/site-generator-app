@@ -66,38 +66,50 @@ function applyToSection(
   const p = section.props as Record<string, unknown>;
   switch (section.type) {
     case 'hero': {
-      if (p.image) p.image = fns.nextHero() ?? p.image;
+      if (p.image === 'seed' || !p.image) {
+        p.image = fns.nextHero() ?? p.image;
+      }
       break;
     }
     case 'featureGrid': {
       const items = p.items as { image?: string }[] | undefined;
       items?.forEach((it) => {
-        if (it.image) it.image = fns.nextFeature() ?? it.image;
+        if (!it.image || it.image === 'seed') {
+          it.image = fns.nextFeature() ?? it.image;
+        }
       });
       break;
     }
     case 'prose': {
-      if (p.image) p.image = fns.nextFeature() ?? p.image;
+      if (p.image === 'seed' || !p.image) {
+        p.image = fns.nextFeature() ?? p.image;
+      }
       break;
     }
     case 'productGrid': {
       const items = p.items as { image?: string }[] | undefined;
       items?.forEach((it) => {
-        if (it.image) it.image = fns.nextProduct() ?? it.image;
+        if (!it.image || it.image === 'seed') {
+          it.image = fns.nextProduct() ?? it.image;
+        }
       });
       break;
     }
     case 'testimonials': {
       const items = p.items as { avatar?: string }[] | undefined;
       items?.forEach((it) => {
-        if (it.avatar) it.avatar = fns.nextAvatar() ?? it.avatar;
+        if (!it.avatar || it.avatar === 'seed') {
+          it.avatar = fns.nextAvatar() ?? it.avatar;
+        }
       });
       break;
     }
     case 'teamGrid': {
       const members = p.members as { avatar?: string }[] | undefined;
       members?.forEach((m) => {
-        if (m.avatar) m.avatar = fns.nextAvatar() ?? m.avatar;
+        if (!m.avatar || m.avatar === 'seed') {
+          m.avatar = fns.nextAvatar() ?? m.avatar;
+        }
       });
       break;
     }

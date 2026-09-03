@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   AlertCircle,
   FolderGit2,
@@ -23,15 +24,43 @@ import {
 } from '@/components/ui/dialog';
 import { NewProjectDialog, type TemplateOption } from './NewProjectDialog';
 import { ProjectCard } from './ProjectCard';
+import type { PreferredMode } from '@/components/onboarding/types';
 
 export function DashboardClient({ templates }: { templates: TemplateOption[] }) {
+  const router = useRouter();
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [newOpen, setNewOpen] = useState(false);
+  const [newProjectSeed, setNewProjectSeed] = useState<{
+    niche: string;
+    mode?: PreferredMode;
+  } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ProjectSummary | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  // Auto-open "New Site" at Step 2 right after onboarding hands off a niche match,
+  // e.g. `/?newProject=1&niche=...&mode=services`. Read via window.location (not
+  // useSearchParams) so this needs no Suspense boundary around the dashboard page.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('newProject') !== '1') return;
+    const niche = params.get('niche') ?? '';
+    const modeParam = params.get('mode');
+    const mode: PreferredMode | undefined =
+      modeParam === 'ecommerce' || modeParam === 'services' ? modeParam : undefined;
+    if (niche) {
+      setNewProjectSeed({ niche, mode });
+      setNewOpen(true);
+    }
+    router.replace('/', { scroll: false });
+  }, [router]);
+
+  const handleNewOpenChange = useCallback((next: boolean) => {
+    setNewOpen(next);
+    if (!next) setNewProjectSeed(null);
+  }, []);
 
   const load = useCallback(async () => {
     setError(null);
@@ -226,7 +255,10 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
       <NewProjectDialog
         templates={templates}
         open={newOpen}
-        onOpenChange={setNewOpen}
+        onOpenChange={handleNewOpenChange}
+        skipToStep2={newProjectSeed !== null}
+        initialNiche={newProjectSeed?.niche}
+        initialMode={newProjectSeed?.mode}
       />
 
       {/* Delete Confirmation Dialog */}

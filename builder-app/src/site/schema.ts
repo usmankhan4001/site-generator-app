@@ -295,11 +295,19 @@ export interface StatsBarProps {
   items: StatItem[];
 }
 
+/**
+ * A trust-bar entry. A plain string renders as a text chip/wordmark (no
+ * network fetch). An object with `domain` renders a real company logo,
+ * fetched by domain at render time — never stored/hosted by us — with an
+ * honest fallback to the text wordmark if the logo can't be loaded.
+ */
+export type TrustBarItem = string | { name: string; domain?: string };
+
 export interface TrustBarProps {
-  /** 'pills' = text chips; 'logos' = greyscale wordmark row. */
+  /** 'pills' = text chips; 'logos' = real logo images (or wordmark fallback). */
   variant?: 'pills' | 'logos';
   title?: string;
-  items: string[];
+  items: TrustBarItem[];
 }
 
 export interface FeatureGridProps extends SectionHeading {

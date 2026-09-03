@@ -7,7 +7,6 @@ import {
   ArrowRight,
   Briefcase,
   Check,
-  Cpu,
   Gem,
   Layers,
   Layout,
@@ -17,15 +16,11 @@ import {
   Search,
   ShoppingBag,
   Sparkles,
-  Store,
-  Wrench,
-  Zap,
 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -35,6 +30,10 @@ import { ARCHETYPES, ARCHETYPE_LIST, STARTER_SETS } from '@/site/archetypes';
 import type { ArchetypeId, ArchetypeMeta, StarterContentSet } from '@/site/archetypes/types';
 import { getTheme } from '@/site/themes';
 import { cn } from '@/lib/utils';
+import { recommendArchetypes } from '@/lib/studio/recommend';
+import { Field, SelectableCard, textareaClass } from '@/components/onboarding/primitives';
+import type { PreferredMode } from '@/components/onboarding/types';
+import { TemplatePreviewCard } from './TemplatePreviewCard';
 
 export interface TemplateOption {
   id: string;
@@ -46,6 +45,29 @@ export interface TemplateOption {
   description: string;
   ogImage?: string;
   needsPersonalization: boolean;
+}
+
+/** Internal flow phase. Steps 1-3 map onto these as: niche -> {match|browseArchetype|browseStarter} -> name. */
+type Phase = 'niche' | 'match' | 'browseArchetype' | 'browseStarter' | 'name';
+
+interface Match {
+  starterSet: StarterContentSet;
+  archetype: ArchetypeMeta;
+}
+
+/** Top starter-set recommendation for a niche + mode, resolved to its archetype. */
+function computeMatch(nicheText: string, modeVal: PreferredMode | ''): Match | null {
+  const recs = recommendArchetypes({
+    niche: nicheText,
+    preferredMode: modeVal || undefined,
+  });
+  const topStarterRec = recs.find((r) => r.starterSetId);
+  if (!topStarterRec?.starterSetId) return null;
+  const starterSet = STARTER_SETS[topStarterRec.starterSetId];
+  if (!starterSet) return null;
+  const archetype = ARCHETYPES[starterSet.archetype];
+  if (!archetype) return null;
+  return { starterSet, archetype };
 }
 
 const ARCHETYPE_ICONS: Record<ArchetypeId, React.ComponentType<{ className?: string }>> = {
@@ -69,17 +91,34 @@ const ARCHETYPE_DISPLAY_TAGS: Record<ArchetypeId, string[]> = {
 export function NewProjectDialog({
   open,
   onOpenChange,
+  skipToStep2,
+  initialNiche,
+  initialMode,
 }: {
   templates?: TemplateOption[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Skip Step 1 and land straight on Step 2, seeded from initialNiche/initialMode. */
+  skipToStep2?: boolean;
+  initialNiche?: string;
+  initialMode?: PreferredMode;
 }) {
   const router = useRouter();
 
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [phase, setPhase] = useState<Phase>('niche');
+  /** Where Step 3's Back/Change controls should return to. */
+  const [returnPhase, setReturnPhase] = useState<'match' | 'browseStarter'>('match');
+
+  // Step 1 inputs
+  const [niche, setNiche] = useState('');
+  const [mode, setMode] = useState<PreferredMode | ''>('');
+  const [match, setMatch] = useState<Match | null>(null);
+
+  // Fallback "browse all templates" grid state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedArchetypeId, setSelectedArchetypeId] = useState<ArchetypeId | null>(null);
   const [selectedStarterSetId, setSelectedStarterSetId] = useState<string | null>(null);
+
   const [name, setName] = useState('');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +127,11 @@ export function NewProjectDialog({
   useEffect(() => {
     if (open) return;
     const t = setTimeout(() => {
-      setStep(1);
+      setPhase('niche');
+      setReturnPhase('match');
+      setNiche('');
+      setMode('');
+      setMatch(null);
       setSearchQuery('');
       setSelectedArchetypeId(null);
       setSelectedStarterSetId(null);
@@ -98,6 +141,36 @@ export function NewProjectDialog({
     }, 200);
     return () => clearTimeout(t);
   }, [open]);
+
+  // Opened straight into Step 2 (e.g. right after onboarding) — skip the niche re-ask.
+  useEffect(() => {
+    if (!open || !skipToStep2 || !initialNiche) return;
+    const seededMode: PreferredMode | '' = initialMode ?? '';
+    setNiche(initialNiche);
+    setMode(seededMode);
+    setMatch(computeMatch(initialNiche, seededMode));
+    setPhase('match');
+  }, [open, skipToStep2, initialNiche, initialMode]);
+
+  // A returning user's saved profile prefills Step 1 (still editable) — but
+  // never overrides the onboarding hand-off above, which already knows better.
+  useEffect(() => {
+    if (!open || skipToStep2) return;
+    let cancelled = false;
+    fetch('/api/onboarding')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled || !d) return;
+        if (typeof d.niche === 'string' && d.niche) setNiche((cur) => cur || d.niche);
+        if (d.preferredMode === 'ecommerce' || d.preferredMode === 'services') {
+          setMode((cur) => cur || d.preferredMode);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [open, skipToStep2]);
 
   // Selected Archetype Metadata
   const selectedArchetype: ArchetypeMeta | null = useMemo(() => {
@@ -120,7 +193,7 @@ export function NewProjectDialog({
     return STARTER_SETS[selectedStarterSetId] ?? null;
   }, [selectedStarterSetId]);
 
-  // Recommendation Scoring for Step 1
+  // Recommendation Scoring for the "browse all" archetype grid
   const scoredArchetypes = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return ARCHETYPE_LIST.map((arch) => {
@@ -155,7 +228,7 @@ export function NewProjectDialog({
     const arch = ARCHETYPES[archId];
     const firstSetId = arch.starterSetIds[0] ?? null;
     setSelectedStarterSetId(firstSetId);
-    setStep(2);
+    setPhase('browseStarter');
     setError(null);
   }
 
@@ -166,7 +239,28 @@ export function NewProjectDialog({
     } else if (selectedArchetype) {
       setName(selectedArchetype.name + ' Site');
     }
-    setStep(3);
+    setReturnPhase('browseStarter');
+    setPhase('name');
+    setError(null);
+  }
+
+  function handleSelectMatchedStarter() {
+    if (!match) return;
+    setSelectedArchetypeId(match.archetype.id);
+    setSelectedStarterSetId(match.starterSet.id);
+    setName(match.starterSet.business?.name || match.starterSet.name);
+    setReturnPhase('match');
+    setPhase('name');
+    setError(null);
+  }
+
+  function handleSelectMatchedBlank() {
+    if (!match) return;
+    setSelectedArchetypeId(match.archetype.id);
+    setSelectedStarterSetId(null);
+    setName(match.archetype.name + ' Site');
+    setReturnPhase('match');
+    setPhase('name');
     setError(null);
   }
 
@@ -204,6 +298,18 @@ export function NewProjectDialog({
     }
   }
 
+  const stepNumber = phase === 'niche' ? 1 : phase === 'name' ? 3 : 2;
+  const stepLabel =
+    phase === 'niche'
+      ? "What's this site for?"
+      : phase === 'match'
+        ? 'Pick a starting point'
+        : phase === 'browseArchetype'
+          ? 'Select Archetype'
+          : phase === 'browseStarter'
+            ? 'Choose Starter Content Set'
+            : 'Name & Launch Site';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl overflow-hidden border-border/80 bg-background/95 p-0 shadow-2xl backdrop-blur-xl sm:max-w-3xl">
@@ -212,17 +318,13 @@ export function NewProjectDialog({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background">
-                {step}
+                {stepNumber}
               </span>
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Step {step} of 3
+                Step {stepNumber} of 3
               </span>
               <span className="text-muted-foreground/40">•</span>
-              <span className="text-xs font-medium text-foreground">
-                {step === 1 && 'Select Archetype'}
-                {step === 2 && 'Choose Starter Content Set'}
-                {step === 3 && 'Name & Launch Site'}
-              </span>
+              <span className="text-xs font-medium text-foreground">{stepLabel}</span>
             </div>
 
             {/* Stepper progress dots */}
@@ -232,9 +334,9 @@ export function NewProjectDialog({
                   key={s}
                   className={cn(
                     'h-1.5 rounded-full transition-all duration-300',
-                    step === s
+                    stepNumber === s
                       ? 'w-6 bg-primary'
-                      : step > s
+                      : stepNumber > s
                         ? 'w-2.5 bg-primary/50'
                         : 'w-2.5 bg-muted-foreground/20',
                   )}
@@ -245,8 +347,130 @@ export function NewProjectDialog({
         </div>
 
         <div className="px-6 py-5">
-          {/* STEP 1: PICK ARCHETYPE */}
-          {step === 1 && (
+          {/* STEP 1: WHAT'S THIS SITE FOR? */}
+          {phase === 'niche' && (
+            <div className="space-y-6">
+              <div>
+                <DialogTitle className="text-lg font-semibold tracking-tight">
+                  What&apos;s this site for?
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  Tell us what the business does and we&apos;ll match you to a starter template.
+                </DialogDescription>
+              </div>
+
+              <Field
+                label="Tell us about this site"
+                htmlFor="new-project-niche"
+                hint="A sentence or two, in plain language."
+              >
+                <textarea
+                  id="new-project-niche"
+                  rows={3}
+                  value={niche}
+                  onChange={(e) => setNiche(e.target.value)}
+                  placeholder="e.g. We help small dental clinics manage bookings, reminders and patient records in one place."
+                  className={textareaClass}
+                />
+              </Field>
+
+              <Field label="Which best describes you?">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <SelectableCard
+                    selected={mode === 'services'}
+                    onClick={() => setMode('services')}
+                    icon={<Briefcase />}
+                    title="Services"
+                    description="Consulting, agencies, software, professional or done-for-you work."
+                  />
+                  <SelectableCard
+                    selected={mode === 'ecommerce'}
+                    onClick={() => setMode('ecommerce')}
+                    icon={<ShoppingBag />}
+                    title="Products"
+                    description="Physical or digital goods, a catalogue, an online store."
+                  />
+                </div>
+              </Field>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/50">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onOpenChange(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!niche.trim()}
+                  onClick={() => {
+                    setMatch(computeMatch(niche, mode));
+                    setPhase('match');
+                  }}
+                >
+                  Continue
+                  <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2 (default): MATCHED NICHE — TWO-PATH CHOICE */}
+          {phase === 'match' && (
+            <div className="space-y-4">
+              <div>
+                <DialogTitle className="text-lg font-semibold tracking-tight">
+                  {match ? `${match.archetype.name} looks like a good fit` : 'Pick a starting point'}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  Start from ready-made copy for your niche, or the same layout with a clean slate.
+                </DialogDescription>
+              </div>
+
+              {match ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <TemplatePreviewCard
+                    src={`/template-previews/${match.starterSet.id}.jpg`}
+                    alt={match.starterSet.name}
+                    label={match.starterSet.name}
+                    sublabel="Ready to launch"
+                    onClick={handleSelectMatchedStarter}
+                  />
+                  <TemplatePreviewCard
+                    src={`/template-previews/${match.archetype.id}-blank.jpg`}
+                    alt={`${match.archetype.name} template`}
+                    label={`${match.archetype.name} template`}
+                    sublabel="Build it your way"
+                    onClick={handleSelectMatchedBlank}
+                  />
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  We couldn&apos;t find a close match for that. Browse all templates below.
+                </p>
+              )}
+
+              <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                <Button type="button" variant="ghost" size="sm" onClick={() => setPhase('niche')}>
+                  <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+                  Back
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setPhase('browseArchetype')}
+                  className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  Not quite right? Browse all templates
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2 (fallback): FULL ARCHETYPE GRID */}
+          {phase === 'browseArchetype' && (
             <div className="space-y-4">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -335,7 +559,16 @@ export function NewProjectDialog({
                 })}
               </div>
 
-              <div className="flex items-center justify-end pt-2 border-t border-border/50">
+              <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setPhase(match ? 'match' : 'niche')}
+                >
+                  <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+                  Back
+                </Button>
                 <Button
                   type="button"
                   variant="outline"
@@ -348,8 +581,8 @@ export function NewProjectDialog({
             </div>
           )}
 
-          {/* STEP 2: PICK STARTER CONTENT SET */}
-          {step === 2 && selectedArchetype && (
+          {/* STEP 2 (fallback): PICK STARTER CONTENT SET */}
+          {phase === 'browseStarter' && selectedArchetype && (
             <div className="space-y-4">
               <div className="flex items-start justify-between">
                 <div>
@@ -478,7 +711,7 @@ export function NewProjectDialog({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => setStep(1)}
+                  onClick={() => setPhase('browseArchetype')}
                 >
                   <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
                   Back to Archetypes
@@ -496,7 +729,7 @@ export function NewProjectDialog({
           )}
 
           {/* STEP 3: NAME SITE & CREATE */}
-          {step === 3 && selectedArchetype && (
+          {phase === 'name' && selectedArchetype && (
             <div className="space-y-4">
               <div>
                 <DialogTitle className="text-lg font-semibold tracking-tight">
@@ -539,7 +772,7 @@ export function NewProjectDialog({
                     variant="ghost"
                     size="sm"
                     className="h-8 text-xs text-muted-foreground hover:text-foreground"
-                    onClick={() => setStep(2)}
+                    onClick={() => setPhase(returnPhase)}
                   >
                     Change
                   </Button>
@@ -574,7 +807,7 @@ export function NewProjectDialog({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => setStep(2)}
+                  onClick={() => setPhase(returnPhase)}
                   disabled={creating}
                 >
                   <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />

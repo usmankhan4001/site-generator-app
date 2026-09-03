@@ -24,7 +24,12 @@ import { luxuryLeather } from '@/site/archetypes/starterSets/luxury/luxury-leath
 import { servicesConsulting } from '@/site/archetypes/starterSets/services/services-consulting';
 import { servicesFintech } from '@/site/archetypes/starterSets/services/services-fintech';
 import { storeApparel } from '@/site/archetypes/starterSets/store/store-apparel';
+import { storeFashion } from '@/site/archetypes/starterSets/store/store-fashion';
 import { storeLiving } from '@/site/archetypes/starterSets/store/store-living';
+import { storeElectronics } from '@/site/archetypes/starterSets/store/store-electronics';
+import { storeGadgets } from '@/site/archetypes/starterSets/store/store-gadgets';
+import { storeOutdoor } from '@/site/archetypes/starterSets/store/store-outdoor';
+import { storeCoffee } from '@/site/archetypes/starterSets/store/store-coffee';
 import { localPlumbing } from '@/site/archetypes/starterSets/local/local-plumbing';
 import { localElectrical } from '@/site/archetypes/starterSets/local/local-electrical';
 
@@ -39,7 +44,12 @@ export {
   servicesConsulting,
   servicesFintech,
   storeApparel,
+  storeFashion,
   storeLiving,
+  storeElectronics,
+  storeGadgets,
+  storeOutdoor,
+  storeCoffee,
   localPlumbing,
   localElectrical,
 };
@@ -67,7 +77,12 @@ export const STARTER_SETS: Record<string, StarterContentSet> = {
   [servicesConsulting.id]: servicesConsulting,
   [servicesFintech.id]: servicesFintech,
   [storeApparel.id]: storeApparel,
+  [storeFashion.id]: storeFashion,
   [storeLiving.id]: storeLiving,
+  [storeElectronics.id]: storeElectronics,
+  [storeGadgets.id]: storeGadgets,
+  [storeOutdoor.id]: storeOutdoor,
+  [storeCoffee.id]: storeCoffee,
   [localPlumbing.id]: localPlumbing,
   [localElectrical.id]: localElectrical,
 };

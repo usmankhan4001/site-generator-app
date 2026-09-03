@@ -31,6 +31,27 @@ function clean(v: unknown): string | null {
 }
 
 /**
+ * GET /api/onboarding — the signed-in user's saved questionnaire answers, so
+ * a later "New site" flow can prefill the niche/mode question instead of
+ * asking a returning user to retype what they already told us.
+ */
+export async function GET() {
+  const actor = await getActor();
+  if (!actor) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const user = await prisma.user.findUnique({
+    where: { id: actor.userId },
+    select: { niche: true, preferredMode: true, stylePref: true },
+  });
+  return NextResponse.json({
+    niche: user?.niche ?? null,
+    preferredMode: user?.preferredMode ?? null,
+    stylePref: user?.stylePref ?? null,
+  });
+}
+
+/**
  * POST /api/onboarding — persists the questionnaire.
  *
  * The `User` model only has columns for niche / preferredMode / stylePref /
