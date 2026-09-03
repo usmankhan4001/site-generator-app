@@ -123,7 +123,7 @@ export function PreviewPane() {
 
   // --- page selector options ------------------------------------------------
   const pageOptions = useMemo(() => {
-    const filtered = pages.filter((p) => p.nav || p.key.startsWith('policy'));
+    const filtered = pages.filter((p) => p.nav || p.key.startsWith('policy') || p.key === 'checkout');
     const base = filtered.length ? filtered : pages;
     if (!base.some((p) => p.path === activePagePath)) {
       const active = pages.find((p) => p.path === activePagePath);

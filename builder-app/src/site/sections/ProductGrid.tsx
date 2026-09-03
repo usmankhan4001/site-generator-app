@@ -15,6 +15,7 @@ import {
   dividerClass,
   ctaProps,
 } from '@/site/archetypes';
+import { PaymentTrustBadges } from '@/site/sections/_shared/PaymentTrustBadges';
 
 function priceLabel(item: CatalogItem, sectionCurrency: string | undefined, fallbackUnit?: string) {
   if (item.price === 0) return 'Custom';
@@ -275,6 +276,12 @@ export default function ProductGrid({
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
+          </div>
+        )}
+
+        {layout === 'products' && (
+          <div className="mt-14 pt-8 border-t border-border/60">
+            <PaymentTrustBadges showComplianceText />
           </div>
         )}
       </div>

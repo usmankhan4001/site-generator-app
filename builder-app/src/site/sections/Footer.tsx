@@ -61,20 +61,20 @@ export default function Footer({ content }: { content: SiteContent }) {
         </div>
 
         {footer.showPaymentBadges && (
-          <div className="py-4 border-t border-border/60 flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground">
+          <div className="py-5 border-t border-border/60 flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-primary" />
+              <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
               <span className="font-medium text-foreground">
                 Airwallex Verified Merchant &amp; PCI-DSS Level 1 Compliant
               </span>
             </div>
-            <div className="flex items-center gap-2 text-[11px] font-semibold">
-              <span className="px-2 py-1 rounded bg-background border border-border">VISA</span>
-              <span className="px-2 py-1 rounded bg-background border border-border">Mastercard</span>
-              <span className="px-2 py-1 rounded bg-background border border-border">AMEX</span>
-              <span className="px-2 py-1 rounded bg-background border border-border">Apple Pay</span>
-              <span className="px-2 py-1 rounded bg-background border border-border flex items-center gap-1">
-                <Lock className="h-3 w-3 text-primary" /> 256-Bit SSL
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-foreground">
+              <span className="px-2.5 py-1 rounded-md bg-card border border-border/80 shadow-xs">VISA</span>
+              <span className="px-2.5 py-1 rounded-md bg-card border border-border/80 shadow-xs">Mastercard</span>
+              <span className="px-2.5 py-1 rounded-md bg-card border border-border/80 shadow-xs">AMEX</span>
+              <span className="px-2.5 py-1 rounded-md bg-card border border-border/80 shadow-xs">Apple Pay</span>
+              <span className="px-2.5 py-1 rounded-md bg-card border border-border/80 shadow-xs flex items-center gap-1 text-primary font-semibold">
+                <Lock className="h-3 w-3 text-primary shrink-0" /> 256-Bit SSL
               </span>
             </div>
           </div>
