@@ -288,7 +288,10 @@ function mapComponent(comp: any): Emitted[] {
             secondaryCta: toCtaLink(p.secondaryCta, '/about'),
             image: undef(str(p.image)),
             trustBadges: arr(p.trustBadges).map(String),
-            layout: str(p.image) ? 'split' : 'centered',
+            // layout intentionally left unset — Hero picks a real structural
+            // variant per-template (see resolveVariant in layoutSystems.ts)
+            // rather than every site collapsing to the same 'split'/'centered'
+            // split just because an image is present.
           },
         },
       ];
@@ -374,7 +377,7 @@ function mapComponent(comp: any): Emitted[] {
             description: undef(str(p.subtitle)),
             currency: str(tiers[0]?.currency) || 'USD',
             tiers: tiers.map(toCatalogItem),
-            ctaHref: '/contact',
+            ctaHref: '/checkout',
           },
         },
       ];
@@ -970,6 +973,29 @@ function buildPolicyPage(slug: string, business: BusinessInfo): SitePage {
   };
 }
 
+/**
+ * Every site gets a checkout hand-off page — the endpoint pricing/product
+ * CTAs point to once a client connects their own Airwallex payment link
+ * (`SiteContent.airwallexCheckoutUrl`). Not in the primary nav (matches
+ * normal checkout UX — reached via a CTA, not browsed to directly).
+ */
+function buildCheckoutPage(): SitePage {
+  const section = {
+    id: 'checkout-checkout-0',
+    enabled: true,
+    type: 'checkout',
+    props: {},
+  } as unknown as Section;
+
+  return {
+    key: 'checkout',
+    path: '/checkout',
+    title: 'Checkout',
+    nav: false,
+    sections: [section],
+  };
+}
+
 /* ============================================================================
  * Header / footer / nav
  * ========================================================================== */
@@ -1118,6 +1144,7 @@ export function normalizeTemplate(t: UniversalTemplate): SiteContent {
     if (!srcPages[`/policies/${slug}`]) continue;
     pages.push(buildPolicyPage(slug, business));
   }
+  pages.push(buildCheckoutPage());
 
   /* ---- assemble --------------------------------------------- */
   const site: SiteContent = {

@@ -9,6 +9,7 @@ export function CompanyForm() {
   const updateBusiness = useStudio((s) => s.updateBusiness);
   const updateMeta = useStudio((s) => s.updateMeta);
   const setFormspreeId = useStudio((s) => s.setFormspreeId);
+  const setAirwallexCheckoutUrl = useStudio((s) => s.setAirwallexCheckoutUrl);
   const mutate = useStudio((s) => s.mutate);
   const presets = useJurisdictionPresets();
 
@@ -138,6 +139,17 @@ export function CompanyForm() {
           onChange={(v) => setFormspreeId(v || undefined)}
           placeholder="xbjnkyrq"
           hint="Optional — the contact form always posts to /api/contact; set this to also forward submissions to Formspree."
+        />
+      </div>
+
+      <div className="space-y-3">
+        <SectionLabel>Payments</SectionLabel>
+        <TextField
+          label="Airwallex checkout URL"
+          value={content.airwallexCheckoutUrl}
+          onChange={(v) => setAirwallexCheckoutUrl(v || undefined)}
+          placeholder="https://checkout.airwallex.com/..."
+          hint="Your own Airwallex Hosted Payment Page or Payment Link — generated in your Airwallex account, not ours. The site's /checkout page hands off to this. Leave blank and it shows a 'contact us' fallback instead of a broken pay button."
         />
       </div>
 

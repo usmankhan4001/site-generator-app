@@ -26,6 +26,7 @@ export const SECTION_LABELS: Record<SectionType, string> = {
   corporateRegistration: 'Corporate Registration',
   contactPanel: 'Contact Panel',
   policyDocument: 'Policy Document',
+  checkout: 'Checkout',
 };
 
 export const SECTION_DESCRIPTIONS: Record<SectionType, string> = {
@@ -49,6 +50,7 @@ export const SECTION_DESCRIPTIONS: Record<SectionType, string> = {
   corporateRegistration: 'Registered entity and legal identifiers.',
   contactPanel: 'Contact form with a company-details column.',
   policyDocument: 'Long-form legal or policy document.',
+  checkout: 'Payment hand-off to the merchant\'s Airwallex checkout.',
 };
 
 export function sectionLabel(type: SectionType): string {

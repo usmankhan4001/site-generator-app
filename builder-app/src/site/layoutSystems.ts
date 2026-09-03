@@ -55,3 +55,21 @@ export function resolveLayoutSystem(content: SiteContent): LayoutSystem {
   if (sector === 'retail') return 'atelier';
   return content.mode === 'ecommerce' ? 'atelier' : 'signal';
 }
+
+/**
+ * Deterministic per-site, per-slot structural variant index. Two templates
+ * in the same sector share a `layoutSystem` (same typography/spacing/motif),
+ * but without this they'd ALSO share every section's literal composition —
+ * the single biggest reason sites in the same niche read as identical.
+ * `key` scopes the hash so different sections on the same site don't all
+ * land on the same variant number (a bland "everything is variant 0" site).
+ */
+export function resolveVariant(content: SiteContent, key: string, count: number): number {
+  if (count <= 1) return 0;
+  const seed = `${content.source?.templateId ?? content.business?.name ?? content.themeId}::${key}`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return hash % count;
+}

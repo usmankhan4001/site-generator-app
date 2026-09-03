@@ -192,7 +192,8 @@ export type SectionType =
   | 'locationList'
   | 'corporateRegistration'
   | 'contactPanel'
-  | 'policyDocument';
+  | 'policyDocument'
+  | 'checkout';
 
 export const SECTION_TYPES: SectionType[] = [
   'hero',
@@ -215,6 +216,7 @@ export const SECTION_TYPES: SectionType[] = [
   'corporateRegistration',
   'contactPanel',
   'policyDocument',
+  'checkout',
 ];
 
 /**
@@ -242,6 +244,7 @@ export const SECTION_TYPES: SectionType[] = [
  *  corporateRegistration -> CorporateRegistration.tsx
  *  contactPanel          -> ContactPanel.tsx
  *  policyDocument        -> PolicyDocument.tsx
+ *  checkout              -> Checkout.tsx
  */
 export const SECTION_FILE: Record<SectionType, string> = {
   hero: 'Hero',
@@ -264,6 +267,7 @@ export const SECTION_FILE: Record<SectionType, string> = {
   corporateRegistration: 'CorporateRegistration',
   contactPanel: 'ContactPanel',
   policyDocument: 'PolicyDocument',
+  checkout: 'Checkout',
 };
 
 /** Common heading fields most sections accept. */
@@ -418,6 +422,22 @@ export interface PolicyDocumentProps {
   sections: PolicyBlock[];
 }
 
+/**
+ * Checkout — the hand-off page to the merchant's own Airwallex-hosted
+ * payment page (Hosted Payment Page / Payment Link). We never hold the
+ * client's Airwallex API credentials — `content.airwallexCheckoutUrl` is a
+ * URL the client generates themselves in their own Airwallex account and
+ * pastes in, exactly like `formspreeId`. Copy branches on `content.mode`
+ * (ecommerce = order/purchase framing, services = deposit/engagement
+ * framing) inside the component rather than via props.
+ */
+export interface CheckoutProps extends SectionHeading {
+  /** Label on the pay button, e.g. "Pay with Airwallex". */
+  payLabel?: string;
+  /** Small print under the pay button. */
+  note?: string;
+}
+
 export type SectionProps =
   | ({ type: 'hero' } & { props: HeroProps })
   | ({ type: 'statsBar' } & { props: StatsBarProps })
@@ -438,7 +458,8 @@ export type SectionProps =
   | ({ type: 'locationList' } & { props: LocationListProps })
   | ({ type: 'corporateRegistration' } & { props: CorporateRegistrationProps })
   | ({ type: 'contactPanel' } & { props: ContactPanelProps })
-  | ({ type: 'policyDocument' } & { props: PolicyDocumentProps });
+  | ({ type: 'policyDocument' } & { props: PolicyDocumentProps })
+  | ({ type: 'checkout' } & { props: CheckoutProps });
 
 /** A section instance on a page. */
 export type Section = {
@@ -467,7 +488,8 @@ export type AnySectionProps =
   | LocationListProps
   | CorporateRegistrationProps
   | ContactPanelProps
-  | PolicyDocumentProps;
+  | PolicyDocumentProps
+  | CheckoutProps;
 
 /* ============================================================================
  * Pages + whole-site content
@@ -516,6 +538,13 @@ export interface SiteContent {
   layoutSystem?: LayoutSystem;
   /** Formspree form id; when set the contact form also forwards there. */
   formspreeId?: string;
+  /**
+   * The client's own Airwallex Hosted Payment Page / Payment Link URL —
+   * generated in their Airwallex account, not ours. Unset until they
+   * connect it; the checkout page degrades honestly (no fake success) when
+   * absent. See `CheckoutProps`.
+   */
+  airwallexCheckoutUrl?: string;
 
   brand: {
     /** Text shown next to the logo mark. Defaults to `business.shortName`. */

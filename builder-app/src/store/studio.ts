@@ -75,6 +75,7 @@ interface StudioState {
   updateBusiness: (patch: Partial<SiteContent['business']>) => void;
   updateMeta: (patch: Partial<SiteContent['meta']>) => void;
   setFormspreeId: (id: string | undefined) => void;
+  setAirwallexCheckoutUrl: (url: string | undefined) => void;
   setNav: (nav: NavItem[]) => void;
 
   updateSectionProps: (sectionId: string, patch: Record<string, unknown>) => void;
@@ -258,6 +259,7 @@ export const useStudio = create<StudioState>((set, get) => ({
   updateBusiness: (patch) => get().mutate((d) => { Object.assign(d.business, patch); }),
   updateMeta: (patch) => get().mutate((d) => { Object.assign(d.meta, patch); }),
   setFormspreeId: (id) => get().mutate((d) => { d.formspreeId = id || undefined; }),
+  setAirwallexCheckoutUrl: (url) => get().mutate((d) => { d.airwallexCheckoutUrl = url || undefined; }),
   setNav: (nav) => get().mutate((d) => { d.nav = nav; }),
 
   updateSectionProps: (sectionId, patch) =>

@@ -44,7 +44,7 @@ export default function PricingTiers({
     ctaHref,
   } = props;
 
-  const href = ctaHref ?? '/contact';
+  const href = ctaHref ?? '/checkout';
 
   return (
     <section id="offerings" className="py-20 md:py-28 bg-muted/30 border-y border-border">

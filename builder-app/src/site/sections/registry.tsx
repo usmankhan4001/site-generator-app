@@ -29,6 +29,7 @@ import LocationList from './LocationList';
 import CorporateRegistration from './CorporateRegistration';
 import ContactPanel from './ContactPanel';
 import PolicyDocument from './PolicyDocument';
+import Checkout from './Checkout';
 
 export type SectionComponent = ComponentType<{
   props: AnySectionProps;
@@ -56,6 +57,7 @@ export const SECTION_REGISTRY: Record<SectionType, SectionComponent> = {
   corporateRegistration: CorporateRegistration as SectionComponent,
   contactPanel: ContactPanel as SectionComponent,
   policyDocument: PolicyDocument as SectionComponent,
+  checkout: Checkout as SectionComponent,
 };
 
 export function getSectionComponent(type: SectionType): SectionComponent | undefined {

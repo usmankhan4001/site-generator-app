@@ -2,13 +2,18 @@ import Link from 'next/link';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import type { HeroProps, SiteContent } from '@/site/schema';
 import { Button } from '@/site/ui/button';
+import { resolveVariant } from '@/site/layoutSystems';
+
+type HeroLayout = 'centered' | 'split' | 'stacked';
 
 /**
  * Hero — page opener. Renders the single <h1> for the home page.
- * `props.layout` selects the centered (default) or split presentation.
+ * `props.layout` is an explicit author override; otherwise the effective
+ * layout is a deterministic per-template variant (see `resolveVariant`) so
+ * two templates with an image don't all collapse onto the same skeleton.
  * CTAs are real <Link> navigations, never onClick handlers.
  */
-export default function Hero({ props }: { props: HeroProps; content: SiteContent }) {
+export default function Hero({ props, content }: { props: HeroProps; content: SiteContent }) {
   const {
     badge,
     headline,
@@ -18,8 +23,11 @@ export default function Hero({ props }: { props: HeroProps; content: SiteContent
     secondaryCta,
     image,
     trustBadges,
-    layout = 'centered',
   } = props;
+
+  const layout: HeroLayout = !image
+    ? 'centered'
+    : (props.layout ?? (['split', 'centered', 'stacked'] as const)[resolveVariant(content, 'hero', 3)]);
 
   const ctaButtons = (
     <>
@@ -84,6 +92,48 @@ export default function Hero({ props }: { props: HeroProps; content: SiteContent
                     className="w-full h-auto aspect-4/3 object-cover object-center"
                     loading="eager"
                   />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (layout === 'stacked') {
+    return (
+      <section className="relative pb-16 md:pb-24 overflow-hidden">
+        {image && (
+          <div className="w-full aspect-21/9 max-h-[520px] overflow-hidden">
+            <img
+              src={image}
+              alt={headline}
+              className="w-full h-full object-cover object-center"
+              loading="eager"
+            />
+          </div>
+        )}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto text-center -mt-10 md:-mt-16 relative">
+            <div className="rounded-2xl border border-border bg-card p-8 md:p-10 shadow-sm">
+              {badgePill && <div className="mb-5 flex justify-center">{badgePill}</div>}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground leading-[1.15] mb-5">
+                {headline}
+                {accentText && <> <span className="text-primary">{accentText}</span></>}
+              </h1>
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-7">
+                {subtitle}
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3.5">{ctaButtons}</div>
+              {trust && (
+                <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground pt-6 mt-6 border-t border-border/60">
+                  {trust.map((t, idx) => (
+                    <div key={idx} className="inline-flex items-center gap-1.5 font-medium">
+                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                      <span>{t}</span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

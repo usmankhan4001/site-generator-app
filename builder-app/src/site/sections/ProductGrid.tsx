@@ -230,9 +230,9 @@ export default function ProductGrid({
                         <span className="text-[11px] text-muted-foreground">SKU {item.sku}</span>
                       )}
                     </div>
-                    <Button asChild size="sm" variant="outline">
-                      <Link href="/contact">
-                        <span>Enquire</span>
+                    <Button asChild size="sm" variant={item.price > 0 ? 'default' : 'outline'}>
+                      <Link href={item.price > 0 ? '/checkout' : '/contact'}>
+                        <span>{item.price > 0 ? 'Buy Now' : 'Enquire'}</span>
                         <ArrowRight className="ml-1 h-3.5 w-3.5" />
                       </Link>
                     </Button>
