@@ -54,3 +54,7 @@ gemini last response.txt
 # Misc large research artifacts carried in from the old template
 **/tool-results/
 **/download/
+
+# Unrelated project living inside this folder, with its own git repo — not part
+# of this package; never track it here.
+gcc-sheildspring/
