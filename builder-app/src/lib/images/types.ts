@@ -4,3 +4,13 @@ export interface StockImage {
   alt: string;
   credit?: string;
 }
+
+export type {
+  VaultDomain,
+  VaultSubCategory,
+  VaultRole,
+  VaultAspectRatio,
+  VaultBackground,
+  CuratedVaultImage,
+  QueryCuratedVaultParams,
+} from './vault';

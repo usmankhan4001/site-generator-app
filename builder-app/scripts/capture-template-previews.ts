@@ -2,36 +2,41 @@
  * scripts/capture-template-previews.ts
  *
  * One-off capture script (not part of the app). For every archetype (blank,
- * `starterSetId: null`) and every starter set, creates a throwaway `Project`
- * row, screenshots its `/preview/project/[id]` render with headless
- * Chromium, and saves the JPEG to `public/template-previews/`.
+ * `starterSetId: null`) and every starter set (including rich turnkey flagship
+ * templates: legal_corporate, luxury_fashion_dtc, construction_engineering,
+ * modern_saas_pro, mega_electronics_store, and all niche starter packs), creates
+ * a throwaway `Project` row, screenshots its `/preview/project/[id]` render with
+ * headless Chromium, and saves the JPEG to `public/template-previews/` and `public/previews/`.
  *
  * Run with:  npx tsx scripts/capture-template-previews.ts
  *
  * Requires the dev server running at http://localhost:3001 (`npm run dev`).
  */
 
-import { mkdirSync, statSync } from 'node:fs';
+import { mkdirSync, statSync, copyFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { prisma } from '../src/lib/db';
-import { ARCHETYPE_LIST, STARTER_SETS } from '../src/site/archetypes';
+import { ARCHETYPE_LIST, STARTER_SET_LIST, STARTER_SETS } from '../src/site/archetypes';
 import { createSiteContentFromArchetype } from '../src/site/archetypes/compose';
 
-const BASE_URL = 'http://localhost:3001';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
 const THROWAWAY_EMAIL = 'internal-preview-capture@local.test';
 const THROWAWAY_PASSWORD = 'InternalPreviewCapture-2026!';
 const THROWAWAY_NAME = 'Internal Preview Capture';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
-const outDir = resolve(scriptDir, '../public/template-previews');
+const templatePreviewsDir = resolve(scriptDir, '../public/template-previews');
+const previewsDir = resolve(scriptDir, '../public/previews');
 
 interface CaptureJob {
-  /** Output filename stem, e.g. "saas-devops" or "saas-blank". */
+  /** Output filename stem, e.g. "legal_corporate", "saas-devops", or "saas-blank". */
   slug: string;
   archetypeId: string;
   starterSetId: string | null;
+  /** Optional secondary aliases to copy preview image to */
+  aliases?: string[];
 }
 
 async function ensureThrowawayUserSession(): Promise<{ userId: string; cookieHeader: string }> {
@@ -77,18 +82,51 @@ async function ensureThrowawayUserSession(): Promise<{ userId: string; cookieHea
   return { userId: user.id, cookieHeader };
 }
 
-async function main() {
-  mkdirSync(outDir, { recursive: true });
-
+export function getCaptureJobs(): CaptureJob[] {
   const jobs: CaptureJob[] = [];
+
+  // Blank canvas archetypes
   for (const arch of ARCHETYPE_LIST) {
-    jobs.push({ slug: `${arch.id}-blank`, archetypeId: arch.id, starterSetId: null });
-  }
-  for (const starterSet of Object.values(STARTER_SETS)) {
-    jobs.push({ slug: starterSet.id, archetypeId: starterSet.archetype, starterSetId: starterSet.id });
+    jobs.push({
+      slug: `${arch.id}-blank`,
+      archetypeId: arch.id,
+      starterSetId: null,
+      aliases: [arch.id],
+    });
   }
 
-  console.log(`Planned ${jobs.length} captures.`);
+  // All turnkey & niche starter sets
+  for (const starterSet of STARTER_SET_LIST) {
+    const aliases: string[] = [];
+    if (starterSet.id.includes('_')) {
+      aliases.push(starterSet.id.replace(/_/g, '-'));
+      aliases.push(`${starterSet.archetype}-${starterSet.id.replace(/_/g, '-')}`);
+    }
+
+    // Include registered aliases from STARTER_SETS dictionary
+    for (const [key, val] of Object.entries(STARTER_SETS)) {
+      if (val.id === starterSet.id && key !== starterSet.id && !aliases.includes(key)) {
+        aliases.push(key);
+      }
+    }
+
+    jobs.push({
+      slug: starterSet.id,
+      archetypeId: starterSet.archetype,
+      starterSetId: starterSet.id,
+      aliases,
+    });
+  }
+
+  return jobs;
+}
+
+async function main() {
+  mkdirSync(templatePreviewsDir, { recursive: true });
+  mkdirSync(previewsDir, { recursive: true });
+
+  const jobs = getCaptureJobs();
+  console.log(`Planned ${jobs.length} template preview captures (writing to public/template-previews/ and public/previews/).`);
 
   const { userId, cookieHeader } = await ensureThrowawayUserSession();
   console.log(`Using throwaway user ${THROWAWAY_EMAIL} (${userId}).`);
@@ -120,11 +158,21 @@ async function main() {
         await page.goto(`${BASE_URL}/preview/project/${project.id}`, { waitUntil: 'networkidle' });
         await page.waitForSelector('main', { timeout: 15000 });
 
-        const outPath = resolve(outDir, `${job.slug}.jpg`);
+        const outPath = resolve(templatePreviewsDir, `${job.slug}.jpg`);
         await page.screenshot({ path: outPath, fullPage: true, type: 'jpeg', quality: 80 });
 
+        const previewPath = resolve(previewsDir, `${job.slug}.jpg`);
+        copyFileSync(outPath, previewPath);
+
+        if (job.aliases) {
+          for (const alias of job.aliases) {
+            copyFileSync(outPath, resolve(templatePreviewsDir, `${alias}.jpg`));
+            copyFileSync(outPath, resolve(previewsDir, `${alias}.jpg`));
+          }
+        }
+
         const { size } = statSync(outPath);
-        console.log(`Captured ${job.slug} -> public/template-previews/${job.slug}.jpg (${(size / 1024).toFixed(0)} KB)`);
+        console.log(`Captured ${job.slug} -> public/template-previews/${job.slug}.jpg & public/previews/${job.slug}.jpg (${(size / 1024).toFixed(0)} KB)`);
       } finally {
         await prisma.project.delete({ where: { id: project.id } });
       }
@@ -139,11 +187,13 @@ async function main() {
   console.log('Cleaned up throwaway user. Done.');
 }
 
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exitCode = 1;
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  main()
+    .catch((err) => {
+      console.error(err);
+      process.exitCode = 1;
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}

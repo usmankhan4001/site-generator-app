@@ -4,13 +4,20 @@ import { useStudio } from '@/store/studio';
 import { resolveLogoUrl } from '@/site/lib/logo';
 import type {
   Section,
+  HeaderProps,
+  HeaderVariant,
   HeroProps,
+  HeroVariant,
   StatsBarProps,
   TrustBarProps,
   FeatureGridProps,
+  FeatureGridVariant,
   PricingTiersProps,
+  PricingTiersVariant,
   ProductGridProps,
+  ProductGridVariant,
   TestimonialsProps,
+  TestimonialsVariant,
   FaqProps,
   CtaBannerProps,
   PageHeaderProps,
@@ -41,6 +48,7 @@ import {
   NumberField,
   SwitchField,
   SelectField,
+  VariantPicker,
   ImageField,
   CtaField,
   StringListField,
@@ -76,6 +84,8 @@ export function SectionEditor({ section }: { section: Section }) {
   const patch = (p: Record<string, unknown>) => updateSectionProps(section.id, p);
 
   switch (section.type) {
+    case 'header' as any:
+      return <HeaderEditor props={section.props as any} patch={patch} />;
     case 'hero':
       return <HeroEditor props={section.props} patch={patch} />;
     case 'statsBar':
@@ -121,11 +131,153 @@ export function SectionEditor({ section }: { section: Section }) {
   }
 }
 
+/* ---------------------------------------------------------------- header -- */
+
+export function HeaderEditor({
+  props,
+  patch,
+}: {
+  props: HeaderProps;
+  patch: (p: Partial<HeaderProps>) => void;
+}) {
+  const currentVariant = props.variant ?? 'default';
+
+  return (
+    <>
+      <VariantPicker<HeaderVariant>
+        label="Header Layout Variant"
+        value={currentVariant}
+        onChange={(v) => patch({ variant: v })}
+        options={[
+          {
+            value: 'default',
+            label: 'Standard Clean Nav',
+            description: 'Logo left, centered navigation links, primary action button right.',
+            badge: 'Default',
+          },
+          {
+            value: 'corporate_utility',
+            label: 'Corporate Utility Bar',
+            description: 'Top utility tier with phone, email, hours, and jurisdiction badge + main nav row.',
+            badge: 'Corporate / B2B',
+          },
+          {
+            value: 'floating_glass_pill',
+            label: 'Floating Glass Pill',
+            description: 'Floating centered glassmorphic pill bar with backdrop blur and sleek borders.',
+            badge: 'Modern Tech',
+          },
+          {
+            value: 'editorial_centered',
+            label: 'Editorial Centered',
+            description: 'Centered luxury brand wordmark with split left/right navigation links.',
+            badge: 'Luxury / Editorial',
+          },
+        ]}
+      />
+
+      <SectionLabel>Announcement Banner</SectionLabel>
+      <SwitchField
+        label="Show announcement bar"
+        checked={!!props.showAnnouncement}
+        onChange={(v) => patch({ showAnnouncement: v })}
+        hint="Renders a top announcement strip above the header."
+      />
+      {props.showAnnouncement && (
+        <>
+          <TextField
+            label="Announcement text"
+            value={props.announcementText}
+            onChange={(v) => patch({ announcementText: v || undefined })}
+            placeholder="Announcing our Series A funding & new product release"
+          />
+          <CtaField
+            label="Announcement link"
+            value={props.announcementLink}
+            onChange={(v) => patch({ announcementLink: v })}
+          />
+        </>
+      )}
+
+      <SectionLabel>Header Behavior</SectionLabel>
+      <SwitchField
+        label="Sticky navigation"
+        checked={props.sticky !== false}
+        onChange={(v) => patch({ sticky: v })}
+        hint="Keep the navigation header fixed at the top of the viewport when scrolling."
+      />
+    </>
+  );
+}
+
 /* ------------------------------------------------------------------ hero -- */
 
 function HeroEditor({ props, patch }: { props: HeroProps; patch: (p: Partial<HeroProps>) => void }) {
+  const currentVariant = props.variant ?? props.layout ?? 'centered';
+
   return (
     <>
+      <VariantPicker<HeroVariant>
+        label="Layout Variant"
+        value={currentVariant}
+        onChange={(v) => patch({ variant: v, layout: v })}
+        options={[
+          {
+            value: 'split',
+            label: '50/50 Split',
+            description: 'Headline and CTAs on the left, primary visual media on the right.',
+            badge: 'Classic',
+          },
+          {
+            value: 'centered',
+            label: 'Centered Showcase',
+            description: 'Centered headline, copy, and CTAs above a large centered media frame.',
+            badge: 'Balanced',
+          },
+          {
+            value: 'lead_form',
+            label: 'Interactive Lead Form',
+            description: 'H1 and value checkmarks left with a high-converting consultation form right.',
+            badge: 'B2B / Leads',
+          },
+          {
+            value: 'asymmetric_bento_collage',
+            label: 'Asymmetric Bento Collage',
+            description: 'Top headline with dual CTAs above a 3-frame collage and floating metric glass chips.',
+            badge: 'Modern Tech',
+          },
+          {
+            value: 'fullbleed_display',
+            label: 'Fullbleed Editorial Display',
+            description: '72px high-impact display headline with luxury CTAs and video/demo preview window.',
+            badge: 'Luxury / Brand',
+          },
+          {
+            value: 'stats_banner_split',
+            label: 'Stats Banner Split',
+            description: 'Headline and action left with a 4-box high-impact metric counter grid right.',
+            badge: 'SaaS / Infra',
+          },
+          {
+            value: 'stacked',
+            label: 'Stacked Banner',
+            description: 'Full-width hero media banner above a floating card with headline and CTAs.',
+            badge: 'Banner',
+          },
+          {
+            value: 'editorial',
+            label: 'Editorial Serif',
+            description: 'Large editorial typography with high-impact serif styling.',
+            badge: 'Serif',
+          },
+          {
+            value: 'editorial_centered',
+            label: 'Editorial Centered',
+            description: 'Centered luxury serif typography with centered media frame.',
+            badge: 'Editorial',
+          },
+        ]}
+      />
       <TextField label="Badge" value={props.badge} onChange={(v) => patch({ badge: v || undefined })} />
       <TextField label="Headline" value={props.headline} onChange={(v) => patch({ headline: v })} />
       <TextField
@@ -135,20 +287,23 @@ function HeroEditor({ props, patch }: { props: HeroProps; patch: (p: Partial<Her
         hint="Appended after the headline in the primary colour."
       />
       <TextArea label="Subtitle" value={props.subtitle} onChange={(v) => patch({ subtitle: v })} rows={2} />
-      <SelectField
-        label="Layout"
-        value={props.layout ?? 'centered'}
-        onChange={(v) => patch({ layout: v })}
-        options={[
-          { value: 'centered', label: 'Centered' },
-          { value: 'split', label: 'Split (image right)' },
-          { value: 'stacked', label: 'Stacked (image banner)' },
-          { value: 'editorial', label: 'Editorial (high-impact)' },
-        ]}
-      />
       <ImageField value={props.image} onChange={(v) => patch({ image: v })} />
+      <TextField
+        label="Demo video URL (optional)"
+        value={props.videoUrl}
+        onChange={(v) => patch({ videoUrl: v || undefined })}
+        placeholder="https://..."
+        hint="Direct MP4 or video stream URL for fullbleed / video showcase variants."
+      />
       <CtaField label="Primary CTA" value={props.primaryCta} onChange={(v) => patch({ primaryCta: v })} />
       <CtaField label="Secondary CTA" value={props.secondaryCta} onChange={(v) => patch({ secondaryCta: v })} />
+      <StringListField
+        label="Bullet points / Feature highlights"
+        items={props.bulletPoints ?? props.features}
+        onChange={(v) => patch({ bulletPoints: v, features: v })}
+        placeholder="Enterprise-grade infrastructure with 99.99% SLA guarantee"
+        addLabel="Add bullet point"
+      />
       <StringListField
         label="Trust badges"
         items={props.trustBadges}
@@ -189,18 +344,34 @@ function TrustBarEditor({ props, patch }: { props: TrustBarProps; patch: (p: Par
 
   return (
     <>
-      <SelectField
-        label="Style"
+      <VariantPicker<'pills' | 'logos' | 'marquee_ticker'>
+        label="Style & Layout"
         value={variant}
         onChange={(v) => patch({ variant: v })}
         options={[
-          { value: 'pills', label: 'Text pills' },
-          { value: 'logos', label: 'Logo wall' },
+          {
+            value: 'pills',
+            label: 'Text Pills',
+            description: 'Compact text badges and security certifications.',
+            badge: 'Text',
+          },
+          {
+            value: 'logos',
+            label: 'Logo Wall',
+            description: 'Real company logos fetched dynamically by domain.',
+            badge: 'Logos',
+          },
+          {
+            value: 'marquee_ticker',
+            label: 'Continuous Ticker',
+            description: 'Smooth continuous marquee scrolling across screen.',
+            badge: 'Marquee',
+          },
         ]}
       />
       <TextField label="Title" value={props.title} onChange={(v) => patch({ title: v || undefined })} />
 
-      {variant === 'logos' ? (
+      {variant === 'logos' || variant === 'marquee_ticker' ? (
         <ListField<Extract<TrustBarProps['items'][number], { name: string }>>
           label="Companies"
           hint="Enter the company name and its website domain (e.g. stripe.com) — the real logo is fetched live. Leave domain blank to show the name as text instead."
@@ -265,9 +436,48 @@ function FeatureGridEditor({
   props: FeatureGridProps;
   patch: (p: Partial<FeatureGridProps>) => void;
 }) {
+  const currentVariant = props.variant ?? 'even';
+
   return (
     <>
       <HeadingFields props={props} patch={patch} />
+      <VariantPicker<FeatureGridVariant>
+        label="Layout Variant"
+        value={currentVariant}
+        onChange={(v) => patch({ variant: v })}
+        options={[
+          {
+            value: 'even',
+            label: 'Default Card Grid',
+            description: 'Standard multi-column card grid with icons, titles, and descriptions.',
+            badge: 'Standard',
+          },
+          {
+            value: 'asymmetric_bento',
+            label: 'Asymmetric Bento Box',
+            description: '1 large 2x2 featured box with mockup preview + 2 stacked 1x1 cards with tags & icons.',
+            badge: 'Featured Bento',
+          },
+          {
+            value: 'sticky_scroll',
+            label: 'Sticky Narrative Scroll',
+            description: 'Left narrative column stays sticky while right column scrolls detailed feature cards.',
+            badge: 'Storytelling',
+          },
+          {
+            value: 'tabbed_showcase',
+            label: 'Interactive Tabbed Showcase',
+            description: 'Category pill tabs dynamically switch the active showcase panel and preview mockup.',
+            badge: 'Interactive Tabs',
+          },
+          {
+            value: 'zigzag_rows',
+            label: 'Alternating Zigzag Rows',
+            description: 'Z-pattern alternating rows with large visual showcases and deliverable checklists.',
+            badge: 'Deep Dive',
+          },
+        ]}
+      />
       <ListField<FeatureGridProps['items'][number]>
         label="Features"
         items={props.items}
@@ -279,9 +489,18 @@ function FeatureGridEditor({
           <>
             <TextField label="Title" value={it.title} onChange={(v) => update({ title: v })} />
             <TextArea label="Description" value={it.description} onChange={(v) => update({ description: v })} rows={2} />
-            <TextField label="Badge" value={it.badge} onChange={(v) => update({ badge: v || undefined })} />
+            <div className="grid grid-cols-2 gap-2">
+              <TextField label="Badge" value={it.badge} onChange={(v) => update({ badge: v || undefined })} />
+              <TextField label="Category tag" value={it.tag || it.category} onChange={(v) => update({ tag: v || undefined, category: v || undefined })} />
+            </div>
             <TextField label="Icon (lucide name)" value={it.icon} onChange={(v) => update({ icon: v || undefined })} />
             <ImageField value={it.image} onChange={(v) => update({ image: v })} />
+            <StringListField
+              label="Deliverable checklist bullets"
+              items={it.bullets || it.highlights}
+              onChange={(v) => update({ bullets: v, highlights: v })}
+              placeholder="Production-grade reliability & uptime guarantees"
+            />
           </>
         )}
       />
@@ -347,11 +566,48 @@ function PricingTiersEditor({
   props: PricingTiersProps;
   patch: (p: Partial<PricingTiersProps>) => void;
 }) {
+  const currentVariant = props.variant ?? 'cards';
+
   return (
     <>
       <HeadingFields props={props} patch={patch} />
-      <TextField label="Currency" value={props.currency} onChange={(v) => patch({ currency: v || undefined })} placeholder="USD" />
+      <VariantPicker<PricingTiersVariant>
+        label="Layout Variant"
+        value={currentVariant}
+        onChange={(v) => patch({ variant: v })}
+        options={[
+          {
+            value: 'cards',
+            label: 'Standard Tier Cards',
+            description: 'Side-by-side tier cards with feature checklists and primary action buttons.',
+            badge: 'Standard',
+          },
+          {
+            value: 'glow_card_deck',
+            label: 'Glow Card Deck',
+            description: 'Radial glowing border on the featured tier + annual/monthly billing switch with discount badge.',
+            badge: 'SaaS / Glow',
+          },
+          {
+            value: 'comparison_table',
+            label: 'Comparison Matrix Table',
+            description: 'Feature-by-feature comparison matrix table with checkmark columns and sticky header.',
+            badge: 'Matrix',
+          },
+          {
+            value: 'custom_quote_service',
+            label: 'Custom Quote Service Packages',
+            description: 'Tiered B2B package boxes with "Included Scope & Deliverables" check pills.',
+            badge: 'Agency / B2B',
+          },
+        ]}
+      />
+      <div className="grid grid-cols-2 gap-2">
+        <TextField label="Currency" value={props.currency} onChange={(v) => patch({ currency: v || undefined })} placeholder="USD" />
+        <TextField label="Annual discount badge" value={props.discountBadge} onChange={(v) => patch({ discountBadge: v || undefined })} placeholder="Save 20%" />
+      </div>
       <TextField label="CTA link" value={props.ctaHref} onChange={(v) => patch({ ctaHref: v || undefined })} placeholder="/contact" />
+      <TextField label="Footnote / Disclaimer" value={props.footnote} onChange={(v) => patch({ footnote: v || undefined })} placeholder="Prices exclude local taxes." />
       <ListField<CatalogItem>
         label="Tiers"
         items={props.tiers}
@@ -372,17 +628,47 @@ function ProductGridEditor({
   props: ProductGridProps;
   patch: (p: Partial<ProductGridProps>) => void;
 }) {
-  const variant = props.layout === 'plans' ? 'plan' : 'product';
+  const currentVariant = props.variant ?? props.layout ?? 'products';
+  const itemType = currentVariant === 'plans' ? 'plan' : 'product';
+
   return (
     <>
       <HeadingFields props={props} patch={patch} />
-      <SelectField
-        label="Layout"
-        value={props.layout ?? 'products'}
-        onChange={(v) => patch({ layout: v })}
+      <VariantPicker<ProductGridVariant>
+        label="Layout Variant"
+        value={currentVariant}
+        onChange={(v) => patch({ variant: v, layout: v as any })}
         options={[
-          { value: 'products', label: 'Products (image cards)' },
-          { value: 'plans', label: 'Plans (spec cards)' },
+          {
+            value: 'products',
+            label: 'Classic Products',
+            description: 'Standard retail e-commerce cards with image, price, and add-to-cart button.',
+            badge: 'E-Commerce',
+          },
+          {
+            value: 'fashion_minimal',
+            label: 'Fashion Minimal',
+            description: 'Tall 4:5 portrait aspect ratio, hover secondary image flip, color swatches, quick add.',
+            badge: 'Fashion / Luxury',
+          },
+          {
+            value: 'mega_catalog',
+            label: 'Mega Catalog',
+            description: '1:1 square cards with % off badges, star reviews, stock scarcity progress bar.',
+            badge: 'High Volume',
+          },
+          {
+            value: 'single_flagship_bundle',
+            label: 'Single Flagship & Bundles',
+            description: 'Exploded flagship specs with companion accessories and bundle pack selector.',
+            badge: 'Flagship',
+          },
+          {
+            value: 'plans',
+            label: 'Server & Service Plans',
+            description: 'Technical specification matrix cards with SLA badges and configure actions.',
+            badge: 'Infra / Specs',
+          },
         ]}
       />
       <TextField label="Currency" value={props.currency} onChange={(v) => patch({ currency: v || undefined })} placeholder="USD" />
@@ -395,7 +681,7 @@ function ProductGridEditor({
         newItem={() => ({ id: `item-${Date.now().toString(36)}`, name: 'New item', price: 0, description: '', features: [] })}
         itemTitle={(it) => it.name}
         addLabel="Add item"
-        renderItem={(it, update) => <CatalogItemFields it={it} update={update} variant={variant} />}
+        renderItem={(it, update) => <CatalogItemFields it={it} update={update} variant={itemType} />}
       />
     </>
   );
@@ -410,9 +696,42 @@ function TestimonialsEditor({
   props: TestimonialsProps;
   patch: (p: Partial<TestimonialsProps>) => void;
 }) {
+  const currentVariant = props.variant ?? 'cards';
+
   return (
     <>
       <HeadingFields props={props} patch={patch} />
+      <VariantPicker<TestimonialsVariant>
+        label="Layout Variant"
+        value={currentVariant}
+        onChange={(v) => patch({ variant: v })}
+        options={[
+          {
+            value: 'cards',
+            label: 'Standard Review Cards',
+            description: 'Multi-column grid of client quotes, avatars, roles, and star ratings.',
+            badge: 'Standard',
+          },
+          {
+            value: 'infinite_marquee',
+            label: 'Infinite Continuous Marquee',
+            description: 'Dual-row continuous ticker scrolling in opposite directions with smooth edge fade masks.',
+            badge: 'Dynamic Marquee',
+          },
+          {
+            value: 'editorial_pullquote',
+            label: 'Editorial Pullquote',
+            description: 'Prominent 32px italicized serif quote from a founder/client with portrait and key metric callout.',
+            badge: 'High Impact',
+          },
+          {
+            value: 'rating_masonry',
+            label: 'Rating Masonry & Review Header',
+            description: 'Trustpilot/Google review summary banner (★ 4.9/5) + 3-column star masonry with verified customer badges.',
+            badge: 'Social Proof',
+          },
+        ]}
+      />
       <ListField<Testimonial>
         label="Quotes"
         items={props.items}
@@ -430,6 +749,10 @@ function TestimonialsEditor({
             <div className="grid grid-cols-2 gap-2">
               <TextField label="Company" value={it.company} onChange={(v) => update({ company: v || undefined })} />
               <NumberField label="Rating (1-5)" value={it.rating} onChange={(v) => update({ rating: v })} min={1} />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <TextField label="Key metric (e.g. 99.9%)" value={it.metric} onChange={(v) => update({ metric: v || undefined })} />
+              <TextField label="Metric label" value={it.metricLabel} onChange={(v) => update({ metricLabel: v || undefined })} />
             </div>
             <ImageField label="Avatar" value={it.avatar} onChange={(v) => update({ avatar: v })} />
           </>
@@ -749,15 +1072,35 @@ function ContactPanelEditor({
   return (
     <>
       <HeadingFields props={props} patch={patch} />
-      <SelectField
-        label="Form variant"
+      <VariantPicker<'standard' | 'enterprise' | 'wholesale' | 'noc'>
+        label="Form Layout Variant"
         value={props.formVariant ?? 'standard'}
         onChange={(v) => patch({ formVariant: v })}
         options={[
-          { value: 'standard', label: 'Standard' },
-          { value: 'enterprise', label: 'Enterprise (requires company)' },
-          { value: 'wholesale', label: 'Wholesale' },
-          { value: 'noc', label: 'NOC / technical' },
+          {
+            value: 'standard',
+            label: 'Standard Inquiry Form',
+            description: 'Name, work email, inquiry topic, and message with optional entity info.',
+            badge: 'Standard',
+          },
+          {
+            value: 'enterprise',
+            label: 'Enterprise / High-Touch',
+            description: 'Adds company name, team size, annual budget range, and phone number.',
+            badge: 'B2B Sales',
+          },
+          {
+            value: 'wholesale',
+            label: 'Wholesale & Volume RFQ',
+            description: 'Adds estimated volume MOQ, SKU interest, and delivery jurisdiction.',
+            badge: 'Procurement',
+          },
+          {
+            value: 'noc',
+            label: 'NOC / Technical Escalation',
+            description: 'Adds incident severity level, cluster ID, and urgent callback priority.',
+            badge: 'Technical NOC',
+          },
         ]}
       />
       <TextField label="Submit button label" value={props.submitLabel} onChange={(v) => patch({ submitLabel: v || undefined })} />

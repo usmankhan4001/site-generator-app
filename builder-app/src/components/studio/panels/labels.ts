@@ -5,7 +5,8 @@
 
 import type { SectionType } from '@/site/schema';
 
-export const SECTION_LABELS: Record<SectionType, string> = {
+export const SECTION_LABELS: Record<SectionType | 'header', string> = {
+  header: 'Header & Navigation',
   hero: 'Hero',
   statsBar: 'Stats Bar',
   trustBar: 'Trust Bar',
@@ -29,7 +30,8 @@ export const SECTION_LABELS: Record<SectionType, string> = {
   checkout: 'Checkout',
 };
 
-export const SECTION_DESCRIPTIONS: Record<SectionType, string> = {
+export const SECTION_DESCRIPTIONS: Record<SectionType | 'header', string> = {
+  header: 'Site navigation bar, layout variant, announcement bar, and action buttons.',
   hero: 'Full-width page opener — headline, subtitle and calls to action.',
   statsBar: 'Compact row of headline metrics.',
   trustBar: 'Logo wall or pill strip of trust signals.',

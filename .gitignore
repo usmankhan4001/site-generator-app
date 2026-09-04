@@ -49,6 +49,8 @@ Thumbs.db
 
 # Gemini Antigravity CLI session dumps (kept on disk, not in git)
 Gemini chat/
+*.txt
+2026-*.txt
 
 # Scratch
 Airwallex Site Cloner — Visual Buil.txt

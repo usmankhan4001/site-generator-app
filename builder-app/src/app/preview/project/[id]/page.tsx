@@ -5,20 +5,11 @@
  */
 
 import { notFound } from 'next/navigation';
-import { SiteRenderer } from '@/site/SiteRenderer';
-import { getTheme, themeToStyleObject } from '@/site/themes';
 import { getProject } from '@/lib/studio/projects';
 import { getActor } from '@/lib/session';
-import { PreviewBridge } from '@/components/preview/PreviewBridge';
+import { LivePreviewContainer } from '@/components/preview/LivePreviewContainer';
 
 export const dynamic = 'force-dynamic';
-
-function googleFontsHref(families: string[]): string {
-  const q = families
-    .map((f) => `family=${encodeURIComponent(f)}:wght@400;500;600;700`)
-    .join('&');
-  return `https://fonts.googleapis.com/css2?${q}&display=swap`;
-}
 
 export default async function ProjectPreviewPage({
   params,
@@ -36,19 +27,5 @@ export default async function ProjectPreviewPage({
   const project = await getProject(id, actor);
   if (!project) notFound();
 
-  const { content } = project;
-  const theme = getTheme(content.themeId);
-  const style = themeToStyleObject(theme, content.accent);
-
-  return (
-    <>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link rel="stylesheet" href={googleFontsHref(theme.googleFonts)} />
-      <div className={theme.isDark ? 'dark' : undefined} style={style} data-preview-root>
-        <SiteRenderer content={content} page={page} preview />
-      </div>
-      <PreviewBridge />
-    </>
-  );
+  return <LivePreviewContainer initialContent={project.content} page={page} />;
 }

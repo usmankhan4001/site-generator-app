@@ -1,34 +1,18 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Monitor,
-  Tablet,
-  Smartphone,
-  ExternalLink,
-  type LucideIcon,
-} from 'lucide-react';
-import { useStudio, DEVICE_WIDTH, type PreviewDevice } from '@/store/studio';
-import type { SitePage } from '@/site/schema';
-import { cn } from '@/lib/utils';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ExternalLink } from 'lucide-react';
+import { useStudio, DEVICE_WIDTH } from '@/store/studio';
 
-const DEVICES: { id: PreviewDevice; label: string; icon: LucideIcon }[] = [
-  { id: 'desktop', label: 'Desktop', icon: Monitor },
-  { id: 'tablet', label: 'Tablet', icon: Tablet },
-  { id: 'mobile', label: 'Mobile', icon: Smartphone },
-];
-
-const EMPTY: SitePage[] = [];
 const CANVAS_PAD = 24; // keep in sync with the p-6 on the scroll container
+const CHROME_H = 30; // height (real px, unscaled) of the simulated browser-window chrome bar
 
 export function PreviewPane() {
   const projectId = useStudio((s) => s.meta?.id ?? '');
-  const pages = useStudio((s) => s.content?.pages ?? EMPTY);
   const activePagePath = useStudio((s) => s.activePagePath);
-  const previewNonce = useStudio((s) => s.previewNonce);
+  const content = useStudio((s) => s.content);
   const device = useStudio((s) => s.device);
   const selectedSectionId = useStudio((s) => s.selectedSectionId);
-  const setDevice = useStudio((s) => s.setDevice);
   const setActivePage = useStudio((s) => s.setActivePage);
   const selectSection = useStudio((s) => s.selectSection);
   const setStep = useStudio((s) => s.setStep);
@@ -39,9 +23,7 @@ export function PreviewPane() {
   const skipScrollRef = useRef(false);
 
   const dw = DEVICE_WIDTH[device];
-  const src = `/preview/project/${projectId}?page=${encodeURIComponent(
-    activePagePath,
-  )}&n=${previewNonce}`;
+  const src = `/preview/project/${projectId}?page=${encodeURIComponent(activePagePath)}`;
 
   // --- scale-to-fit measurement -------------------------------------------------
   const [box, setBox] = useState({ w: 0, h: 0 });
@@ -58,7 +40,11 @@ export function PreviewPane() {
   const availW = Math.max(0, box.w - CANVAS_PAD * 2);
   const availH = Math.max(0, box.h - CANVAS_PAD * 2);
   const scale = availW > 0 ? Math.min(1, availW / dw) : 1;
-  const frameH = scale > 0 ? availH / scale : availH;
+  // The chrome bar sits above the (scaled) iframe inside the same fixed-height
+  // wrapper, so its height must come out of the iframe's visual budget, not
+  // be added on top of it — otherwise the bottom of the page gets clipped.
+  const frameVisualH = Math.max(0, availH - CHROME_H);
+  const frameH = scale > 0 ? frameVisualH / scale : frameVisualH;
   const canRender = availW > 0 && availH > 0 && projectId !== '';
 
   // --- bridge -----------------------------------------------------------------
@@ -89,12 +75,26 @@ export function PreviewPane() {
     postRef.current = postToFrame;
   }, [postToFrame]);
 
+  // Real-time live update: push content directly to the iframe without page reload
+  useEffect(() => {
+    const win = iframeRef.current?.contentWindow;
+    if (!win || !readyRef.current || !content) return;
+    win.postMessage({ source: 'studio', type: 'content:update', content }, '*');
+  }, [content]);
+
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       const d = e.data;
       if (!d || d.source !== 'site-preview') return;
       if (d.type === 'ready') {
         readyRef.current = true;
+        const currentContent = useStudio.getState().content;
+        if (currentContent && iframeRef.current?.contentWindow) {
+          iframeRef.current.contentWindow.postMessage(
+            { source: 'studio', type: 'content:update', content: currentContent },
+            '*',
+          );
+        }
         postRef.current(false); // re-apply highlight after a (re)load, no scroll
       } else if (d.type === 'section:select' && d.id) {
         skipScrollRef.current = true; // it's already on screen — don't yank the view
@@ -110,7 +110,7 @@ export function PreviewPane() {
     return () => window.removeEventListener('message', onMessage);
   }, [selectSection, setStep, setActivePage]);
 
-  // src changes (page switch / save nonce) reload the iframe → wait for `ready`
+  // src changes (page switch) reload the iframe → wait for `ready`
   useEffect(() => {
     readyRef.current = false;
   }, [src]);
@@ -121,54 +121,12 @@ export function PreviewPane() {
     skipScrollRef.current = false;
   }, [postToFrame]);
 
-  // --- page selector options ------------------------------------------------
-  const pageOptions = useMemo(() => {
-    const filtered = pages.filter((p) => p.nav || p.key.startsWith('policy') || p.key === 'checkout');
-    const base = filtered.length ? filtered : pages;
-    if (!base.some((p) => p.path === activePagePath)) {
-      const active = pages.find((p) => p.path === activePagePath);
-      if (active) return [active, ...base];
-    }
-    return base;
-  }, [pages, activePagePath]);
-
   return (
     <div className="studio-canvas flex h-full flex-col">
-      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border bg-card/70 px-3 py-2">
-        <div className="flex rounded-lg bg-muted p-0.5">
-          {DEVICES.map((d) => (
-            <button
-              key={d.id}
-              type="button"
-              onClick={() => setDevice(d.id)}
-              title={`${d.label} · ${DEVICE_WIDTH[d.id]}px`}
-              aria-pressed={device === d.id}
-              className={cn(
-                'inline-flex h-7 w-8 items-center justify-center rounded-md transition-colors',
-                device === d.id
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              <d.icon className="h-4 w-4" />
-            </button>
-          ))}
-        </div>
-
-        <select
-          value={activePagePath}
-          onChange={(e) => setActivePage(e.target.value)}
-          aria-label="Preview page"
-          className="h-8 max-w-[240px] truncate rounded-md border border-input bg-background px-2 text-xs text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {pageOptions.map((p) => (
-            <option key={p.key} value={p.path}>
-              {(p.navLabel || p.title) + (p.path === '/' ? '' : `  ·  ${p.path}`)}
-            </option>
-          ))}
-        </select>
-
-        <span className="hidden text-xs tabular-nums text-muted-foreground sm:inline">
+      {/* Slim quiet sub-header: dw/scale readout + open-in-new-tab (the device
+          toggle and page selector now live in TopBar). */}
+      <div className="flex h-8 shrink-0 items-center gap-2 border-b border-border bg-card/70 px-3 text-[11px] text-muted-foreground">
+        <span className="tabular-nums">
           {dw}px{scale < 1 ? ` · ${Math.round(scale * 100)}%` : ''}
         </span>
 
@@ -176,9 +134,9 @@ export function PreviewPane() {
           href={`/preview/project/${projectId}?page=${encodeURIComponent(activePagePath)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="ml-auto inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-md px-2 py-1 transition-colors hover:bg-accent hover:text-foreground"
         >
-          <ExternalLink className="h-3.5 w-3.5" />
+          <ExternalLink className="h-3 w-3" />
           Open in new tab
         </a>
       </div>
@@ -189,6 +147,16 @@ export function PreviewPane() {
             className="mx-auto overflow-hidden rounded-lg border border-border bg-white shadow-xl"
             style={{ width: dw * scale, height: availH }}
           >
+            {/* Simulated browser-window chrome — quiet/neutral dots, not traffic lights. */}
+            <div
+              className="flex items-center gap-1.5 border-b border-border/60 bg-muted/50 px-3"
+              style={{ height: CHROME_H }}
+            >
+              <span className="h-2 w-2 rounded-full bg-muted-foreground/25" />
+              <span className="h-2 w-2 rounded-full bg-muted-foreground/25" />
+              <span className="h-2 w-2 rounded-full bg-muted-foreground/25" />
+            </div>
+
             <iframe
               ref={iframeRef}
               src={src}

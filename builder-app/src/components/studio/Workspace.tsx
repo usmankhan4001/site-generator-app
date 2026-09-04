@@ -69,15 +69,6 @@ export function Workspace({ projectId }: { projectId: string }) {
               <MobileToggle view={mobileView} onChange={setMobileView} />
             </div>
 
-            <aside
-              className={cn(
-                'thin-scroll min-h-0 shrink-0 overflow-y-auto border-border bg-card lg:block lg:w-[380px] lg:flex-none lg:border-r',
-                mobileView === 'panel' ? 'block flex-1' : 'hidden',
-              )}
-            >
-              <RightPanel />
-            </aside>
-
             <main
               className={cn(
                 'min-h-0 flex-1 lg:block',
@@ -86,6 +77,15 @@ export function Workspace({ projectId }: { projectId: string }) {
             >
               <PreviewPane />
             </main>
+
+            <aside
+              className={cn(
+                'thin-scroll min-h-0 shrink-0 overflow-y-auto border-border bg-card lg:block lg:w-[360px] lg:flex-none lg:border-l',
+                mobileView === 'panel' ? 'block flex-1' : 'hidden',
+              )}
+            >
+              <RightPanel />
+            </aside>
           </div>
         </div>
       </div>
@@ -137,14 +137,14 @@ function WorkspaceSkeleton() {
             <div key={i} className="h-12 w-full animate-pulse rounded-lg bg-muted" />
           ))}
         </div>
-        <div className="hidden w-[380px] shrink-0 flex-col gap-4 border-r border-border bg-card p-4 lg:flex">
+        <div className="studio-canvas flex flex-1 items-center justify-center">
+          <div className="h-3/4 w-3/4 max-w-4xl animate-pulse rounded-lg border border-border bg-muted/40" />
+        </div>
+        <div className="hidden w-[360px] shrink-0 flex-col gap-4 border-l border-border bg-card p-4 lg:flex">
           <div className="h-4 w-32 animate-pulse rounded bg-muted" />
           <div className="h-24 w-full animate-pulse rounded-lg bg-muted" />
           <div className="h-24 w-full animate-pulse rounded-lg bg-muted" />
           <div className="h-24 w-full animate-pulse rounded-lg bg-muted" />
-        </div>
-        <div className="studio-canvas flex flex-1 items-center justify-center">
-          <div className="h-3/4 w-3/4 max-w-4xl animate-pulse rounded-lg border border-border bg-muted/40" />
         </div>
       </div>
     </div>

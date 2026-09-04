@@ -1,14 +1,37 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { ChevronLeft, Loader2, Check, Pencil, TriangleAlert, Rocket, Sun, Moon } from 'lucide-react';
-import { useStudio } from '@/store/studio';
+import {
+  ChevronLeft,
+  Loader2,
+  Check,
+  Pencil,
+  TriangleAlert,
+  Rocket,
+  Download,
+  Sun,
+  Moon,
+  Monitor,
+  Tablet,
+  Smartphone,
+  type LucideIcon,
+} from 'lucide-react';
+import { useStudio, DEVICE_WIDTH, type PreviewDevice } from '@/store/studio';
+import type { SitePage } from '@/site/schema';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+
+const DEVICES: { id: PreviewDevice; label: string; icon: LucideIcon }[] = [
+  { id: 'desktop', label: 'Desktop', icon: Monitor },
+  { id: 'tablet', label: 'Tablet', icon: Tablet },
+  { id: 'mobile', label: 'Mobile', icon: Smartphone },
+];
+
+const EMPTY: SitePage[] = [];
 
 function relativeTime(from: number, now: number): string {
   const s = Math.max(0, Math.round((now - from) / 1000));
@@ -22,6 +45,7 @@ function relativeTime(from: number, now: number): string {
 }
 
 export function TopBar() {
+  const meta = useStudio((s) => s.meta);
   const name = useStudio((s) => s.meta?.name ?? '');
   const status = useStudio((s) => s.meta?.status ?? 'draft');
   const saving = useStudio((s) => s.saving);
@@ -31,6 +55,23 @@ export function TopBar() {
   const rename = useStudio((s) => s.rename);
   const saveNow = useStudio((s) => s.saveNow);
   const setStep = useStudio((s) => s.setStep);
+
+  const pages = useStudio((s) => s.content?.pages ?? EMPTY);
+  const activePagePath = useStudio((s) => s.activePagePath);
+  const device = useStudio((s) => s.device);
+  const setDevice = useStudio((s) => s.setDevice);
+  const setActivePage = useStudio((s) => s.setActivePage);
+
+  // --- page selector options (moved here verbatim from PreviewPane) --------
+  const pageOptions = useMemo(() => {
+    const filtered = pages.filter((p) => p.nav || p.key.startsWith('policy') || p.key === 'checkout');
+    const base = filtered.length ? filtered : pages;
+    if (!base.some((p) => p.path === activePagePath)) {
+      const active = pages.find((p) => p.path === activePagePath);
+      if (active) return [active, ...base];
+    }
+    return base;
+  }, [pages, activePagePath]);
 
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -97,7 +138,7 @@ export function TopBar() {
         {status}
       </Badge>
 
-      <div className="ml-2 min-w-0 flex-1">
+      <div className="ml-2 min-w-0 shrink-0">
         <SaveIndicator
           saving={saving}
           dirty={dirty}
@@ -106,6 +147,42 @@ export function TopBar() {
           now={now}
           onRetry={() => void saveNow()}
         />
+      </div>
+
+      {/* Center: device viewport toggle + page selector for the canvas below */}
+      <div className="flex min-w-0 flex-1 items-center justify-center gap-2">
+        <div className="hidden shrink-0 rounded-lg bg-muted p-0.5 sm:flex">
+          {DEVICES.map((d) => (
+            <button
+              key={d.id}
+              type="button"
+              onClick={() => setDevice(d.id)}
+              title={`${d.label} · ${DEVICE_WIDTH[d.id]}px`}
+              aria-pressed={device === d.id}
+              className={cn(
+                'inline-flex h-7 w-8 items-center justify-center rounded-md transition-colors',
+                device === d.id
+                  ? 'bg-background text-foreground shadow-subtle'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              <d.icon className="h-4 w-4" />
+            </button>
+          ))}
+        </div>
+
+        <select
+          value={activePagePath}
+          onChange={(e) => setActivePage(e.target.value)}
+          aria-label="Preview page"
+          className="h-8 w-full max-w-[160px] truncate rounded-md border border-input bg-background px-2 text-xs text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:max-w-[220px]"
+        >
+          {pageOptions.map((p) => (
+            <option key={p.key} value={p.path}>
+              {(p.navLabel || p.title) + (p.path === '/' ? '' : `  ·  ${p.path}`)}
+            </option>
+          ))}
+        </select>
       </div>
 
       {mounted && (
@@ -121,9 +198,16 @@ export function TopBar() {
         </Button>
       )}
 
+      <Button asChild variant="outline" size="sm" className="shrink-0">
+        <a href={`/api/projects/${meta?.id ?? ''}/export`} download>
+          <Download className="h-4 w-4" />
+          Export
+        </a>
+      </Button>
+
       <Button size="sm" onClick={() => setStep('deploy')} className="shrink-0">
         <Rocket className="h-4 w-4" />
-        Deploy
+        Publish
       </Button>
     </header>
   );

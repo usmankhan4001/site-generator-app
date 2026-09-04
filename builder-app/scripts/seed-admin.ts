@@ -2,19 +2,34 @@ import { auth } from '../src/lib/auth';
 import { prisma } from '../src/lib/db';
 
 async function main() {
-  const adminEmail = (process.env.SUPER_ADMIN_EMAIL || 'quraninstitute.isb@gmail.com').trim().toLowerCase();
-  const password = process.env.SUPER_ADMIN_PASSWORD || 'AdminPassword123!';
+  const adminEmail = process.env.SUPER_ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.SUPER_ADMIN_PASSWORD;
+
+  if (!adminEmail) throw new Error('SUPER_ADMIN_EMAIL must be set — no hardcoded default.');
+  if (!password || password.length < 12) {
+    throw new Error(
+      'SUPER_ADMIN_PASSWORD must be set to a real secret (12+ chars) — no hardcoded default. ' +
+        'Generate one, e.g.: node -e "console.log(require(\'crypto\').randomBytes(18).toString(\'base64url\'))"',
+    );
+  }
 
   console.log(`Seeding super admin user: ${adminEmail}`);
 
-  // Delete existing if any to ensure clean credentials
   const existingUser = await prisma.user.findUnique({
     where: { email: adminEmail },
     include: { accounts: true },
   });
 
   if (existingUser) {
-    console.log(`Existing user found. Resetting password and ensuring admin role...`);
+    const ownedProjects = await prisma.project.count({ where: { ownerId: existingUser.id } });
+    if (ownedProjects > 0) {
+      throw new Error(
+        `Refusing to reset: ${adminEmail} owns ${ownedProjects} project(s). Deleting this user ` +
+          `cascade-deletes them. Reassign or back up those projects first, or reset the password ` +
+          `directly via better-auth instead of this script.`,
+      );
+    }
+    console.log(`Existing user found with no owned projects. Resetting password and role...`);
     await prisma.user.delete({
       where: { id: existingUser.id },
     });

@@ -21,8 +21,43 @@ import type { SiteContent } from '@/site/schema';
 import { siteContentToModule } from './serializeSite';
 import { getTheme, themeToRootBlock } from '@/site/themes';
 
-const TEMPLATE_ROOT = resolve(process.cwd(), '../template');
-const SITE_KIT_SRC = resolve(process.cwd(), 'src/site');
+export interface AssembleSiteOptions {
+  templateRoot?: string;
+  siteKitSrc?: string;
+}
+
+function resolveTemplateRoot(): string {
+  const candidates = [
+    resolve(process.cwd(), '../template'),
+    resolve(process.cwd(), 'template'),
+    resolve(process.cwd(), '../../template'),
+    resolve(__dirname, '../../../template'),
+    resolve(__dirname, '../../template'),
+    resolve(__dirname, '../template'),
+  ];
+  for (const c of candidates) {
+    if (existsSync(c) && existsSync(join(c, 'package.json'))) {
+      return c;
+    }
+  }
+  return resolve(process.cwd(), '../template');
+}
+
+function resolveSiteKitSrc(): string {
+  const candidates = [
+    resolve(process.cwd(), 'src/site'),
+    resolve(process.cwd(), 'builder-app/src/site'),
+    resolve(__dirname, '../site'),
+    resolve(__dirname, '../../site'),
+    resolve(__dirname, '../../src/site'),
+  ];
+  for (const c of candidates) {
+    if (existsSync(c) && existsSync(join(c, 'schema.ts'))) {
+      return c;
+    }
+  }
+  return resolve(process.cwd(), 'src/site');
+}
 
 // Same junk this repo already knows to keep out of a packaged template copy —
 // see `template/.dockerignore`, curated by the Phase-0 audit.
@@ -78,16 +113,23 @@ function slugify(name: string): string {
   );
 }
 
-export async function assembleSite(content: SiteContent, destDir: string): Promise<void> {
-  if (!existsSync(TEMPLATE_ROOT)) {
-    throw new Error(`template/ sibling not found at ${TEMPLATE_ROOT}`);
+export async function assembleSite(
+  content: SiteContent,
+  destDir: string,
+  options?: AssembleSiteOptions,
+): Promise<void> {
+  const templateRoot = options?.templateRoot || resolveTemplateRoot();
+  const siteKitSrc = options?.siteKitSrc || resolveSiteKitSrc();
+
+  if (!existsSync(templateRoot)) {
+    throw new Error(`template/ source directory not found at ${templateRoot}`);
   }
-  if (!existsSync(SITE_KIT_SRC)) {
-    throw new Error(`site kit not found at ${SITE_KIT_SRC}`);
+  if (!existsSync(siteKitSrc)) {
+    throw new Error(`site kit source directory not found at ${siteKitSrc}`);
   }
 
-  copyDir(TEMPLATE_ROOT, destDir);
-  copyDir(SITE_KIT_SRC, join(destDir, 'src/site'));
+  copyDir(templateRoot, destDir);
+  copyDir(siteKitSrc, join(destDir, 'src/site'));
 
   const contentDir = join(destDir, 'src/content');
   mkdirSync(contentDir, { recursive: true });

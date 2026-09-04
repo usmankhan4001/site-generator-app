@@ -216,6 +216,117 @@ export function SelectField<T extends string>({
   );
 }
 
+export interface VariantOption<T extends string = string> {
+  value: T;
+  label: string;
+  description?: string;
+  badge?: string;
+  icon?: ReactNode;
+}
+
+export function VariantPicker<T extends string>({
+  label = 'Layout Variant',
+  value,
+  onChange,
+  options,
+  hint,
+  columns = 1,
+}: {
+  label?: string;
+  value: T | undefined;
+  onChange: (v: T) => void;
+  options: VariantOption<T>[];
+  hint?: string;
+  columns?: 1 | 2;
+}) {
+  const currentValue = value ?? options[0]?.value;
+
+  return (
+    <FieldShell label={label} hint={hint}>
+      <div
+        className={cn(
+          'grid gap-2',
+          columns === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1',
+        )}
+      >
+        {options.map((option) => {
+          const isSelected = currentValue === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onChange(option.value)}
+              className={cn(
+                'group relative flex items-start gap-2.5 rounded-xl border p-2.5 sm:p-3 text-left transition-all duration-150 cursor-pointer',
+                isSelected
+                  ? 'border-primary bg-primary/10 ring-1 ring-primary/40 shadow-xs'
+                  : 'border-border bg-card hover:border-primary/40 hover:bg-muted/40',
+              )}
+            >
+              {/* Radio Indicator */}
+              <div
+                className={cn(
+                  'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors',
+                  isSelected
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-muted-foreground/40 group-hover:border-primary/60',
+                )}
+              >
+                {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+              </div>
+
+              {/* Text / Badge details */}
+              <div className="min-w-0 flex-1 space-y-1">
+                <div className="flex items-center justify-between gap-1.5">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    {option.icon && (
+                      <span
+                        className={cn(
+                          'shrink-0',
+                          isSelected ? 'text-primary' : 'text-muted-foreground',
+                        )}
+                      >
+                        {option.icon}
+                      </span>
+                    )}
+                    <span
+                      className={cn(
+                        'text-xs font-semibold leading-snug truncate',
+                        isSelected ? 'text-foreground font-bold' : 'text-foreground/90',
+                      )}
+                    >
+                      {option.label}
+                    </span>
+                  </div>
+
+                  {option.badge && (
+                    <span
+                      className={cn(
+                        'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider',
+                        isSelected
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted text-muted-foreground',
+                      )}
+                    >
+                      {option.badge}
+                    </span>
+                  )}
+                </div>
+
+                {option.description && (
+                  <p className="text-[11px] leading-relaxed text-muted-foreground">
+                    {option.description}
+                  </p>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </FieldShell>
+  );
+}
+
 /* ------------------------------------------------------------------- image -- */
 
 /* ------------------------------------------------------------------- image -- */

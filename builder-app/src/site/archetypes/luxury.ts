@@ -96,7 +96,12 @@ export const luxury: ArchetypeMeta = {
     ],
     footer: { showLegalBar: true, showPaymentBadges: true },
   },
-  starterSetIds: ['luxury-horology', 'luxury-eyewear', 'luxury-leather'],
+  starterSetIds: [
+    'luxury_fashion_dtc',
+    'luxury-horology',
+    'luxury-eyewear',
+    'luxury-leather',
+  ],
 };
 
 export default luxury;

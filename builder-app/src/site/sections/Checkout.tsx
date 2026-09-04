@@ -18,6 +18,7 @@ import { Button } from '@/site/ui/button';
 import { Input } from '@/site/ui/input';
 import { formatPrice } from '@/site/lib/format';
 import { PaymentTrustBadges } from '@/site/sections/_shared/PaymentTrustBadges';
+import { useCart } from '@/site/commerce/useCart';
 
 export default function Checkout({
   props,
@@ -48,6 +49,7 @@ export default function Checkout({
     inStock: true,
   };
 
+  const { items: cartItems, clearCart, currency: cartCurrency } = useCart();
   const [selectedItem] = useState<CatalogItem>(defaultItem);
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
@@ -66,10 +68,14 @@ export default function Checkout({
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
 
-  const currency = selectedItem.currency ?? 'USD';
-  const itemPrice = selectedItem.price;
-  const discount = promoApplied ? Math.round(itemPrice * 0.15) : 0;
-  const total = Math.max(0, itemPrice - discount);
+  const hasCartItems = cartItems.length > 0;
+  const currency = hasCartItems ? (cartItems[0].currency || cartCurrency || 'USD') : (selectedItem.currency ?? 'USD');
+  const itemsSubtotal = hasCartItems
+    ? cartItems.reduce((acc, item) => acc + (item.price || 0) * (item.quantity || 1), 0)
+    : selectedItem.price;
+
+  const discount = promoApplied ? Math.round(itemsSubtotal * 0.15) : 0;
+  const total = Math.max(0, itemsSubtotal - discount);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +87,7 @@ export default function Checkout({
     setTimeout(() => {
       setLoading(false);
       setOrderPlaced(true);
+      clearCart();
     }, 1200);
   };
 
@@ -360,45 +367,91 @@ export default function Checkout({
                 Order Summary
               </h2>
 
-              {/* Product item */}
-              <div className="flex gap-4 items-start pb-5 border-b border-border/70">
-                <div className="w-20 h-20 rounded-xl overflow-hidden bg-muted border border-border/80 shrink-0 relative">
-                  {selectedItem.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={selectedItem.image}
-                      alt={selectedItem.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                      <Package className="h-8 w-8" />
+              {/* Product items */}
+              <div className="space-y-3 pb-5 border-b border-border/70 max-h-72 overflow-y-auto thin-scroll">
+                {hasCartItems ? (
+                  cartItems.map((cItem) => (
+                    <div key={cItem.id} className="flex gap-4 items-start">
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted border border-border/80 shrink-0 relative">
+                        {cItem.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={cItem.image}
+                            alt={cItem.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <Package className="h-6 w-6" />
+                          </div>
+                        )}
+                        <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                          {cItem.quantity}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="text-sm font-bold text-foreground leading-snug truncate">
+                            {cItem.name}
+                          </h3>
+                          <span className="text-sm font-bold text-foreground shrink-0">
+                            {formatPrice((cItem.price || 0) * (cItem.quantity || 1), currency)}
+                          </span>
+                        </div>
+                        {cItem.category && (
+                          <span className="text-[11px] font-medium text-muted-foreground block mt-0.5">
+                            {cItem.category}
+                          </span>
+                        )}
+                        {cItem.quantity > 1 && (
+                          <span className="text-[11px] text-muted-foreground">
+                            {formatPrice(cItem.price, currency)} &times; {cItem.quantity}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  )}
-                  <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                    1
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-bold text-foreground leading-snug truncate">
-                      {selectedItem.name}
-                    </h3>
-                    <span className="text-sm font-bold text-foreground shrink-0">
-                      {formatPrice(selectedItem.price, currency)}
-                    </span>
+                  ))
+                ) : (
+                  <div className="flex gap-4 items-start">
+                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted border border-border/80 shrink-0 relative">
+                      {selectedItem.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={selectedItem.image}
+                          alt={selectedItem.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          <Package className="h-6 w-6" />
+                        </div>
+                      )}
+                      <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                        1
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="text-sm font-bold text-foreground leading-snug truncate">
+                          {selectedItem.name}
+                        </h3>
+                        <span className="text-sm font-bold text-foreground shrink-0">
+                          {formatPrice(selectedItem.price, currency)}
+                        </span>
+                      </div>
+                      {selectedItem.category && (
+                        <span className="text-[11px] font-medium text-muted-foreground block mt-0.5">
+                          {selectedItem.category}
+                        </span>
+                      )}
+                      {selectedItem.features && selectedItem.features.length > 0 && (
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                          {selectedItem.features[0]}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  {selectedItem.category && (
-                    <span className="text-[11px] font-medium text-muted-foreground block mt-0.5">
-                      {selectedItem.category}
-                    </span>
-                  )}
-                  {selectedItem.features && selectedItem.features.length > 0 && (
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
-                      {selectedItem.features[0]}
-                    </p>
-                  )}
-                </div>
+                )}
               </div>
 
               {/* Promo Code Input */}
@@ -437,7 +490,7 @@ export default function Checkout({
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
                   <span className="font-semibold text-foreground">
-                    {formatPrice(itemPrice, currency)}
+                    {formatPrice(itemsSubtotal, currency)}
                   </span>
                 </div>
                 {promoApplied && (

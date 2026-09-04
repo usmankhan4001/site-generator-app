@@ -101,7 +101,12 @@ export const services: ArchetypeMeta = {
     ],
     footer: { showLegalBar: true, showPaymentBadges: false },
   },
-  starterSetIds: ['services-consulting', 'services-fintech'],
+  starterSetIds: [
+    'legal_corporate',
+    'construction_engineering',
+    'services-consulting',
+    'services-fintech',
+  ],
 };
 
 export default services;

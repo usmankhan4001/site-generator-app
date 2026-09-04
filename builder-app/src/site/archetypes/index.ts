@@ -14,6 +14,14 @@ import { services } from '@/site/archetypes/services';
 import { store } from '@/site/archetypes/store';
 import { local } from '@/site/archetypes/local';
 
+// Turnkey Flagship Starters
+import { legalCorporate } from '@/site/archetypes/starterSets/services/legal-corporate';
+import { luxuryFashionDtc } from '@/site/archetypes/starterSets/luxury/luxury-fashion-dtc';
+import { constructionEngineering } from '@/site/archetypes/starterSets/services/construction-engineering';
+import { modernSaasPro } from '@/site/archetypes/starterSets/saas/modern-saas-pro';
+import { megaElectronicsStore } from '@/site/archetypes/starterSets/store/mega-electronics-store';
+
+// Niche Starters
 import { saasDevops } from '@/site/archetypes/starterSets/saas/saas-devops';
 import { saasAnalytics } from '@/site/archetypes/starterSets/saas/saas-analytics';
 import { agencyDigital } from '@/site/archetypes/starterSets/agency/agency-digital';
@@ -34,6 +42,11 @@ import { localPlumbing } from '@/site/archetypes/starterSets/local/local-plumbin
 import { localElectrical } from '@/site/archetypes/starterSets/local/local-electrical';
 
 export {
+  legalCorporate,
+  luxuryFashionDtc,
+  constructionEngineering,
+  modernSaasPro,
+  megaElectronicsStore,
   saasDevops,
   saasAnalytics,
   agencyDigital,
@@ -65,8 +78,21 @@ export const ARCHETYPES: Record<ArchetypeId, ArchetypeMeta> = {
 
 export const ARCHETYPE_LIST: ArchetypeMeta[] = Object.values(ARCHETYPES);
 
-/** Niche-specific starter content packs. */
+/** Niche-specific and turnkey starter content packs. */
 export const STARTER_SETS: Record<string, StarterContentSet> = {
+  // 5 Brand-New Flagship Turnkey Starters
+  [legalCorporate.id]: legalCorporate,
+  'services-legal-corporate': legalCorporate,
+  [luxuryFashionDtc.id]: luxuryFashionDtc,
+  'luxury-fashion-dtc': luxuryFashionDtc,
+  [constructionEngineering.id]: constructionEngineering,
+  'services-construction-engineering': constructionEngineering,
+  [modernSaasPro.id]: modernSaasPro,
+  'saas-modern-pro': modernSaasPro,
+  [megaElectronicsStore.id]: megaElectronicsStore,
+  'store-mega-electronics': megaElectronicsStore,
+
+  // Niche Starter Sets
   [saasDevops.id]: saasDevops,
   [saasAnalytics.id]: saasAnalytics,
   [agencyDigital.id]: agencyDigital,
@@ -87,7 +113,33 @@ export const STARTER_SETS: Record<string, StarterContentSet> = {
   [localElectrical.id]: localElectrical,
 };
 
-export const STARTER_SET_LIST: StarterContentSet[] = Object.values(STARTER_SETS);
+export const STARTER_SET_LIST: StarterContentSet[] = [
+  legalCorporate,
+  luxuryFashionDtc,
+  constructionEngineering,
+  modernSaasPro,
+  megaElectronicsStore,
+  saasDevops,
+  saasAnalytics,
+  agencyDigital,
+  agencyGrowth,
+  luxuryHorology,
+  luxuryEyewear,
+  luxuryLeather,
+  servicesConsulting,
+  servicesFintech,
+  storeApparel,
+  storeFashion,
+  storeLiving,
+  storeElectronics,
+  storeGadgets,
+  storeOutdoor,
+  storeCoffee,
+  localPlumbing,
+  localElectrical,
+];
 
 export * from '@/site/archetypes/types';
 export * from '@/site/archetypes/style';
+export * from '@/site/archetypes/starters';
+

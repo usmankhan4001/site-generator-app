@@ -11,7 +11,8 @@
     "db:generate": "prisma generate",
     "normalize": "tsx scripts/normalize-templates.ts",
     "test:dokploy": "tsx src/lib/dokploy.test.ts",
-    "test:github": "tsx src/lib/github.test.ts"
+    "test:github": "tsx src/lib/github.test.ts",
+    "test:vault": "tsx src/lib/images/vault.test.ts"
   },
   "dependencies": {
     "@octokit/rest": "^21.1.1",

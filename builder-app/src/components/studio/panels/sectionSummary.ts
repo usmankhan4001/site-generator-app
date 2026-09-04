@@ -4,26 +4,38 @@ import type { Section } from '@/site/schema';
 export function summarizeSection(section: Section): string {
   const p = section.props as Record<string, unknown>;
   switch (section.type) {
-    case 'hero':
-      return String(p.headline ?? '');
+    case 'hero': {
+      const v = p.variant ? `[${String(p.variant).replace(/_/g, ' ')}] ` : '';
+      return `${v}${String(p.headline ?? 'Hero banner')}`;
+    }
     case 'statsBar':
       return `${(p.items as unknown[] | undefined)?.length ?? 0} metrics`;
-    case 'trustBar':
-      return `${(p.items as unknown[] | undefined)?.length ?? 0} items · ${p.variant ?? 'pills'}`;
-    case 'featureGrid':
-      return `${(p.items as unknown[] | undefined)?.length ?? 0} features`;
-    case 'pricingTiers':
-      return `${(p.tiers as unknown[] | undefined)?.length ?? 0} tiers`;
-    case 'productGrid':
-      return `${(p.items as unknown[] | undefined)?.length ?? 0} items · ${p.layout ?? 'products'}`;
-    case 'testimonials':
-      return `${(p.items as unknown[] | undefined)?.length ?? 0} quotes`;
+    case 'trustBar': {
+      const v = p.variant ? String(p.variant).replace(/_/g, ' ') : 'pills';
+      return `${(p.items as unknown[] | undefined)?.length ?? 0} items · ${v}`;
+    }
+    case 'featureGrid': {
+      const v = p.variant ? String(p.variant).replace(/_/g, ' ') : 'grid';
+      return `${(p.items as unknown[] | undefined)?.length ?? 0} features · ${v}`;
+    }
+    case 'pricingTiers': {
+      const v = p.variant ? String(p.variant).replace(/_/g, ' ') : 'cards';
+      return `${(p.tiers as unknown[] | undefined)?.length ?? 0} tiers · ${v}`;
+    }
+    case 'productGrid': {
+      const v = p.variant || p.layout || 'products';
+      return `${(p.items as unknown[] | undefined)?.length ?? 0} items · ${String(v).replace(/_/g, ' ')}`;
+    }
+    case 'testimonials': {
+      const v = p.variant ? String(p.variant).replace(/_/g, ' ') : 'cards';
+      return `${(p.items as unknown[] | undefined)?.length ?? 0} quotes · ${v}`;
+    }
     case 'faq':
       return `${(p.items as unknown[] | undefined)?.length ?? 0} questions`;
     case 'ctaBanner':
-      return String(p.headline ?? '');
+      return String(p.headline ?? 'Call to action');
     case 'pageHeader':
-      return String(p.headline ?? '');
+      return String(p.headline ?? 'Page banner');
     case 'prose':
       return `${(p.blocks as unknown[] | undefined)?.length ?? 0} blocks`;
     case 'timeline':
@@ -40,10 +52,12 @@ export function summarizeSection(section: Section): string {
       return `${(p.places as unknown[] | undefined)?.length ?? (p.locations as unknown[] | undefined)?.length ?? 0} locations`;
     case 'corporateRegistration':
       return String(p.entityName ?? 'Uses business details');
-    case 'contactPanel':
-      return String(p.title ?? 'Contact form');
+    case 'contactPanel': {
+      const v = p.formVariant ? String(p.formVariant) : 'standard';
+      return `${String(p.title ?? 'Contact form')} · ${v}`;
+    }
     case 'policyDocument':
-      return String(p.title ?? '');
+      return String(p.title ?? 'Legal policy');
     default:
       return '';
   }

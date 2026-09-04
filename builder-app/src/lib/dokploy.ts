@@ -1614,6 +1614,91 @@ export class DokployClient {
   }
 
   /**
+   * Checks DNS resolution for a custom domain (CNAME for subdomain, A record for apex).
+   */
+  public async checkDnsReadiness(options: {
+    domain: string;
+    expectedCname?: string;
+    expectedIp?: string;
+  }): Promise<{
+    configured: boolean;
+    domain: string;
+    isSubdomain: boolean;
+    recordType: 'CNAME' | 'A';
+    expectedTarget: string;
+    resolvedValues: string[];
+    details: string;
+  }> {
+    const rawDomain = options.domain.replace(/^https?:\/\//i, '').replace(/\/.*$/, '').trim().toLowerCase();
+    const isSubdomain = rawDomain.split('.').length > 2 && !rawDomain.startsWith('www.');
+    const expectedTarget = isSubdomain
+      ? (options.expectedCname || 'cname.dokploy.app')
+      : (options.expectedIp || '76.76.21.21');
+    const recordType: 'CNAME' | 'A' = isSubdomain ? 'CNAME' : 'A';
+
+    const resolvedValues: string[] = [];
+    let configured = false;
+    let details = '';
+
+    try {
+      const dns = await import('node:dns/promises');
+
+      if (isSubdomain) {
+        try {
+          const cnames = await dns.resolveCname(rawDomain);
+          resolvedValues.push(...cnames);
+          if (cnames.some((c) => c.toLowerCase().includes(expectedTarget.toLowerCase()) || expectedTarget.toLowerCase().includes(c.toLowerCase()))) {
+            configured = true;
+            details = `CNAME record matches expected target (${expectedTarget}).`;
+          } else {
+            details = `CNAME found (${cnames.join(', ')}), expected target: ${expectedTarget}.`;
+          }
+        } catch (cnameErr: any) {
+          // If CNAME lookup fails, check if an A record was pointed instead
+          try {
+            const ips = await dns.resolve4(rawDomain);
+            resolvedValues.push(...ips);
+            if (ips.length > 0) {
+              configured = true;
+              details = `A record resolved (${ips.join(', ')}).`;
+            }
+          } catch {
+            details = `DNS query pending: ${cnameErr?.code || 'Domain not yet propagated'}.`;
+          }
+        }
+      } else {
+        try {
+          const ips = await dns.resolve4(rawDomain);
+          resolvedValues.push(...ips);
+          if (options.expectedIp) {
+            configured = ips.includes(options.expectedIp);
+            details = configured
+              ? `A record matches expected IP (${options.expectedIp}).`
+              : `A record resolved (${ips.join(', ')}), expected: ${options.expectedIp}.`;
+          } else if (ips.length > 0) {
+            configured = true;
+            details = `A record resolved to ${ips.join(', ')}.`;
+          }
+        } catch (aErr: any) {
+          details = `DNS query pending: ${aErr?.code || 'Domain not yet propagated'}.`;
+        }
+      }
+    } catch (err: any) {
+      details = `DNS resolution notice: ${err?.message || 'DNS lookup incomplete'}`;
+    }
+
+    return {
+      configured,
+      domain: rawDomain,
+      isSubdomain,
+      recordType,
+      expectedTarget,
+      resolvedValues,
+      details,
+    };
+  }
+
+  /**
    * Internal sleep helper.
    */
   private sleep(ms: number): Promise<void> {

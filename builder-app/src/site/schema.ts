@@ -69,6 +69,9 @@ export interface Testimonial {
   avatar?: string;
   company?: string;
   location?: string;
+  metric?: string;
+  metricLabel?: string;
+  verified?: boolean;
 }
 
 export interface Faq {
@@ -139,11 +142,49 @@ export interface CatalogItem {
 
   // Retail product fields
   image?: string;
+  secondaryImage?: string;
+  images?: string[];
   sku?: string;
   category?: string;
   inStock?: boolean;
+  stockCount?: number;
+  totalStock?: number;
   rating?: number;
   reviewCount?: number;
+  compareAtPrice?: number;
+  originalPrice?: number;
+  discountBadge?: string;
+  swatches?: Array<{
+    name: string;
+    color: string;
+    image?: string;
+    bgClass?: string;
+  }>;
+  variants?: Array<{
+    id?: string;
+    name: string;
+    color?: string;
+    image?: string;
+    price?: number;
+    sku?: string;
+    inStock?: boolean;
+  }>;
+  bundles?: Array<{
+    id: string;
+    name: string;
+    title?: string;
+    description?: string;
+    price: number;
+    originalPrice?: number;
+    savings?: string;
+    badge?: string;
+    popular?: boolean;
+    features?: string[];
+    specs?: Record<string, string>;
+    image?: string;
+    quantity?: number;
+    default?: boolean;
+  }>;
 
   // Wholesale fields
   moq?: number;
@@ -278,6 +319,41 @@ export interface SectionHeading {
   description?: string;
 }
 
+/* ------------------------------------------------------------------ Hero -- */
+
+export type HeroVariant =
+  | 'centered'
+  | 'split'
+  | 'stacked'
+  | 'editorial'
+  | 'editorial_center'
+  | 'editorial_centered'
+  | 'lead_form'
+  | 'stats_split'
+  | 'stats_banner_split'
+  | 'asymmetric_bento_collage'
+  | 'fullbleed_display'
+  | 'default';
+
+export interface HeroLeadFormField {
+  name: string;
+  label?: string;
+  type?: 'text' | 'email' | 'tel' | 'select';
+  placeholder?: string;
+  required?: boolean;
+  options?: string[];
+}
+
+export interface HeroLeadFormConfig {
+  title?: string;
+  description?: string;
+  submitLabel?: string;
+  placeholder?: string;
+  successMessage?: string;
+  fields?: ('name' | 'email' | 'phone' | 'company' | 'message' | HeroLeadFormField)[];
+  endpoint?: string;
+}
+
 export interface HeroProps {
   badge?: string;
   headline: string;
@@ -287,13 +363,32 @@ export interface HeroProps {
   primaryCta?: CtaLink;
   secondaryCta?: CtaLink;
   image?: string;
+  /** Additional media images for collage / bento / showcase variants. */
+  images?: string[];
+  /** Bullet points for lead form or feature highlights. */
+  bulletPoints?: string[];
+  /** Feature points for highlights. */
+  features?: string[];
   trustBadges?: string[];
-  layout?: 'centered' | 'split' | 'stacked' | 'editorial';
+  /** Multi-layout architecture variant: centered, split, stacked, editorial, editorial_center, lead_form, stats_split, stats_banner_split, asymmetric_bento_collage, fullbleed_display, default. */
+  variant?: HeroVariant;
+  /** Legacy layout alias for `variant`. Preserved for backward compatibility. */
+  layout?: HeroVariant;
+  /** Lead-generation form configuration for `lead_form` hero variant. */
+  leadForm?: HeroLeadFormConfig;
+  /** Embedded key metrics for `stats_split` or `stats_banner_split` hero variant. */
+  stats?: StatItem[];
+  /** Optional background or ambient video URL. */
+  videoUrl?: string;
 }
+
+/* -------------------------------------------------------------- StatsBar -- */
 
 export interface StatsBarProps {
   items: StatItem[];
 }
+
+/* -------------------------------------------------------------- TrustBar -- */
 
 /**
  * A trust-bar entry. A plain string renders as a text chip/wordmark (no
@@ -305,44 +400,169 @@ export type TrustBarItem = string | { name: string; domain?: string };
 
 export interface TrustBarProps {
   /** 'pills' = text chips; 'logos' = real logo images (or wordmark fallback). */
-  variant?: 'pills' | 'logos';
+  variant?: 'pills' | 'logos' | 'marquee_ticker';
   title?: string;
   items: TrustBarItem[];
+  speed?: 'slow' | 'normal' | 'fast';
+}
+
+/* ----------------------------------------------------------- FeatureGrid -- */
+
+export type FeatureGridVariant =
+  | 'even'
+  | 'asymmetric_bento'
+  | 'sticky_scroll'
+  | 'tabbed_showcase'
+  | 'zigzag_rows'
+  | 'stagger'
+  | 'marquee_ticker';
+
+export interface FeatureGridTab {
+  id: string;
+  label: string;
+  icon?: string;
+  tag?: string;
+}
+
+export interface FeatureGridItem {
+  id?: string;
+  title: string;
+  description: string;
+  badge?: string;
+  image?: string;
+  icon?: string;
+  category?: string;
+  tag?: string;
+  stat?: string;
+  statLabel?: string;
+  cta?: CtaLink;
+  bullets?: string[];
+  highlights?: string[];
 }
 
 export interface FeatureGridProps extends SectionHeading {
-  items: {
-    title: string;
-    description: string;
-    badge?: string;
-    image?: string;
-    icon?: string;
-  }[];
+  /** Multi-layout architecture variant: even, asymmetric_bento, sticky_scroll, tabbed_showcase, zigzag_rows, stagger, marquee_ticker. */
+  variant?: FeatureGridVariant;
+  /** Number of grid columns (2-4). */
+  columns?: number;
+  /** Interactive category tabs for `tabbed_showcase` variant. */
+  tabs?: FeatureGridTab[];
+  /** Pin narrative side-panel for `sticky_scroll` variant. */
+  stickyHeader?: boolean;
+  /** Scroll animation speed for `marquee_ticker` variant. */
+  speed?: 'slow' | 'normal' | 'fast';
+  items: FeatureGridItem[];
+}
+
+/* ---------------------------------------------------------- PricingTiers -- */
+
+export type PricingTiersVariant =
+  | 'cards'
+  | 'glow_card_deck'
+  | 'comparison_table'
+  | 'custom_quote_service'
+  | 'stats_split'
+  | 'tabbed_showcase'
+  | 'editorial_center';
+
+export interface PricingComparisonFeature {
+  feature: string;
+  category?: string;
+  tooltip?: string;
+  /** Value per tier id or tier index, e.g. { starter: true, pro: "Unlimited" }. */
+  tierValues: Record<string, boolean | string>;
 }
 
 export interface PricingTiersProps extends SectionHeading {
   currency?: string;
+  /** Multi-layout architecture variant: cards, glow_card_deck, comparison_table, custom_quote_service, stats_split, tabbed_showcase, editorial_center. */
+  variant?: PricingTiersVariant;
   tiers: CatalogItem[];
   /** CTA href each tier links to (query is appended per tier). */
   ctaHref?: string;
+  /** Feature group headers for `comparison_table` variant. */
+  comparisonHeaders?: string[];
+  /** Detailed comparison matrix rows for `comparison_table` variant. */
+  comparisonFeatures?: PricingComparisonFeature[];
+  /** Billing cadence options for pricing toggle. */
+  billingIntervals?: ('monthly' | 'annually')[];
+  /** Discount badge for annual billing, e.g. "Save 20%". */
+  discountBadge?: string;
+  /** Small print footnote or disclaimer. */
+  footnote?: string;
 }
+
+/* ----------------------------------------------------------- ProductGrid -- */
+
+export type ProductGridVariant =
+  | 'products'
+  | 'plans'
+  | 'fashion_minimal'
+  | 'mega_catalog'
+  | 'single_flagship_bundle'
+  | 'tabbed_showcase'
+  | 'asymmetric_bento'
+  | 'editorial_center'
+  | 'marquee_ticker';
 
 export interface ProductGridProps extends SectionHeading {
   currency?: string;
-  /** 'products' = retail cards w/ image; 'plans' = server spec cards. */
-  layout?: 'products' | 'plans';
+  /** 'products' = retail cards w/ image; 'plans' = server spec cards; or extended multi-layout variants. */
+  layout?: 'products' | 'plans' | ProductGridVariant;
+  /** Multi-layout architecture variant. Falls back to `layout` or 'products'. */
+  variant?: ProductGridVariant;
   items: CatalogItem[];
   categories?: string[];
   cta?: CtaLink;
+  /** Number of grid columns (2-4). */
+  columns?: number;
+  /** Featured item ID highlighted in asymmetric or bento layouts. */
+  featuredItemId?: string;
+  /** Toggle category filter pills/tabs. */
+  showFilterTabs?: boolean;
+  /** Show specification matrix table for plans. */
+  showSpecsTable?: boolean;
+  /** Ticker animation speed for `marquee_ticker` variant. */
+  speed?: 'slow' | 'normal' | 'fast';
 }
 
+/* ---------------------------------------------------------- Testimonials -- */
+
+export type TestimonialsVariant =
+  | 'cards'
+  | 'infinite_marquee'
+  | 'editorial_pullquote'
+  | 'rating_masonry'
+  | 'stagger'
+  | 'editorial_center'
+  | 'marquee_ticker'
+  | 'sticky_scroll';
+
 export interface TestimonialsProps extends SectionHeading {
+  /** Multi-layout architecture variant: cards, stagger, editorial_center, rating_masonry, marquee_ticker, sticky_scroll. */
+  variant?: TestimonialsVariant;
+  /** Number of columns for cards/masonry (1-4). */
+  columns?: number;
+  /** Ticker scroll speed for `marquee_ticker` variant. */
+  speed?: 'slow' | 'normal' | 'fast';
+  /** Show star rating chips. */
+  showRatings?: boolean;
+  /** Aggregate satisfaction rating summary banner. */
+  statsSummary?: {
+    averageRating?: number;
+    totalReviews?: number;
+    satisfactionRate?: string;
+  };
   items: Testimonial[];
 }
+
+/* ------------------------------------------------------------------- Faq -- */
 
 export interface FaqProps extends SectionHeading {
   items: Faq[];
 }
+
+/* ------------------------------------------------------------- CtaBanner -- */
 
 export interface CtaBannerProps {
   headline: string;
@@ -351,6 +571,8 @@ export interface CtaBannerProps {
   secondaryCta?: CtaLink;
   guarantee?: string;
 }
+
+/* ------------------------------------------------------------ PageHeader -- */
 
 export interface PageHeaderProps {
   eyebrow?: string;
@@ -362,6 +584,8 @@ export interface PageHeaderProps {
   breadcrumb?: NavItem[];
 }
 
+/* ----------------------------------------------------------------- Prose -- */
+
 export interface ProseProps extends SectionHeading {
   /** Body blocks; `heading` optional per block. */
   blocks: PolicyBlock[];
@@ -370,13 +594,19 @@ export interface ProseProps extends SectionHeading {
   highlights?: string[];
 }
 
+/* -------------------------------------------------------------- Timeline -- */
+
 export interface TimelineProps extends SectionHeading {
   milestones: Milestone[];
 }
 
+/* -------------------------------------------------------------- TeamGrid -- */
+
 export interface TeamGridProps extends SectionHeading {
   members: TeamMember[];
 }
+
+/* ------------------------------------------------------------- ValueGrid -- */
 
 export interface ValueGridProps extends SectionHeading {
   items: IconItem[];
@@ -384,13 +614,19 @@ export interface ValueGridProps extends SectionHeading {
   columns?: number;
 }
 
+/* ---------------------------------------------------------- ProcessSteps -- */
+
 export interface ProcessStepsProps extends SectionHeading {
   steps: ProcessStep[];
 }
 
+/* -------------------------------------------------------------- SlaTable -- */
+
 export interface SlaTableProps extends SectionHeading {
   rows: SlaRow[];
 }
+
+/* ---------------------------------------------------------- LocationList -- */
 
 export interface LocationListProps extends SectionHeading {
   /** Simple label list, e.g. "Frankfurt FRA1". */
@@ -398,6 +634,8 @@ export interface LocationListProps extends SectionHeading {
   /** Optional richer entries (offices, datacentres). */
   places?: { city: string; facility?: string; address?: string; role?: string }[];
 }
+
+/* ------------------------------------------------- CorporateRegistration -- */
 
 export interface CorporateRegistrationProps extends SectionHeading {
   /** All fields default to the site-level `business` when omitted. */
@@ -412,6 +650,8 @@ export interface CorporateRegistrationProps extends SectionHeading {
   contactPhone?: string;
 }
 
+/* ---------------------------------------------------------- ContactPanel -- */
+
 export interface ContactPanelProps extends SectionHeading {
   /** Which extra fields the form shows beyond name/email/message. */
   formVariant?: 'standard' | 'enterprise' | 'wholesale' | 'noc';
@@ -424,11 +664,15 @@ export interface ContactPanelProps extends SectionHeading {
   offices?: { city: string; facility?: string; address?: string; role?: string }[];
 }
 
+/* -------------------------------------------------------- PolicyDocument -- */
+
 export interface PolicyDocumentProps {
   title: string;
   lastUpdated: string;
   sections: PolicyBlock[];
 }
+
+/* -------------------------------------------------------------- Checkout -- */
 
 /**
  * Checkout — the hand-off page to the merchant's own Airwallex-hosted
@@ -446,35 +690,201 @@ export interface CheckoutProps extends SectionHeading {
   note?: string;
 }
 
-export type SectionProps =
-  | ({ type: 'hero' } & { props: HeroProps })
-  | ({ type: 'statsBar' } & { props: StatsBarProps })
-  | ({ type: 'trustBar' } & { props: TrustBarProps })
-  | ({ type: 'featureGrid' } & { props: FeatureGridProps })
-  | ({ type: 'pricingTiers' } & { props: PricingTiersProps })
-  | ({ type: 'productGrid' } & { props: ProductGridProps })
-  | ({ type: 'testimonials' } & { props: TestimonialsProps })
-  | ({ type: 'faq' } & { props: FaqProps })
-  | ({ type: 'ctaBanner' } & { props: CtaBannerProps })
-  | ({ type: 'pageHeader' } & { props: PageHeaderProps })
-  | ({ type: 'prose' } & { props: ProseProps })
-  | ({ type: 'timeline' } & { props: TimelineProps })
-  | ({ type: 'teamGrid' } & { props: TeamGridProps })
-  | ({ type: 'valueGrid' } & { props: ValueGridProps })
-  | ({ type: 'processSteps' } & { props: ProcessStepsProps })
-  | ({ type: 'slaTable' } & { props: SlaTableProps })
-  | ({ type: 'locationList' } & { props: LocationListProps })
-  | ({ type: 'corporateRegistration' } & { props: CorporateRegistrationProps })
-  | ({ type: 'contactPanel' } & { props: ContactPanelProps })
-  | ({ type: 'policyDocument' } & { props: PolicyDocumentProps })
-  | ({ type: 'checkout' } & { props: CheckoutProps });
+/* ------------------------------------------------- Section Discriminated Unions -- */
 
-/** A section instance on a page. */
-export type Section = {
-  /** Stable id, unique within the site. Used for reorder + inspector selection. */
+export interface HeroSection {
   id: string;
   enabled: boolean;
-} & SectionProps;
+  type: 'hero';
+  props: HeroProps;
+}
+
+export interface StatsBarSection {
+  id: string;
+  enabled: boolean;
+  type: 'statsBar';
+  props: StatsBarProps;
+}
+
+export interface TrustBarSection {
+  id: string;
+  enabled: boolean;
+  type: 'trustBar';
+  props: TrustBarProps;
+}
+
+export interface FeatureGridSection {
+  id: string;
+  enabled: boolean;
+  type: 'featureGrid';
+  props: FeatureGridProps;
+}
+
+export interface PricingTiersSection {
+  id: string;
+  enabled: boolean;
+  type: 'pricingTiers';
+  props: PricingTiersProps;
+}
+
+export interface ProductGridSection {
+  id: string;
+  enabled: boolean;
+  type: 'productGrid';
+  props: ProductGridProps;
+}
+
+export interface TestimonialsSection {
+  id: string;
+  enabled: boolean;
+  type: 'testimonials';
+  props: TestimonialsProps;
+}
+
+export interface FaqSection {
+  id: string;
+  enabled: boolean;
+  type: 'faq';
+  props: FaqProps;
+}
+
+export interface CtaBannerSection {
+  id: string;
+  enabled: boolean;
+  type: 'ctaBanner';
+  props: CtaBannerProps;
+}
+
+export interface PageHeaderSection {
+  id: string;
+  enabled: boolean;
+  type: 'pageHeader';
+  props: PageHeaderProps;
+}
+
+export interface ProseSection {
+  id: string;
+  enabled: boolean;
+  type: 'prose';
+  props: ProseProps;
+}
+
+export interface TimelineSection {
+  id: string;
+  enabled: boolean;
+  type: 'timeline';
+  props: TimelineProps;
+}
+
+export interface TeamGridSection {
+  id: string;
+  enabled: boolean;
+  type: 'teamGrid';
+  props: TeamGridProps;
+}
+
+export interface ValueGridSection {
+  id: string;
+  enabled: boolean;
+  type: 'valueGrid';
+  props: ValueGridProps;
+}
+
+export interface ProcessStepsSection {
+  id: string;
+  enabled: boolean;
+  type: 'processSteps';
+  props: ProcessStepsProps;
+}
+
+export interface SlaTableSection {
+  id: string;
+  enabled: boolean;
+  type: 'slaTable';
+  props: SlaTableProps;
+}
+
+export interface LocationListSection {
+  id: string;
+  enabled: boolean;
+  type: 'locationList';
+  props: LocationListProps;
+}
+
+export interface CorporateRegistrationSection {
+  id: string;
+  enabled: boolean;
+  type: 'corporateRegistration';
+  props: CorporateRegistrationProps;
+}
+
+export interface ContactPanelSection {
+  id: string;
+  enabled: boolean;
+  type: 'contactPanel';
+  props: ContactPanelProps;
+}
+
+export interface PolicyDocumentSection {
+  id: string;
+  enabled: boolean;
+  type: 'policyDocument';
+  props: PolicyDocumentProps;
+}
+
+export interface CheckoutSection {
+  id: string;
+  enabled: boolean;
+  type: 'checkout';
+  props: CheckoutProps;
+}
+
+export type SectionProps =
+  | { type: 'hero'; props: HeroProps }
+  | { type: 'statsBar'; props: StatsBarProps }
+  | { type: 'trustBar'; props: TrustBarProps }
+  | { type: 'featureGrid'; props: FeatureGridProps }
+  | { type: 'pricingTiers'; props: PricingTiersProps }
+  | { type: 'productGrid'; props: ProductGridProps }
+  | { type: 'testimonials'; props: TestimonialsProps }
+  | { type: 'faq'; props: FaqProps }
+  | { type: 'ctaBanner'; props: CtaBannerProps }
+  | { type: 'pageHeader'; props: PageHeaderProps }
+  | { type: 'prose'; props: ProseProps }
+  | { type: 'timeline'; props: TimelineProps }
+  | { type: 'teamGrid'; props: TeamGridProps }
+  | { type: 'valueGrid'; props: ValueGridProps }
+  | { type: 'processSteps'; props: ProcessStepsProps }
+  | { type: 'slaTable'; props: SlaTableProps }
+  | { type: 'locationList'; props: LocationListProps }
+  | { type: 'corporateRegistration'; props: CorporateRegistrationProps }
+  | { type: 'contactPanel'; props: ContactPanelProps }
+  | { type: 'policyDocument'; props: PolicyDocumentProps }
+  | { type: 'checkout'; props: CheckoutProps };
+
+/** A section instance on a page. */
+export type Section =
+  | HeroSection
+  | StatsBarSection
+  | TrustBarSection
+  | FeatureGridSection
+  | PricingTiersSection
+  | ProductGridSection
+  | TestimonialsSection
+  | FaqSection
+  | CtaBannerSection
+  | PageHeaderSection
+  | ProseSection
+  | TimelineSection
+  | TeamGridSection
+  | ValueGridSection
+  | ProcessStepsSection
+  | SlaTableSection
+  | LocationListSection
+  | CorporateRegistrationSection
+  | ContactPanelSection
+  | PolicyDocumentSection
+  | CheckoutSection;
 
 export type AnySectionProps =
   | HeroProps
@@ -498,6 +908,80 @@ export type AnySectionProps =
   | ContactPanelProps
   | PolicyDocumentProps
   | CheckoutProps;
+
+/* ============================================================================
+ * Header + Footer Chrome Configurations
+ * ========================================================================== */
+
+export type HeaderVariant =
+  | 'standard'
+  | 'floating_glass_pill'
+  | 'corporate_utility'
+  | 'editorial_center'
+  | 'editorial_centered'
+  | 'minimal'
+  | 'default';
+
+export interface HeaderConfig {
+  /** Structural layout variant for the navigation header chrome. */
+  variant?: HeaderVariant;
+  /** Stick header to top of viewport on scroll. */
+  sticky?: boolean;
+  /** Translucent backdrop blur styling. */
+  transparent?: boolean;
+  /** Top announcement bar banner visibility. */
+  showAnnouncement?: boolean;
+  /** Top announcement bar text copy. */
+  announcementText?: string;
+  /** Clickable link for announcement bar. */
+  announcementLink?: CtaLink;
+  /** Secondary utility links shown in the top tier (e.g. corporate_utility). */
+  utilityLinks?: NavItem[];
+  /** Secondary header action CTA. */
+  secondaryCta?: CtaLink;
+}
+
+export type HeaderProps = HeaderConfig;
+export type Header = HeaderConfig;
+
+export type FooterVariant =
+  | 'columns'
+  | 'corporate_utility'
+  | 'editorial_center'
+  | 'minimal_inline'
+  | 'newsletter_split';
+
+export interface FooterConfig {
+  /** Structural layout variant for footer chrome. */
+  variant?: FooterVariant;
+  tagline?: string;
+  columns: FooterColumn[];
+  legalLinks: NavItem[];
+  /** Statutory line shown small under the copyright. */
+  showLegalBar: boolean;
+  /** Payment-scheme + PCI badge row (retail / merchant sites). */
+  showPaymentBadges: boolean;
+  /** Optional newsletter subscription box. */
+  newsletter?: {
+    title?: string;
+    description?: string;
+    placeholder?: string;
+    buttonLabel?: string;
+  };
+  /** Social or external profile links. */
+  socialLinks?: {
+    platform: string;
+    href: string;
+    label?: string;
+  }[];
+  /** Trust or accreditation badge text. */
+  badgeText?: string;
+  /** Secondary legal disclaimer or regulatory disclosure. */
+  secondaryLegalText?: string;
+}
+
+export type FooterProps = FooterConfig;
+export type Footer = FooterConfig;
 
 /* ============================================================================
  * Pages + whole-site content
@@ -592,16 +1076,10 @@ export interface SiteContent {
   nav: NavItem[];
   /** Header CTA button. */
   headerCta?: CtaLink;
+  /** Optional header navigation chrome layout configuration. */
+  header?: HeaderConfig;
 
-  footer: {
-    tagline?: string;
-    columns: FooterColumn[];
-    legalLinks: NavItem[];
-    /** Statutory line shown small under the copyright. */
-    showLegalBar: boolean;
-    /** Payment-scheme + PCI badge row (retail / merchant sites). */
-    showPaymentBadges: boolean;
-  };
+  footer: FooterConfig;
 
   pages: SitePage[];
 

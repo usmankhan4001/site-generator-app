@@ -1,5 +1,8 @@
+'use client';
+
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Package, ShieldCheck, Star } from 'lucide-react';
+import { ArrowRight, CheckCircle2, ShieldCheck, Sparkles, Filter } from 'lucide-react';
 import type { CatalogItem, ProductGridProps, SiteContent } from '@/site/schema';
 import { Button } from '@/site/ui/button';
 import { Separator } from '@/site/ui/separator';
@@ -11,11 +14,11 @@ import {
   sectionPadding,
   cardClass,
   gridGap,
-  imageWrapClass,
   dividerClass,
   ctaProps,
 } from '@/site/archetypes';
 import { PaymentTrustBadges } from '@/site/sections/_shared/PaymentTrustBadges';
+import ProductCard from './ProductCard';
 
 function priceLabel(item: CatalogItem, sectionCurrency: string | undefined, fallbackUnit?: string) {
   if (item.price === 0) return 'Custom';
@@ -24,34 +27,14 @@ function priceLabel(item: CatalogItem, sectionCurrency: string | undefined, fall
   });
 }
 
-function Stars({ rating, count }: { rating?: number; count?: number }) {
-  if (!rating) return null;
-  const full = Math.max(0, Math.min(5, Math.round(rating)));
-  return (
-    <div className="flex items-center gap-1.5">
-      <div className="flex items-center gap-0.5">
-        {[0, 1, 2, 3, 4].map((i) => (
-          <Star
-            key={i}
-            className={cn(
-              'h-3.5 w-3.5',
-              i < full ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground/30 fill-none',
-            )}
-          />
-        ))}
-      </div>
-      {typeof count === 'number' && (
-        <span className="text-xs text-muted-foreground">({count})</span>
-      )}
-    </div>
-  );
-}
-
 /**
- * ProductGrid — catalogue in a lead-gen context (no cart).
- *  - `layout: 'products'` → retail image cards, meta, rating, "Enquire" link
- *  - `layout: 'plans'`    → server spec cards with a <dl> of specs + "Configure" link
- * `props.categories` render as inert (visual-only) filter chips.
+ * ProductGrid — multi-layout modern e-commerce catalogue:
+ *  - `fashion_minimal`: Tall 4:5 portrait aspect ratio, hover secondary image flip, interactive color swatch dots, clean serif typography, slide-up "+ Quick Add" button.
+ *  - `mega_catalog`: 1:1 square aspect ratio, discount percentage pill badge ('-30% OFF'), star ratings with review count ('★★★★★ (48)'), stock scarcity progress bar ('Only 3 left in stock!'), and quick add-to-cart button.
+ *  - `single_flagship_bundle`: Exploded specs and bundle pack selector ('1x Standard / 2x Pro Bundle Save $60').
+ *  - `plans`: Server spec cards with a <dl> of specs + "Configure" link.
+ *  - `products`: Classic standard retail card layout.
+ * Category filter pills on top ('All', 'Best Sellers', 'New Arrivals', etc.) with instant client-side filtering.
  */
 export default function ProductGrid({
   props,
@@ -66,16 +49,77 @@ export default function ProductGrid({
     eyebrow,
     title = 'Catalogue',
     description,
-    currency,
+    currency = 'USD',
     layout = 'products',
+    variant,
     items,
     categories,
     cta,
+    columns,
+    featuredItemId,
   } = props;
 
+  const effectiveLayout = variant ?? layout;
   const s = resolveArchetypeStyle(content);
   const ctaBtn = ctaProps(s);
   const isAtelier = s.treatment === 'atelier';
+
+  // Build the list of available categories
+  const categoryPills = useMemo(() => {
+    const defaultPills = ['All', 'Best Sellers', 'New Arrivals'];
+    const itemCategories = Array.from(
+      new Set(items.map((i) => i.category).filter((c): c is string => Boolean(c?.trim())))
+    );
+    const customCategories = categories?.filter((c) => Boolean(c?.trim())) ?? [];
+
+    const merged = Array.from(new Set([...defaultPills, ...customCategories, ...itemCategories]));
+    return merged;
+  }, [items, categories]);
+
+  const [activeCategory, setActiveCategory] = useState('All');
+
+  // Filter items based on active category pill
+  const filteredItems = useMemo(() => {
+    if (activeCategory === 'All') return items;
+
+    if (activeCategory === 'Best Sellers') {
+      const bestSellers = items.filter(
+        (i) =>
+          i.popular === true ||
+          i.badge?.toLowerCase().includes('best') ||
+          i.badge?.toLowerCase().includes('popular') ||
+          (typeof i.rating === 'number' && i.rating >= 4.8)
+      );
+      return bestSellers.length > 0 ? bestSellers : items.slice(0, 3);
+    }
+
+    if (activeCategory === 'New Arrivals') {
+      const newArrivals = items.filter(
+        (i) =>
+          i.badge?.toLowerCase().includes('new') ||
+          i.badge?.toLowerCase().includes('atelier') ||
+          i.category?.toLowerCase().includes('new')
+      );
+      return newArrivals.length > 0 ? newArrivals : items.slice(0, 4);
+    }
+
+    return items.filter(
+      (i) => i.category?.trim().toLowerCase() === activeCategory.trim().toLowerCase()
+    );
+  }, [items, activeCategory]);
+
+  // Determine grid column class
+  const getGridColsClass = () => {
+    if (columns === 2) return 'grid-cols-1 sm:grid-cols-2';
+    if (columns === 4) return 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+    if (effectiveLayout === 'fashion_minimal') {
+      return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+    }
+    if (effectiveLayout === 'mega_catalog') {
+      return 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+    }
+    return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+  };
 
   return (
     <section id="catalog" className={sectionPadding(s)}>
@@ -86,34 +130,99 @@ export default function ProductGrid({
           title={title}
           description={description}
           align={s.headerAlign}
-          className="mb-12"
+          className="mb-10"
         />
 
-        {categories?.length ? (
-          <div className="flex flex-wrap justify-center gap-2 mb-10">
-            <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-primary text-primary-foreground">
-              All
-            </span>
-            {categories.map((c) => (
-              <span
-                key={c}
-                className="inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground"
-              >
-                {c}
-              </span>
-            ))}
+        {/* Category Filter Pills on Top ('All', 'Best Sellers', 'New Arrivals') */}
+        {categoryPills.length > 1 && effectiveLayout !== 'plans' && (
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-10 pb-2">
+            {categoryPills.map((cat) => {
+              const isActive = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setActiveCategory(cat)}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer select-none',
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-md scale-[1.03]'
+                      : 'bg-secondary/70 text-secondary-foreground hover:bg-secondary border border-border/80 hover:border-border'
+                  )}
+                  aria-pressed={isActive}
+                >
+                  {cat === 'Best Sellers' && <Sparkles className="h-3 w-3" />}
+                  <span>{cat}</span>
+                  {isActive && (
+                    <span className="ml-1 text-[10px] font-bold opacity-80 bg-primary-foreground/20 px-1.5 py-0.2 rounded-full">
+                      {filteredItems.length}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
-        ) : null}
+        )}
 
-        {layout === 'plans' ? (
+        {/* Layout: single_flagship_bundle */}
+        {effectiveLayout === 'single_flagship_bundle' ? (
+          <div className="space-y-10">
+            {/* Find flagship item */}
+            {(() => {
+              const flagshipItem =
+                (featuredItemId && filteredItems.find((i) => i.id === featuredItemId)) ||
+                filteredItems.find((i) => i.popular || i.bundles?.length) ||
+                filteredItems[0] ||
+                items[0];
+
+              const otherItems = filteredItems.filter((i) => i.id !== flagshipItem.id);
+
+              return (
+                <>
+                  <ProductCard
+                    item={flagshipItem}
+                    variant="single_flagship_bundle"
+                    currency={currency}
+                    isAtelier={isAtelier}
+                  />
+
+                  {otherItems.length > 0 && (
+                    <div className="pt-10">
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold text-foreground">
+                          Companion Products &amp; Accessories
+                        </h3>
+                        <span className="text-xs text-muted-foreground">
+                          {otherItems.length} items available
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {otherItems.map((companion) => (
+                          <ProductCard
+                            key={companion.id}
+                            item={companion}
+                            variant="mega_catalog"
+                            currency={currency}
+                            isAtelier={isAtelier}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+          </div>
+        ) : effectiveLayout === 'plans' ? (
+          /* Layout: plans (Server / Service Specification Cards) */
           <div className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-stretch', gridGap(s))}>
-            {items.map((item) => (
+            {filteredItems.map((item) => (
               <div
                 key={item.id}
                 className={cn(
                   'flex flex-col',
                   cardClass(s),
-                  item.popular && 'border-primary',
+                  item.popular && 'border-primary shadow-lg',
                 )}
               >
                 <div className="p-6 pb-4">
@@ -182,7 +291,7 @@ export default function ProductGrid({
                   <Button
                     asChild
                     size={ctaBtn.size}
-                    className="w-full h-11 text-sm font-semibold"
+                    className="w-full h-11 text-sm font-semibold cursor-pointer"
                     variant={item.popular ? 'default' : ctaBtn.variant}
                   >
                     <Link href="/contact">
@@ -195,82 +304,46 @@ export default function ProductGrid({
             ))}
           </div>
         ) : (
-          <div className={cn('grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-stretch', gridGap(s))}>
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className={cn('flex flex-col overflow-hidden group', cardClass(s))}
-              >
-                <div className={cn('aspect-4/3 overflow-hidden bg-muted relative', imageWrapClass(s))}>
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/40">
-                      <Package className="h-10 w-10" />
-                    </div>
-                  )}
-                  {typeof item.inStock === 'boolean' && (
-                    <span
-                      className={cn(
-                        'absolute top-3 right-3 rounded-full px-2.5 py-1 text-xs font-semibold shadow-xs',
-                        item.inStock
-                          ? 'bg-emerald-100 text-emerald-600'
-                          : 'bg-background/90 text-muted-foreground border border-border',
-                      )}
-                    >
-                      {item.inStock ? 'In stock' : 'Made to order'}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex flex-col flex-1 p-5 gap-2">
-                  {item.category && (
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      {item.category}
-                    </span>
-                  )}
-                  <h3
-                    className="text-base font-bold text-foreground leading-snug"
-                    style={isAtelier ? { fontFamily: 'var(--font-display)' } : undefined}
-                  >
-                    {item.name}
-                  </h3>
-                  <Stars rating={item.rating} count={item.reviewCount} />
-                  {item.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
-                      {item.description}
-                    </p>
-                  )}
-                  <div className="mt-auto pt-3 flex items-end justify-between gap-3">
-                    <div className="flex flex-col">
-                      <span className="text-lg font-bold text-foreground">
-                        {priceLabel(item, currency)}
-                      </span>
-                      {item.sku && (
-                        <span className="text-[11px] text-muted-foreground">SKU {item.sku}</span>
-                      )}
-                    </div>
-                    <Button asChild size="sm" variant={item.price > 0 ? 'default' : ctaBtn.variant}>
-                      <Link href={item.price > 0 ? '/checkout' : '/contact'}>
-                        <span>{item.price > 0 ? 'Buy Now' : 'Enquire'}</span>
-                        <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
+          /* Layouts: fashion_minimal, mega_catalog, products */
+          filteredItems.length === 0 ? (
+            <div className="py-16 text-center space-y-4 rounded-3xl border border-dashed border-border bg-muted/20">
+              <div className="inline-flex p-3 rounded-2xl bg-muted text-muted-foreground">
+                <Filter className="h-6 w-6" />
               </div>
-            ))}
-          </div>
+              <div className="space-y-1">
+                <h4 className="text-base font-bold text-foreground">No products found</h4>
+                <p className="text-xs text-muted-foreground">
+                  No items matched the category &ldquo;{activeCategory}&rdquo;.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setActiveCategory('All')}
+                className="text-xs cursor-pointer"
+              >
+                View All Products
+              </Button>
+            </div>
+          ) : (
+            <div className={cn('grid items-stretch', getGridColsClass(), gridGap(s))}>
+              {filteredItems.map((item) => (
+                <ProductCard
+                  key={item.id}
+                  item={item}
+                  variant={effectiveLayout}
+                  currency={currency}
+                  isAtelier={isAtelier}
+                />
+              ))}
+            </div>
+          )
         )}
 
         {cta && (
           <div className="text-center mt-12">
-            <Button asChild size={ctaBtn.size} variant={ctaBtn.variant} className="h-12 px-7 text-base">
+            <Button asChild size={ctaBtn.size} variant={ctaBtn.variant} className="h-12 px-7 text-base cursor-pointer">
               <Link href={cta.href}>
                 <span>{cta.label}</span>
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -279,7 +352,7 @@ export default function ProductGrid({
           </div>
         )}
 
-        {layout === 'products' && (
+        {effectiveLayout !== 'plans' && (
           <div className="mt-14 pt-8 border-t border-border/60">
             <PaymentTrustBadges showComplianceText />
           </div>

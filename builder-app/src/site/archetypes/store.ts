@@ -99,6 +99,7 @@ export const store: ArchetypeMeta = {
     footer: { showLegalBar: true, showPaymentBadges: true },
   },
   starterSetIds: [
+    'mega_electronics_store',
     'store-apparel',
     'store-fashion',
     'store-electronics',

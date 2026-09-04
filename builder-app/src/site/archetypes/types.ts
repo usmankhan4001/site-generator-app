@@ -19,6 +19,9 @@
 import type {
   ArchetypeId,
   BusinessInfo,
+  CtaLink,
+  FooterConfig,
+  HeaderConfig,
   LayoutSystem,
   NavItem,
   PolicySlug,
@@ -107,8 +110,7 @@ export interface ArchetypeMeta {
 
 /**
  * A pack of real, niche-specific copy that drops onto an archetype's
- * composition by `slot`. Mined from the source templates in a later task —
- * `STARTER_SETS` is empty for now.
+ * composition by `slot`.
  */
 export interface StarterContentSet {
   id: string;
@@ -122,11 +124,14 @@ export interface StarterContentSet {
   needsPersonalization: boolean;
   themeId?: string;
   accent?: string;
+  layoutSystem?: LayoutSystem;
   business?: Partial<BusinessInfo>;
-  brand?: { logoText: string };
+  brand?: { logoText: string; logoUrl?: string };
   meta?: { title: string; description: string; ogImage?: string };
   nav?: NavItem[];
-  footer?: Record<string, unknown>;
+  header?: HeaderConfig;
+  headerCta?: CtaLink;
+  footer?: Partial<FooterConfig> | Record<string, unknown>;
   /** page key -> slot key -> prop patch. */
   slots: Record<string, Record<string, Record<string, unknown>>>;
 }

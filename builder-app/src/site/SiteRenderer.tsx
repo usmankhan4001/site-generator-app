@@ -13,6 +13,7 @@ import { getPage, enabledSections } from '@/site/schema';
 import Header from '@/site/sections/Header';
 import Footer from '@/site/sections/Footer';
 import { getSectionComponent } from '@/site/sections/registry';
+import { CartDrawer } from '@/site/commerce/CartDrawer';
 
 export interface SiteRendererProps {
   content: SiteContent;
@@ -60,6 +61,10 @@ export function SiteRenderer({ content, page, preview = false }: SiteRendererPro
       </main>
 
       <Footer content={content} />
+      <CartDrawer
+        merchantName={content.business?.name}
+        checkoutUrl={content.airwallexCheckoutUrl || '/checkout'}
+      />
     </div>
   );
 }

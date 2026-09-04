@@ -317,6 +317,10 @@ export const useStudio = create<StudioState>((set, get) => ({
 
   updateSectionProps: (sectionId, patch) =>
     get().mutate((d) => {
+      if (sectionId === 'header') {
+        d.header = Object.assign({}, d.header, patch);
+        return;
+      }
       for (const page of d.pages) {
         const sec = page.sections.find((s) => s.id === sectionId);
         if (sec) {
@@ -378,6 +382,14 @@ export function useActivePage() {
 export function useSelectedSection() {
   return useStudio((s) => {
     if (!s.content || !s.selectedSectionId) return null;
+    if (s.selectedSectionId === 'header') {
+      return {
+        id: 'header',
+        type: 'header' as any,
+        enabled: true,
+        props: s.content.header ?? {},
+      } as Section;
+    }
     for (const page of s.content.pages) {
       const sec = page.sections.find((x) => x.id === s.selectedSectionId);
       if (sec) return sec;
