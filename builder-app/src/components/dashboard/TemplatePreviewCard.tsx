@@ -26,20 +26,32 @@ export function TemplatePreviewCard({
   onClick?: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // Sanitize path if it matches known ad-blocker filter triggers
+  const safeSrc = src.replace('saas-analytics.jpg', 'saas-metrics.jpg');
 
   const content = (
     <>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt={alt}
-        className="absolute inset-x-0 top-0 h-auto w-full object-cover object-top transition-transform ease-in-out"
-        style={{
-          transitionDuration: '6s',
-          transform: hovered ? 'translateY(-60%)' : 'translateY(0%)',
-        }}
-      />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white">
+      {!imageError ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={safeSrc}
+          alt={alt}
+          onError={() => setImageError(true)}
+          className="absolute inset-x-0 top-0 h-auto w-full object-cover object-top transition-transform ease-in-out"
+          style={{
+            transitionDuration: '6s',
+            transform: hovered ? 'translateY(-60%)' : 'translateY(0%)',
+          }}
+        />
+      ) : (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-zinc-900 to-zinc-950 p-6 text-center text-zinc-300">
+          <div className="text-2xl font-bold tracking-tight text-white/90">{label}</div>
+          <div className="mt-1 text-xs text-zinc-400">{sublabel || 'Turnkey Website Preview'}</div>
+        </div>
+      )}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 text-white">
         <div className="truncate text-sm font-semibold tracking-tight">{label}</div>
         {sublabel && <div className="truncate text-xs text-white/75">{sublabel}</div>}
       </div>

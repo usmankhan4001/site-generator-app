@@ -25,14 +25,25 @@ export function SignInForm({ redirect }: { redirect: string }) {
     e.preventDefault();
     setError(null);
     setPending(true);
-    const { error } = await authClient.signIn.email({ email, password });
-    if (error) {
-      setError(error.message || 'Could not sign in. Check your email and password.');
+    const normalizedEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    try {
+      const res = await authClient.signIn.email({
+        email: normalizedEmail,
+        password: cleanPassword,
+      });
+      if (res.error) {
+        setError(res.error.message || 'Invalid email or password. Please check your credentials.');
+        setPending(false);
+        return;
+      }
+      router.push(redirect || '/');
+      router.refresh();
+    } catch (err) {
+      setError('Connection error or invalid credentials. Please try again.');
       setPending(false);
-      return;
     }
-    router.push(redirect || '/');
-    router.refresh();
   }
 
   return (
