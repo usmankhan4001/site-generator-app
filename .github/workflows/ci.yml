@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: Typecheck & Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: builder-app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: builder-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run TypeScript Check
+        run: npx tsc --noEmit
+
+      - name: Verify Asset Vault
+        run: npx tsx src/lib/images/vault.test.ts
+
+      - name: Verify Standalone Code Assembler
+        run: npx tsx src/lib/assembler.test.ts
+
+      - name: Build Next.js Application
+        run: npm run build
+        env:
+          BETTER_AUTH_SECRET: ci-test-secret-value-must-be-long-enough-32char
+          BETTER_AUTH_URL: http://localhost:3000
+          SUPER_ADMIN_EMAIL: admin@test.local
