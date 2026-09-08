@@ -26,6 +26,7 @@ template/src/site/
 prisma/dev.db*
 prisma/db/
 db/
+!builder-app/src/db/
 
 # Env
 .env
