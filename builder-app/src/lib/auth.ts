@@ -6,10 +6,8 @@
  */
 
 import { betterAuth } from 'better-auth';
-import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
-import { db, schema } from '@/db';
 import { prisma } from '@/lib/db';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -115,17 +113,12 @@ const isPostgres = Boolean(
 );
 
 export const auth = betterAuth({
-  database: isPostgres
-    ? drizzleAdapter(db, {
-        provider: 'pg',
-        schema: {
-          user: schema.user,
-          session: schema.session,
-          account: schema.account,
-          verification: schema.verification,
-        },
-      })
-    : prismaAdapter(prisma, { provider: 'sqlite' }),
+  // Prisma is the single source of truth for auth tables in both dialects —
+  // the rest of the app reads users through `prisma.user`, so splitting auth
+  // onto Drizzle would create a second, divergent user table.
+  database: prismaAdapter(prisma, {
+    provider: isPostgres ? 'postgresql' : 'sqlite',
+  }),
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
   trustedOrigins: async (request) => resolveTrustedOrigins(request),
   advanced: {

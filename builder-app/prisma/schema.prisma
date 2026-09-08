@@ -5,7 +5,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -153,4 +153,25 @@ model Invite {
   acceptedAt DateTime?
   expiresAt  DateTime
   createdAt  DateTime  @default(now())
+}
+
+/// Edit-access requests. Written and read through Drizzle (`src/db/schema.ts`),
+/// so this model exists only to make `prisma db push` create the table with the
+/// matching snake_case columns. No relations — the Drizzle side owns the FKs.
+model EditAccessRequest {
+  id          String    @id @default(cuid())
+  projectId   String    @map("project_id")
+  userId      String    @map("user_id")
+  companyName String?   @map("company_name")
+  email       String
+  reason      String?
+  status      String    @default("pending")
+  reviewedBy  String?   @map("reviewed_by")
+  reviewedAt  DateTime? @map("reviewed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @map("updated_at")
+
+  @@index([projectId])
+  @@index([status])
+  @@map("edit_access_requests")
 }
