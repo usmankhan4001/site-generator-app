@@ -141,7 +141,7 @@ const proAudioProducts: CatalogItem[] = [
 export const megaElectronicsStore: StarterContentSet = {
   id: 'mega_electronics_store',
   archetype: 'store',
-  name: 'VoltTech Gear & Audio',
+  name: 'VoltTech',
   description:
     'Direct-to-consumer pro audio electronics and audiophile gear mega-store featuring planar magnetic headphones, discrete R2R ladder DACs, nearfield studio monitors, and precision acoustic accessories.',
   niche: 'Pro Audiophile Electronics & Studio Gear',
@@ -156,12 +156,13 @@ export const megaElectronicsStore: StarterContentSet = {
     'dtc-hardware',
   ],
   needsPersonalization: false,
-  themeId: 'blueprint-navy',
-  accent: '#0284c7',
+  themeId: 'titanium-gray',
+  accent: '#475569',
   layoutSystem: 'signal',
   business: {
-    name: 'VoltTech Electronics International Limited',
-    shortName: 'VoltTech Gear',
+    name: 'VoltTech',
+    legalName: 'VoltTech Electronics International Limited',
+    shortName: 'VoltTech',
     registrationNumber: 'HK-3190824',
     jurisdiction: 'Hong Kong SAR (WEEE & CE Directive Compliant)',
     governingLaw: 'the laws of the Hong Kong Special Administrative Region',
@@ -173,7 +174,7 @@ export const megaElectronicsStore: StarterContentSet = {
     supportHours: 'Monday – Saturday, 08:00 – 20:00 (HKT) · 24/7 Global Order Tracking',
   },
   brand: {
-    logoText: 'VoltTech Gear',
+    logoText: 'VoltTech',
   },
   header: {
     variant: 'corporate_utility',
@@ -192,7 +193,7 @@ export const megaElectronicsStore: StarterContentSet = {
     href: '/catalog',
   },
   meta: {
-    title: 'VoltTech Gear & Audio — Direct-to-Consumer Pro Audio Electronics',
+    title: 'VoltTech — Direct-to-Consumer Pro Audio Electronics',
     description:
       'Shop flagship planar magnetic headphones, discrete R2R DAC amplifiers, and studio monitors directly from the manufacturer with 3-year warranty and free DHL Express.',
     ogImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=80',
@@ -231,7 +232,7 @@ export const megaElectronicsStore: StarterContentSet = {
           { label: 'Terms & Conditions of Sale', href: '/policies/terms' },
           { label: 'Privacy & Cookie Policy', href: '/policies/privacy' },
           { label: 'WEEE & Environmental Directives', href: '/policies/terms' },
-          { label: 'Airwallex Verified Payments', href: '/checkout' },
+          { label: 'Secure Payments', href: '/checkout' },
         ],
       },
     ],

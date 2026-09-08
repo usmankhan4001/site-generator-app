@@ -23,9 +23,17 @@ export default function Footer({ content }: { content: SiteContent }) {
           {/* Brand + support contact */}
           <div className="col-span-2 md:col-span-1 space-y-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shadow-xs">
-                {logoText.charAt(0) || 'A'}
-              </div>
+              {brand?.logoUrl ? (
+                <img
+                  src={brand.logoUrl}
+                  alt={logoText}
+                  className="h-8 w-auto object-contain dark:brightness-110"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shadow-xs">
+                  {logoText.charAt(0) || 'A'}
+                </div>
+              )}
               <span className="text-base font-bold text-foreground">{logoText}</span>
             </div>
             {footer.tagline && (
@@ -65,7 +73,7 @@ export default function Footer({ content }: { content: SiteContent }) {
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
               <span className="font-medium text-foreground">
-                Airwallex Verified Merchant &amp; PCI-DSS Level 1 Compliant
+                Secure checkout &middot; 256-bit SSL encrypted payments
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-foreground">
@@ -88,10 +96,17 @@ export default function Footer({ content }: { content: SiteContent }) {
               &copy; {currentYear()} {business.name}. All rights reserved.
             </div>
             {footer.showLegalBar && (
-              <div className="text-[11px] text-muted-foreground/80">
-                Registered in {business.jurisdiction} · Company Registration No.{' '}
-                {business.registrationNumber} · {business.registeredAddress}
-                {asNumber ? ` · AS${asNumber}` : ''}
+              /* Labelled multi-line statutory block — Airwallex reviewers (and
+                 scrapers) must read the registration number and address as
+                 separate, clearly labelled fields, never one run-on line. */
+              <div className="text-[11px] text-muted-foreground/80 leading-relaxed">
+                <div>
+                  {business.legalName || business.name} — Registered in{' '}
+                  {business.jurisdiction}
+                </div>
+                <div>Company Registration No. {business.registrationNumber}</div>
+                <div>Registered address: {business.registeredAddress}</div>
+                {asNumber ? <div>AS{asNumber}</div> : null}
               </div>
             )}
           </div>

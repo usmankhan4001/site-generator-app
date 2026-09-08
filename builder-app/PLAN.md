@@ -34,7 +34,7 @@ running app, not just what was designed._
 | 5.6 — Custom-domain DNS verification | ⛔ BLOCKED | Same credential gap |
 | Phase 6 — Two-path creation + hover-scroll previews | ✅ DONE | Verified live end-to-end |
 | "Templates in super detail" (9 more archetypes) | ⏸ PARKED | Waiting on your input |
-| Known open defect: `Checkout.tsx` | ⚠️ UNRESOLVED | Fake payment processing + false compliance badges from an unidentified process; uncommitted |
+| Known open defect: `Checkout.tsx` | ✅ RESOLVED | Demo mode no longer collects card data or fakes a successful charge; fake "Airwallex Verified Merchant / PCI-DSS Level 1" badges removed; Airwallex readiness audit added (`src/site/compliance/airwallex.ts`) and gates publish in `PublishPopover` |
 
 **What's actually blocking real deployment right now:**
 1. A GitHub personal access token (repo scope) + your GitHub username.
