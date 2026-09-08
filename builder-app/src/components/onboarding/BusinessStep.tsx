@@ -1,66 +1,30 @@
 'use client';
 
-import { Briefcase, ShoppingBag } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Field, SelectableCard, textareaClass } from './primitives';
-import type { OnboardingData } from './types';
+import { BUSINESS_CATEGORIES } from './types';
+import { CategoryCard, Slide, SlideHeading } from './primitives';
 
 export function BusinessStep({
-  data,
-  patch,
+  selectedId,
+  onSelect,
 }: {
-  data: OnboardingData;
-  patch: (p: Partial<OnboardingData>) => void;
+  selectedId: string;
+  onSelect: (id: string, label: string, mode: 'services' | 'ecommerce') => void;
 }) {
   return (
-    <div className="space-y-8">
-      <Field
-        label="What does your business do?"
-        htmlFor="niche"
-        hint="A sentence or two, in plain language. This anchors everything we generate."
-      >
-        <textarea
-          id="niche"
-          rows={3}
-          value={data.niche}
-          onChange={(e) => patch({ niche: e.target.value })}
-          placeholder="e.g. We help small dental clinics manage bookings, reminders and patient records in one place."
-          className={textareaClass}
-        />
-      </Field>
-
-      <Field label="Which best describes you?">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <SelectableCard
-            selected={data.preferredMode === 'services'}
-            onClick={() => patch({ preferredMode: 'services' })}
-            icon={<Briefcase />}
-            title="We provide services"
-            description="Consulting, agencies, software, professional or done-for-you work."
+    <Slide>
+      <SlideHeading>What do you do?</SlideHeading>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        {BUSINESS_CATEGORIES.map((cat) => (
+          <CategoryCard
+            key={cat.id}
+            selected={selectedId === cat.id}
+            onClick={() => onSelect(cat.id, cat.label, cat.mode)}
+            icon={cat.icon}
+            title={cat.label}
+            description={cat.description}
           />
-          <SelectableCard
-            selected={data.preferredMode === 'ecommerce'}
-            onClick={() => patch({ preferredMode: 'ecommerce' })}
-            icon={<ShoppingBag />}
-            title="We sell products"
-            description="Physical or digital goods, a catalogue, an online store."
-          />
-        </div>
-      </Field>
-
-      <Field
-        label="Who are your customers?"
-        htmlFor="targetAudience"
-        optional
-        hint="Helps us pitch the copy at the right audience."
-      >
-        <Input
-          id="targetAudience"
-          value={data.targetAudience}
-          onChange={(e) => patch({ targetAudience: e.target.value })}
-          placeholder="e.g. Independent dental practices in the UK"
-        />
-      </Field>
-    </div>
+        ))}
+      </div>
+    </Slide>
   );
 }

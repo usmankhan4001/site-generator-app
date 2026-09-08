@@ -45,6 +45,32 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'A valid email is required' }, { status: 400 });
   }
 
+  // Check if user already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+  if (existingUser) {
+    return NextResponse.json(
+      { error: 'A user with this email address already exists.' },
+      { status: 409 },
+    );
+  }
+
+  // Check if an active pending invite already exists
+  const activeInvite = await prisma.invite.findFirst({
+    where: {
+      email,
+      acceptedAt: null,
+      expiresAt: { gt: new Date() },
+    },
+  });
+  if (activeInvite) {
+    return NextResponse.json(
+      { error: 'An active pending invite already exists for this email.' },
+      { status: 409 },
+    );
+  }
+
   const token = randomBytes(24).toString('base64url');
   const invite = await prisma.invite.create({
     data: {

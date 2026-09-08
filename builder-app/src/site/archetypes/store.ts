@@ -107,6 +107,8 @@ export const store: ArchetypeMeta = {
     'store-living',
     'store-outdoor',
     'store-coffee',
+    'store-athletic-gear',
+    'store-skincare-clean',
   ],
 };
 

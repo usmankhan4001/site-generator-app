@@ -10,11 +10,9 @@ import { auth } from '@/lib/auth';
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Never intercept auth endpoints, public assets, or sign-in/sign-up pages to prevent loops
+  // Never intercept auth API endpoints, Next internals, or static assets
   if (
     pathname.startsWith('/api/auth') ||
-    pathname.startsWith('/sign-in') ||
-    pathname.startsWith('/sign-up') ||
     pathname.startsWith('/_next') ||
     pathname.includes('/favicon.') ||
     pathname.includes('/icon.')
@@ -50,13 +48,31 @@ export async function proxy(request: NextRequest) {
     session = null;
   }
 
+  const isAuthPage = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
+
   if (!session) {
-    const redirectTarget = pathname === '/sign-in' ? '/' : pathname;
+    if (isAuthPage) {
+      return NextResponse.next();
+    }
     const signInUrl = new URL('/sign-in', request.url);
-    if (redirectTarget && redirectTarget !== '/') {
-      signInUrl.searchParams.set('redirect', redirectTarget);
+    if (pathname && pathname !== '/') {
+      signInUrl.searchParams.set('redirect', pathname);
     }
     return NextResponse.redirect(signInUrl);
+  }
+
+  // If an authenticated user visits /sign-in or /sign-up, redirect them to `?redirect=` or `/`
+  if (isAuthPage) {
+    const redirectParam = request.nextUrl.searchParams.get('redirect');
+    const target =
+      redirectParam &&
+      redirectParam.startsWith('/') &&
+      !redirectParam.startsWith('//') &&
+      !redirectParam.startsWith('/sign-in') &&
+      !redirectParam.startsWith('/sign-up')
+        ? redirectParam
+        : '/';
+    return NextResponse.redirect(new URL(target, request.url));
   }
 
   const user = session.user as {
@@ -71,7 +87,7 @@ export async function proxy(request: NextRequest) {
 
   // Guard onboarding on dashboard root
   if (pathname === '/' && !user.onboardingCompletedAt) {
-    return NextResponse.redirect(new URL('/onboarding', request.url));
+    return NextResponse.redirect(new URL('/create', request.url));
   }
 
   return NextResponse.next();
@@ -81,5 +97,13 @@ export const middleware = proxy;
 export default proxy;
 
 export const config = {
-  matcher: ['/', '/project/:path*', '/preview/project/:path*', '/onboarding', '/admin/:path*'],
+  matcher: [
+    '/',
+    '/create',
+    '/project/:path*',
+    '/preview/project/:path*',
+    '/admin/:path*',
+    '/sign-in',
+    '/sign-up',
+  ],
 };

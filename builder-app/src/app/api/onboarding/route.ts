@@ -4,24 +4,10 @@ import { prisma } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
-interface LegalDetailsPayload {
-  entityName?: unknown;
-  registrationNumber?: unknown;
-  jurisdiction?: unknown;
-  registeredAddress?: unknown;
-  contactEmail?: unknown;
-  contactPhone?: unknown;
-}
-
 interface OnboardingPayload {
   niche?: unknown;
   preferredMode?: unknown;
-  targetAudience?: unknown;
   stylePref?: unknown;
-  logoUrl?: unknown;
-  brandColor?: unknown;
-  existingUrl?: unknown;
-  legal?: LegalDetailsPayload;
 }
 
 /** Trim a string-ish value; empty -> null so we don't persist blank strings. */
@@ -54,12 +40,8 @@ export async function GET() {
 /**
  * POST /api/onboarding — persists the questionnaire.
  *
- * The `User` model only has columns for niche / preferredMode / stylePref /
- * logoUrl / brandColor / existingUrl (+ onboardingCompletedAt), so those go
- * straight to their columns. The six legal fields (plus targetAudience) have no
- * schema home yet — Wave 3 will thread them into the created project's
- * `business` block — so they're stashed as a JSON blob in a `Setting` row keyed
- * `onboarding-legal:<userId>`.
+ * Only saves niche, preferredMode, and stylePref. Legal details are
+ * deferred to the studio workspace.
  */
 export async function POST(request: Request) {
   const actor = await getActor();
@@ -84,36 +66,14 @@ export async function POST(request: Request) {
 
   const preferredMode = body.preferredMode === 'ecommerce' ? 'ecommerce' : 'services';
 
-  const legal = body.legal ?? {};
-  const legalBlob = {
-    entityName: clean(legal.entityName),
-    registrationNumber: clean(legal.registrationNumber),
-    jurisdiction: clean(legal.jurisdiction),
-    registeredAddress: clean(legal.registeredAddress),
-    contactEmail: clean(legal.contactEmail),
-    contactPhone: clean(legal.contactPhone),
-    targetAudience: clean(body.targetAudience),
-  };
-
   await prisma.user.update({
     where: { id: actor.userId },
     data: {
       niche,
       preferredMode,
       stylePref: clean(body.stylePref),
-      logoUrl: clean(body.logoUrl),
-      brandColor: clean(body.brandColor),
-      existingUrl: clean(body.existingUrl),
       onboardingCompletedAt: new Date(),
     },
-  });
-
-  const key = `onboarding-legal:${actor.userId}`;
-  const value = JSON.stringify(legalBlob);
-  await prisma.setting.upsert({
-    where: { key },
-    create: { key, value },
-    update: { value },
   });
 
   return NextResponse.json({ ok: true });

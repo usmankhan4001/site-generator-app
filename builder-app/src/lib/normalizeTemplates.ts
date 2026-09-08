@@ -34,7 +34,7 @@ import {
   HOSTING_TEMPLATES,
 } from '../data/templates';
 import type { UniversalTemplate } from '../data/templates';
-import { diversifyImages } from '../data/diversifyImages';
+import { diversifyImages } from '../site/lib/diversifyImages';
 
 /* ============================================================================
  * Small utilities

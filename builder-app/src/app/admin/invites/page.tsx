@@ -22,7 +22,7 @@ export default async function AdminInvitesPage() {
     <div>
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">Invites</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Invites</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {rows.length} {rows.length === 1 ? 'invite' : 'invites'} issued.
           </p>

@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "lib": ["DOM", "DOM.Iterable", "ES2017"]
+  },
+  "include": [
+    "src/components/onboarding/OnboardingFlow.tsx",
+    "src/components/dashboard/CreateFlow.tsx",
+    "src/components/onboarding/**/*.ts",
+    "src/components/onboarding/**/*.tsx",
+    "src/components/dashboard/**/*.ts",
+    "src/components/dashboard/**/*.tsx",
+    "src/lib/**/*.ts",
+    "src/site/**/*.ts",
+    "src/site/**/*.tsx",
+    "src/components/ui/**/*.ts",
+    "src/components/ui/**/*.tsx",
+    "src/lib/utils.ts"
+  ]
+}

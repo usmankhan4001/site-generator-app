@@ -8,7 +8,7 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const servicesConsulting: StarterContentSet = {
   id: 'services-consulting',
   archetype: 'services',
-  name: 'Management & Corporate Advisory',
+  name: 'Stratford',
   description:
     'Board-level strategic advisory, operational restructuring, cross-border M&A diligence, and value-creation programs for mid-market and enterprise leadership.',
   niche: 'Strategic management & corporate advisory',
@@ -16,8 +16,9 @@ export const servicesConsulting: StarterContentSet = {
   needsPersonalization: false,
   themeId: 'blueprint-navy',
   business: {
-    name: 'Stratford Advisory Group LLC',
-    shortName: 'Stratford Advisory',
+    name: 'Stratford',
+    legalName: 'Stratford Advisory Group LLC',
+    shortName: 'Stratford',
     registrationNumber: 'DE-6892415',
     jurisdiction: 'Delaware, USA',
     governingLaw: 'the laws of the State of New York',
@@ -27,9 +28,9 @@ export const servicesConsulting: StarterContentSet = {
     website: 'stratfordadvisory.example',
     supportHours: 'Monday – Friday, 08:30 – 19:00 (EST)',
   },
-  brand: { logoText: 'Stratford Advisory' },
+  brand: { logoText: 'Stratford' },
   meta: {
-    title: 'Stratford Advisory Group — Strategic Management & Corporate Advisory',
+    title: 'Stratford — Strategic Management & Corporate Advisory',
     description:
       'We advise executive boards and private equity sponsors on high-stakes strategic turnarounds, transaction diligence, and organizational performance.',
   },
@@ -40,7 +41,7 @@ export const servicesConsulting: StarterContentSet = {
         headline: 'Decisive strategic counsel for',
         accentText: 'pivotal corporate moments',
         subtitle:
-          'Stratford Advisory partners with CEOs, boards of directors, and private equity sponsors to navigate complex transactions, accelerate EBITDA expansion, and execute organizational transformation.',
+          'Stratford partners with CEOs, boards of directors, and private equity sponsors to navigate complex transactions, accelerate EBITDA expansion, and execute organizational transformation.',
         primaryCta: { label: 'Explore Advisory Practices', href: '/services' },
         secondaryCta: { label: 'Schedule Partner Briefing', href: '/contact' },
         trustBadges: ['Senior-Partner Led', '$18B+ Transaction Value Advised', 'Zero Junior Leverage Model'],
@@ -200,10 +201,10 @@ export const servicesConsulting: StarterContentSet = {
       },
       faq: {
         eyebrow: 'Advisory Inquiries',
-        title: 'Engaging Stratford Advisory',
+        title: 'Engaging Stratford',
         items: [
           {
-            q: 'How does Stratford Advisory staff client engagements?',
+            q: 'How does Stratford staff client engagements?',
             a: 'Every engagement is directly led and executed by senior Managing Partners with at least 15 years of operating or top-tier consulting experience. We maintain a zero-junior leverage model to ensure high-stakes precision.',
           },
           {

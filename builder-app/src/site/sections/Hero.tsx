@@ -55,6 +55,7 @@ export default function Hero({ props, content }: { props: HeroProps; content: Si
   const [formEmail, setFormEmail] = useState('');
   const [formInterest, setFormInterest] = useState('Enterprise Solutions');
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
 
   const rawVariant = props.variant ?? props.layout;
   const layout: HeroLayout = !image && !rawVariant
@@ -119,16 +120,16 @@ export default function Hero({ props, content }: { props: HeroProps; content: Si
             {/* Left Column: Copy & Bullet Points */}
             <div className="lg:col-span-7 text-left space-y-6">
               {badgePill}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.12]">
+              <h1 data-edit-prop="headline" className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.12]">
                 {headline}
                 {accentText && (
                   <>
                     {' '}
-                    <span className="text-primary">{accentText}</span>
+                    <span data-edit-prop="accentText" className="text-primary">{accentText}</span>
                   </>
                 )}
               </h1>
-              <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-xl font-normal">
+              <p data-edit-prop="subtitle" className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-xl font-normal">
                 {subtitle}
               </p>
 
@@ -194,8 +195,28 @@ export default function Hero({ props, content }: { props: HeroProps; content: Si
                   </div>
                 ) : (
                   <form
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                       e.preventDefault();
+                      if (leadForm?.endpoint) {
+                        setFormLoading(true);
+                        try {
+                          await fetch(leadForm.endpoint, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              name: formName,
+                              email: formEmail,
+                              interest: formInterest,
+                              source: typeof window !== 'undefined' ? window.location.href : undefined,
+                              submittedAt: new Date().toISOString(),
+                            }),
+                          });
+                        } catch (err) {
+                          console.error('Failed to submit lead form:', err);
+                        } finally {
+                          setFormLoading(false);
+                        }
+                      }
                       setFormSubmitted(true);
                     }}
                     className="space-y-4"
@@ -244,8 +265,8 @@ export default function Hero({ props, content }: { props: HeroProps; content: Si
                       </select>
                     </div>
 
-                    <Button type="submit" className="w-full h-11 text-sm font-semibold shadow-xs">
-                      {leadForm?.submitLabel ?? 'Request Proposal'}
+                    <Button type="submit" disabled={formLoading} className="w-full h-11 text-sm font-semibold shadow-xs">
+                      {formLoading ? 'Submitting...' : (leadForm?.submitLabel ?? 'Request Proposal')}
                       <ArrowRight className="ml-1.5 h-4 w-4" />
                     </Button>
 
@@ -277,16 +298,16 @@ export default function Hero({ props, content }: { props: HeroProps; content: Si
           {/* Centered Top Headline & Dual CTAs */}
           <div className="text-center max-w-4xl mx-auto space-y-6 mb-12 md:mb-16">
             {badgePill && <div className="flex justify-center">{badgePill}</div>}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.08]">
+            <h1 data-edit-prop="headline" className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.08]">
               {headline}
               {accentText && (
                 <>
                   {' '}
-                  <span className="text-primary">{accentText}</span>
+                  <span data-edit-prop="accentText" className="text-primary">{accentText}</span>
                 </>
               )}
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto font-normal">
+            <p data-edit-prop="subtitle" className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto font-normal">
               {subtitle}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
@@ -388,6 +409,7 @@ export default function Hero({ props, content }: { props: HeroProps; content: Si
             )}
 
             <h1
+              data-edit-prop="headline"
               className="text-4xl sm:text-6xl md:text-7xl lg:text-[72px] font-normal tracking-tight text-foreground leading-[1.04]"
               style={{ fontFamily: 'var(--font-display, inherit)' }}
             >
@@ -395,12 +417,12 @@ export default function Hero({ props, content }: { props: HeroProps; content: Si
               {accentText && (
                 <>
                   {' '}
-                  <span className="italic text-primary font-light">{accentText}</span>
+                  <span data-edit-prop="accentText" className="italic text-primary font-light">{accentText}</span>
                 </>
               )}
             </h1>
 
-            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto font-light">
+            <p data-edit-prop="subtitle" className="text-lg sm:text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto font-light">
               {subtitle}
             </p>
 
@@ -498,16 +520,16 @@ export default function Hero({ props, content }: { props: HeroProps; content: Si
             {/* Left Column: Headline & Action */}
             <div className="lg:col-span-7 text-left space-y-6">
               {badgePill}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.12]">
+              <h1 data-edit-prop="headline" className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.12]">
                 {headline}
                 {accentText && (
                   <>
                     {' '}
-                    <span className="text-primary">{accentText}</span>
+                    <span data-edit-prop="accentText" className="text-primary">{accentText}</span>
                   </>
                 )}
               </h1>
-              <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-xl font-normal">
+              <p data-edit-prop="subtitle" className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-xl font-normal">
                 {subtitle}
               </p>
               <div className="flex flex-wrap items-center gap-4 pt-2">{ctaButtons}</div>

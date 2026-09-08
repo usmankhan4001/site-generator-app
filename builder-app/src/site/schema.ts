@@ -15,8 +15,10 @@
  * ========================================================================== */
 
 export interface BusinessInfo {
-  /** Full legal entity name, e.g. "Vantage Cloud Technologies Limited". */
+  /** Short primary brand name shown to users, e.g. "Vantage". */
   name: string;
+  /** Full statutory legal entity name, e.g. "Vantage Cloud Technologies Limited". */
+  legalName?: string;
   /** Short brand name for the logo + copy, e.g. "Vantage". */
   shortName: string;
   /** Statutory company/registration number as issued by the registry. */

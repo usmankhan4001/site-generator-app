@@ -23,7 +23,7 @@ export default async function AdminOverviewPage() {
   return (
     <div>
       <header className="mb-8">
-        <h1 className="text-xl font-semibold tracking-tight">Overview</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Studio-wide snapshot of clients, projects and hosting.
         </p>

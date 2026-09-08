@@ -47,14 +47,14 @@ export default function PageHeader({
           {eyebrow ? (
             <div className="dot-pill mb-4">
               <span className="dot-indicator" />
-              <span>{eyebrow}</span>
+              <span data-edit-prop="eyebrow">{eyebrow}</span>
             </div>
           ) : null}
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground leading-tight">
+          <h1 data-edit-prop="headline" className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground leading-tight">
             {headline}
           </h1>
           {subtitle ? (
-            <p className="mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed">
+            <p data-edit-prop="subtitle" className="mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed">
               {subtitle}
             </p>
           ) : null}

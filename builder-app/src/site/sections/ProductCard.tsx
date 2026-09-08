@@ -297,11 +297,11 @@ export function MegaCatalogCard({
   const { addItem } = useCart();
   const [isAdded, setIsAdded] = useState(false);
 
-  const discountPercent = getDiscountPercentage(item.price, item.originalPrice, item.compareAtPrice) ?? 30;
+  const discountPercent = getDiscountPercentage(item.price, item.originalPrice, item.compareAtPrice);
   const formattedPrice = formatPrice(item.price, item.currency || currency);
   const formattedOriginalPrice = item.originalPrice || item.compareAtPrice
     ? formatPrice(item.originalPrice || item.compareAtPrice!, item.currency || currency)
-    : formatPrice(Math.round(item.price / (1 - discountPercent / 100)), item.currency || currency);
+    : null;
 
   // Stock scarcity indicator: default to 3 if in stock or defined
   const stockCount = typeof item.stockCount === 'number' ? item.stockCount : 3;
@@ -354,11 +354,13 @@ export function MegaCatalogCard({
         )}
 
         {/* Discount Percentage Pill Badge */}
-        <div className="absolute top-2.5 left-2.5 z-10">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-black bg-rose-600 text-white shadow-md uppercase tracking-wider">
-            -{discountPercent}% OFF
-          </span>
-        </div>
+        {discountPercent !== null && (
+          <div className="absolute top-2.5 left-2.5 z-10">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-black bg-rose-600 text-white shadow-md uppercase tracking-wider">
+              -{discountPercent}% OFF
+            </span>
+          </div>
+        )}
 
         {item.badge && item.badge !== 'Sale' && (
           <div className="absolute top-2.5 right-2.5 z-10">
@@ -396,12 +398,16 @@ export function MegaCatalogCard({
           <span className="text-lg font-black text-foreground">
             {formattedPrice}
           </span>
-          <span className="text-xs text-muted-foreground line-through font-medium">
-            {formattedOriginalPrice}
-          </span>
-          <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 ml-auto">
-            Save {formatPrice((item.originalPrice || item.compareAtPrice || Math.round(item.price / 0.7)) - item.price, item.currency || currency)}
-          </span>
+          {formattedOriginalPrice && (
+            <span className="text-xs text-muted-foreground line-through font-medium">
+              {formattedOriginalPrice}
+            </span>
+          )}
+          {discountPercent !== null && (item.originalPrice || item.compareAtPrice) && (
+            <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 ml-auto">
+              Save {formatPrice((item.originalPrice || item.compareAtPrice!) - item.price, item.currency || currency)}
+            </span>
+          )}
         </div>
 
         {/* Stock Scarcity Progress Bar ('Only 3 left in stock!') */}

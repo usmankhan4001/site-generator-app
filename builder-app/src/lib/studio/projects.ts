@@ -62,12 +62,154 @@ function toSummary(p: {
   };
 }
 
-function parseContent(raw: string): SiteContent | null {
+export function normalizeSiteContent(input: unknown, fallbackName?: string): SiteContent {
+  const obj = input && typeof input === 'object' ? (input as Record<string, any>) : {};
+
+  // If input already has valid pages and business info, perform standard sanitization/normalization
+  if (Array.isArray(obj.pages) && obj.pages.length > 0) {
+    const bizName = String(obj.business?.name || obj.name || fallbackName || 'Untitled Business');
+    const bizShort = String(obj.business?.shortName || obj.business?.name || obj.name || fallbackName || 'Business');
+
+    const business: BusinessInfo = {
+      name: bizName,
+      shortName: bizShort,
+      registrationNumber: String(obj.business?.registrationNumber || ''),
+      jurisdiction: String(obj.business?.jurisdiction || 'Singapore'),
+      governingLaw: String(obj.business?.governingLaw || 'the laws of Singapore'),
+      registeredAddress: String(obj.business?.registeredAddress || ''),
+      email: String(obj.business?.email || ''),
+      phone: String(obj.business?.phone || ''),
+      website: String(obj.business?.website || ''),
+      taxId: obj.business?.taxId ? String(obj.business?.taxId) : undefined,
+      asNumber: obj.business?.asNumber ? String(obj.business?.asNumber) : undefined,
+      supportHours: obj.business?.supportHours ? String(obj.business?.supportHours) : undefined,
+    };
+
+    return {
+      version: 1,
+      business,
+      mode: obj.mode === 'ecommerce' ? 'ecommerce' : 'services',
+      themeId: typeof obj.themeId === 'string' && obj.themeId ? obj.themeId : 'indigo-enterprise',
+      ...(obj.accent ? { accent: String(obj.accent) } : {}),
+      ...(obj.layoutSystem ? { layoutSystem: obj.layoutSystem } : {}),
+      ...(obj.archetype ? { archetype: obj.archetype } : {}),
+      ...(obj.formspreeId ? { formspreeId: String(obj.formspreeId) } : {}),
+      ...(obj.airwallexCheckoutUrl ? { airwallexCheckoutUrl: String(obj.airwallexCheckoutUrl) } : {}),
+      brand: {
+        logoText: String(obj.brand?.logoText || bizShort),
+        ...(obj.brand?.logoUrl ? { logoUrl: String(obj.brand.logoUrl) } : {}),
+      },
+      nav: Array.isArray(obj.nav) && obj.nav.length > 0
+        ? obj.nav
+        : [{ label: 'Home', href: '/' }],
+      ...(obj.headerCta ? { headerCta: obj.headerCta } : {}),
+      ...(obj.header ? { header: obj.header } : {}),
+      footer: obj.footer && typeof obj.footer === 'object'
+        ? obj.footer
+        : {
+            columns: [],
+            legalLinks: [],
+            showLegalBar: true,
+            showPaymentBadges: obj.mode === 'ecommerce',
+          },
+      pages: obj.pages.map((p: any, idx: number) => ({
+        key: String(p?.key || `page-${idx}`),
+        path: String(p?.path || (idx === 0 ? '/' : `/page-${idx}`)),
+        title: String(p?.title || 'Page'),
+        navLabel: p?.navLabel ? String(p.navLabel) : undefined,
+        nav: typeof p?.nav === 'boolean' ? p.nav : false,
+        sections: Array.isArray(p?.sections)
+          ? p.sections.map((s: any, sIdx: number) => ({
+              id: String(s?.id || `sec-${idx}-${sIdx}`),
+              enabled: typeof s?.enabled === 'boolean' ? s.enabled : true,
+              type: s?.type || 'prose',
+              props: s?.props && typeof s.props === 'object' ? s.props : {},
+            }))
+          : [],
+      })),
+      meta: {
+        title: String(obj.meta?.title || bizName),
+        description: String(obj.meta?.description || ''),
+        ...(obj.meta?.ogImage ? { ogImage: String(obj.meta.ogImage) } : {}),
+      },
+      source: obj.source && typeof obj.source === 'object'
+        ? obj.source
+        : {
+            templateId: typeof obj.templateId === 'string' ? obj.templateId : 'archetype:saas',
+            sector: obj.mode === 'ecommerce' ? 'retail' : 'tech',
+            needsPersonalization: false,
+          },
+    };
+  }
+
+  // Fallback to default archetype content with business name preserved
+  const archetypeId: ArchetypeId =
+    obj.archetype && ARCHETYPES[obj.archetype as ArchetypeId]
+      ? (obj.archetype as ArchetypeId)
+      : obj.source?.archetype && ARCHETYPES[obj.source.archetype as ArchetypeId]
+      ? (obj.source.archetype as ArchetypeId)
+      : obj.mode === 'ecommerce'
+      ? 'store'
+      : 'saas';
+
+  const starterSetId = typeof obj.source?.starterSetId === 'string' ? obj.source.starterSetId : null;
+  const base = createSiteContentFromArchetype(archetypeId, starterSetId);
+
+  const bizName = String(obj.business?.name || obj.name || fallbackName || base.business.name);
+  const bizShort = String(obj.business?.shortName || obj.business?.name || obj.name || fallbackName || base.business.shortName);
+
+  const business: BusinessInfo = {
+    ...base.business,
+    name: bizName,
+    shortName: bizShort,
+    ...(obj.business?.registrationNumber ? { registrationNumber: String(obj.business.registrationNumber) } : {}),
+    ...(obj.business?.jurisdiction ? { jurisdiction: String(obj.business.jurisdiction) } : {}),
+    ...(obj.business?.governingLaw ? { governingLaw: String(obj.business.governingLaw) } : {}),
+    ...(obj.business?.registeredAddress ? { registeredAddress: String(obj.business.registeredAddress) } : {}),
+    ...(obj.business?.email ? { email: String(obj.business.email) } : {}),
+    ...(obj.business?.phone ? { phone: String(obj.business.phone) } : {}),
+    ...(obj.business?.website ? { website: String(obj.business.website) } : {}),
+    ...(obj.business?.taxId ? { taxId: String(obj.business.taxId) } : {}),
+    ...(obj.business?.asNumber ? { asNumber: String(obj.business.asNumber) } : {}),
+    ...(obj.business?.supportHours ? { supportHours: String(obj.business.supportHours) } : {}),
+  };
+
+  const pages = base.pages.map((page) => {
+    if (page.key.startsWith('policy:')) {
+      const slug = page.key.replace('policy:', '');
+      return buildPolicyPage(slug, business);
+    }
+    return page;
+  });
+
+  return {
+    ...base,
+    business,
+    mode: obj.mode === 'ecommerce' || obj.mode === 'services' ? obj.mode : base.mode,
+    themeId: typeof obj.themeId === 'string' && obj.themeId ? obj.themeId : base.themeId,
+    ...(obj.accent ? { accent: String(obj.accent) } : base.accent ? { accent: base.accent } : {}),
+    brand: {
+      logoText: String(obj.brand?.logoText || bizShort),
+      ...(obj.brand?.logoUrl ? { logoUrl: String(obj.brand.logoUrl) } : base.brand.logoUrl ? { logoUrl: base.brand.logoUrl } : {}),
+    },
+    meta: {
+      title: String(obj.meta?.title || bizName),
+      description: String(obj.meta?.description || base.meta.description),
+      ...(obj.meta?.ogImage ? { ogImage: String(obj.meta.ogImage) } : {}),
+    },
+    pages,
+  };
+}
+
+export function parseContent(raw: string, fallbackName?: string): SiteContent {
   try {
     const c = JSON.parse(raw);
-    return c && typeof c === 'object' && Array.isArray(c.pages) ? (c as SiteContent) : null;
+    if (c && typeof c === 'object' && Array.isArray(c.pages) && c.pages.length > 0) {
+      return c as SiteContent;
+    }
+    return normalizeSiteContent(c, fallbackName);
   } catch {
-    return null;
+    return normalizeSiteContent(null, fallbackName);
   }
 }
 
@@ -94,8 +236,7 @@ export async function listProjects(actor: Actor): Promise<ProjectSummary[]> {
 export async function getProject(id: string, actor: Actor): Promise<ProjectDetail | null> {
   const p = await findOwnedProject(id, actor);
   if (!p) return null;
-  const content = parseContent(p.content);
-  if (!content) return null;
+  const content = parseContent(p.content, p.name);
   return { ...toSummary(p), content };
 }
 
@@ -141,6 +282,42 @@ export async function createProjectFromTemplate(
     },
   });
   return { ...toSummary(p), content };
+}
+
+export async function createProjectFromContent(
+  content: SiteContent,
+  name: string | undefined,
+  actor: Actor,
+): Promise<ProjectDetail> {
+  const existing = new Set(
+    (await prisma.project.findMany({ where: { ownerId: actor.userId }, select: { name: true } })).map(
+      (r) => r.name,
+    ),
+  );
+  const finalName = uniqueName(
+    name?.trim() || content.business?.name || 'My New Site',
+    existing,
+  );
+
+  const cleanContent = JSON.parse(JSON.stringify(content)) as SiteContent;
+
+  const p = await prisma.project.create({
+    data: {
+      name: finalName,
+      templateId: content.source?.templateId || null,
+      mode: cleanContent.mode || 'services',
+      themeId: cleanContent.themeId || 'indigo-enterprise',
+      domain: null,
+      customDomain: null,
+      domainStatus: null,
+      hostingStatus: 'none',
+      publishRequestedAt: null,
+      content: JSON.stringify(cleanContent),
+      status: 'draft',
+      ownerId: actor.userId,
+    },
+  });
+  return { ...toSummary(p), content: cleanContent };
 }
 
 export async function createProjectFromArchetype(
@@ -295,8 +472,8 @@ export async function updateProject(
     data.mode = patch.content.mode;
   }
   const p = await prisma.project.update({ where: { id }, data });
-  const content = parseContent(p.content);
-  return content ? { ...toSummary(p), content } : null;
+  const content = parseContent(p.content, p.name);
+  return { ...toSummary(p), content };
 }
 
 export async function duplicateProject(id: string, actor: Actor): Promise<ProjectDetail | null> {
@@ -319,8 +496,8 @@ export async function duplicateProject(id: string, actor: Actor): Promise<Projec
       ownerId: actor.userId,
     },
   });
-  const content = parseContent(p.content);
-  return content ? { ...toSummary(p), content } : null;
+  const content = parseContent(p.content, p.name);
+  return { ...toSummary(p), content };
 }
 
 /** Returns `false` when the project doesn't exist or isn't the actor's. */

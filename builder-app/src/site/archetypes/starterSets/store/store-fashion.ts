@@ -271,7 +271,7 @@ const fashionProducts: CatalogItem[] = [
 export const storeFashion: StarterContentSet = {
   id: 'store-fashion',
   archetype: 'store',
-  name: 'Contemporary Minimalist Fashion',
+  name: 'Verve',
   description:
     'Relaxed tailoring, heavy Portuguese organic cotton knitwear, and raw Japanese selvedge denim crafted for contemporary capsule wardrobes.',
   niche: 'Contemporary minimalist fashion & tailored apparel',
@@ -285,10 +285,12 @@ export const storeFashion: StarterContentSet = {
     'dtc-store',
   ],
   needsPersonalization: false,
-  themeId: 'monochrome-atelier',
+  themeId: 'boutique-oat',
+  accent: '#b45309',
   business: {
-    name: 'Verve Studio Fashion SAS',
-    shortName: 'Verve Studio',
+    name: 'Verve',
+    legalName: 'Verve Studio Fashion SAS',
+    shortName: 'Verve',
     registrationNumber: 'FR-918204918',
     jurisdiction: 'Paris, France (RCS Paris)',
     governingLaw: 'the laws of the French Republic',
@@ -298,9 +300,9 @@ export const storeFashion: StarterContentSet = {
     website: 'vervestudio.example',
     supportHours: 'Monday – Friday, 09:30 – 18:30 (CET)',
   },
-  brand: { logoText: 'Verve Studio' },
+  brand: { logoText: 'Verve' },
   meta: {
-    title: 'Verve Studio — Contemporary Minimalist Fashion & Relaxed Tailoring',
+    title: 'Verve — Contemporary Minimalist Fashion & Relaxed Tailoring',
     description:
       'Discover timeless boiled wool overshirts, 14oz Okayama raw selvedge denim, heavy organic knitwear, and fluid Tencel trousers tailored in Europe.',
   },
@@ -311,7 +313,7 @@ export const storeFashion: StarterContentSet = {
         headline: 'Quietly architectural clothing, tailored for',
         accentText: 'modern daily life',
         subtitle:
-          'Verve Studio creates unbranded wardrobe essentials using heavyweight natural fibers, Japanese shuttle-loom denim, and unstructured European tailoring.',
+          'Verve creates unbranded wardrobe essentials using heavyweight natural fibers, Japanese shuttle-loom denim, and unstructured European tailoring.',
         image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=80',
         primaryCta: { label: 'Shop The Capsule', href: '/catalog' },
         secondaryCta: { label: 'Our Tailoring Philosophy', href: '/about' },
@@ -395,7 +397,7 @@ export const storeFashion: StarterContentSet = {
             role: 'Photographer',
             location: 'London',
             rating: 5,
-            text: 'Real 14oz Japanese raw denim that fits true to size and breaks in beautifully. Verve Studio proves that high-end fashion doesn’t need massive logos.',
+            text: 'Real 14oz Japanese raw denim that fits true to size and breaks in beautifully. Verve proves that high-end fashion doesn’t need massive logos.',
           },
         ],
       },
@@ -453,7 +455,7 @@ export const storeFashion: StarterContentSet = {
             a: 'We recommend wearing your raw denim for at least 6 months before the first wash to set high-contrast fade creases. When washing, turn inside out and wash in cold water with mild detergent, then hang dry.',
           },
           {
-            q: 'Where are Verve Studio garments manufactured?',
+            q: 'Where are Verve garments manufactured?',
             a: 'Our knitwear and outerwear are made in family-run ateliers near Porto, Portugal and northern Italy. Our denim is milled and sewn in Okayama, Japan.',
           },
           {
@@ -478,7 +480,7 @@ export const storeFashion: StarterContentSet = {
       story: {
         eyebrow: 'Our Vision',
         title: 'A considered wardrobe built on fewer, better pieces',
-        description: 'Verve Studio was established in the Marais district of Paris with the conviction that true luxury is defined by fiber density, immaculate stitching, and longevity.',
+        description: 'Verve was established in the Marais district of Paris with the conviction that true luxury is defined by fiber density, immaculate stitching, and longevity.',
         blocks: [
           {
             heading: 'Direct Partnership with Heritage Mills',

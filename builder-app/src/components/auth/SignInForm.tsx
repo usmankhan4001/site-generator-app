@@ -75,13 +75,13 @@ export function SignInForm({ redirect }: { redirect?: string }) {
       : '/sign-up';
 
   return (
-    <Card className="w-full max-w-md border-border/80 bg-card/95 shadow-subtle backdrop-blur-xs">
+    <Card className="w-full max-w-md border-border bg-card shadow-subtle">
       <CardHeader className="space-y-1.5 pb-6">
         <CardTitle className="text-xl font-semibold tracking-tight text-foreground">
-          Sign in to studio
+          Sign in
         </CardTitle>
         <CardDescription className="text-sm text-muted-foreground">
-          Enter your credentials to access your autonomous sites.
+          Welcome back to Site Studio.
         </CardDescription>
       </CardHeader>
 

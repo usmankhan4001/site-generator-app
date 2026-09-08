@@ -12,13 +12,15 @@
 
 'use client';
 
+import { useMemo } from 'react';
 import { create } from 'zustand';
 import type { SiteContent, Section, SectionType, NavItem } from '@/site/schema';
 import { SECTION_TYPES } from '@/site/schema';
 import { defaultPropsFor } from '@/site/sections/defaults';
+import { buildPolicyPage } from '@/site/archetypes/policies';
 
-export type StudioStep = 'template' | 'company' | 'design' | 'sections' | 'deploy';
-export const STUDIO_STEPS: StudioStep[] = ['template', 'company', 'design', 'sections', 'deploy'];
+export type StudioStep = 'pages' | 'sections' | 'design' | 'company' | 'deploy' | 'template';
+export const STUDIO_STEPS: StudioStep[] = ['pages', 'sections', 'design', 'company', 'deploy'];
 
 export type PreviewDevice = 'desktop' | 'tablet' | 'mobile';
 export const DEVICE_WIDTH: Record<PreviewDevice, number> = {
@@ -53,6 +55,12 @@ interface StudioState {
   activePagePath: string;
   selectedSectionId: string | null;
   device: PreviewDevice;
+  /** Odoo-style edit ⇄ preview. In preview the workspace shows only the site. */
+  viewMode: 'edit' | 'preview';
+
+  // --- undo / redo (content snapshots)
+  undoStack: SiteContent[];
+  redoStack: SiteContent[];
 
   // --- persistence
   loading: boolean;
@@ -72,6 +80,9 @@ interface StudioState {
   setActivePage: (path: string) => void;
   selectSection: (id: string | null) => void;
   setDevice: (d: PreviewDevice) => void;
+  setViewMode: (v: 'edit' | 'preview') => void;
+  undo: () => void;
+  redo: () => void;
 
   // --- publish & domain actions
   setCustomDomain: (customDomain: string | null) => Promise<void>;
@@ -101,6 +112,8 @@ interface StudioState {
 }
 
 const SAVE_DEBOUNCE_MS = 700;
+/** Max content snapshots kept for undo. */
+const UNDO_LIMIT = 50;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 function scheduleSave(get: () => StudioState) {
@@ -128,6 +141,9 @@ export const useStudio = create<StudioState>((set, get) => ({
   activePagePath: '/',
   selectedSectionId: null,
   device: 'desktop',
+  viewMode: 'edit',
+  undoStack: [],
+  redoStack: [],
   loading: false,
   dirty: false,
   saving: false,
@@ -172,7 +188,9 @@ export const useStudio = create<StudioState>((set, get) => ({
     set({
       meta: null, content: null, step: 'company', visitedSteps: ['template', 'company'],
       activePagePath: '/',
-      selectedSectionId: null, device: 'desktop', loading: false, dirty: false,
+      selectedSectionId: null, device: 'desktop', viewMode: 'edit',
+      undoStack: [], redoStack: [],
+      loading: false, dirty: false,
       saving: false, lastSavedAt: null, error: null, previewNonce: 0,
     });
   },
@@ -212,6 +230,35 @@ export const useStudio = create<StudioState>((set, get) => ({
   setActivePage: (activePagePath) => set({ activePagePath, selectedSectionId: null }),
   selectSection: (selectedSectionId) => set({ selectedSectionId }),
   setDevice: (device) => set({ device }),
+  setViewMode: (viewMode) => set({ viewMode }),
+
+  undo: () => {
+    const { content, undoStack, redoStack } = get();
+    if (!content || undoStack.length === 0) return;
+    const prev = undoStack[undoStack.length - 1];
+    set((s) => ({
+      content: prev,
+      undoStack: s.undoStack.slice(0, -1),
+      redoStack: [...s.redoStack, content],
+      dirty: true,
+      previewNonce: s.previewNonce + 1,
+    }));
+    scheduleSave(get);
+  },
+
+  redo: () => {
+    const { content, redoStack } = get();
+    if (!content || redoStack.length === 0) return;
+    const next = redoStack[redoStack.length - 1];
+    set((s) => ({
+      content: next,
+      redoStack: s.redoStack.slice(0, -1),
+      undoStack: [...s.undoStack, content],
+      dirty: true,
+      previewNonce: s.previewNonce + 1,
+    }));
+    scheduleSave(get);
+  },
 
   setCustomDomain: async (customDomain: string | null) => {
     const { meta } = get();
@@ -292,16 +339,27 @@ export const useStudio = create<StudioState>((set, get) => ({
   },
 
   mutate: (recipe) => {
-    const { content } = get();
+    const { content, undoStack } = get();
     if (!content) return;
     const draft = clone(content);
     recipe(draft);
-    set({ content: draft, dirty: true });
+    set({
+      content: draft,
+      dirty: true,
+      undoStack: [...undoStack, content].slice(-UNDO_LIMIT),
+      redoStack: [],
+    });
     scheduleSave(get);
   },
 
   rename: (name) => {
-    set((s) => ({ meta: s.meta ? { ...s.meta, name } : s.meta, dirty: true }));
+    const { content, undoStack } = get();
+    set((s) => ({
+      meta: s.meta ? { ...s.meta, name } : s.meta,
+      dirty: true,
+      undoStack: content ? [...undoStack, content].slice(-UNDO_LIMIT) : undoStack,
+      redoStack: [],
+    }));
     scheduleSave(get);
   },
 
@@ -309,7 +367,18 @@ export const useStudio = create<StudioState>((set, get) => ({
   setAccent: (accent) => get().mutate((d) => { d.accent = accent || undefined; }),
   setMode: (mode) => get().mutate((d) => { d.mode = mode; }),
   setLayoutSystem: (layoutSystem) => get().mutate((d) => { d.layoutSystem = layoutSystem || undefined; }),
-  updateBusiness: (patch) => get().mutate((d) => { Object.assign(d.business, patch); }),
+  updateBusiness: (patch) =>
+    get().mutate((d) => {
+      Object.assign(d.business, patch);
+      const policySlugs = ['privacy', 'terms', 'refund', 'shipping'];
+      for (const slug of policySlugs) {
+        const key = `policy:${slug}`;
+        const idx = d.pages.findIndex((p) => p.key === key || p.path === `/policies/${slug}`);
+        if (idx !== -1) {
+          d.pages[idx] = buildPolicyPage(slug, d.business);
+        }
+      }
+    }),
   updateMeta: (patch) => get().mutate((d) => { Object.assign(d.meta, patch); }),
   setFormspreeId: (id) => get().mutate((d) => { d.formspreeId = id || undefined; }),
   setAirwallexCheckoutUrl: (url) => get().mutate((d) => { d.airwallexCheckoutUrl = url || undefined; }),
@@ -319,6 +388,10 @@ export const useStudio = create<StudioState>((set, get) => ({
     get().mutate((d) => {
       if (sectionId === 'header') {
         d.header = Object.assign({}, d.header, patch);
+        return;
+      }
+      if (sectionId === 'footer') {
+        d.footer = Object.assign({}, d.footer, patch);
         return;
       }
       for (const page of d.pages) {
@@ -380,20 +453,30 @@ export function useActivePage() {
 
 /** Selector helper: the currently-selected section object. */
 export function useSelectedSection() {
-  return useStudio((s) => {
-    if (!s.content || !s.selectedSectionId) return null;
-    if (s.selectedSectionId === 'header') {
+  const content = useStudio((s) => s.content);
+  const selectedSectionId = useStudio((s) => s.selectedSectionId);
+  return useMemo(() => {
+    if (!content || !selectedSectionId) return null;
+    if (selectedSectionId === 'header') {
       return {
         id: 'header',
         type: 'header' as any,
         enabled: true,
-        props: s.content.header ?? {},
+        props: content.header ?? {},
       } as Section;
     }
-    for (const page of s.content.pages) {
-      const sec = page.sections.find((x) => x.id === s.selectedSectionId);
+    if (selectedSectionId === 'footer') {
+      return {
+        id: 'footer',
+        type: 'footer' as any,
+        enabled: true,
+        props: content.footer ?? {},
+      } as Section;
+    }
+    for (const page of content.pages) {
+      const sec = page.sections.find((x) => x.id === selectedSectionId);
       if (sec) return sec;
     }
     return null;
-  });
+  }, [content, selectedSectionId]);
 }

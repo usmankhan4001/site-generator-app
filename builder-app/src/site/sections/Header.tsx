@@ -106,9 +106,17 @@ export default function Header({ content }: { content: SiteContent }) {
             <div className="rounded-full border border-border/80 dark:border-white/10 bg-background/80 dark:bg-background/70 backdrop-blur-md shadow-lg shadow-black/5 px-4 sm:px-6 py-2.5 flex items-center justify-between transition-all">
               {/* Logo */}
               <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shadow-xs group-hover:scale-105 transition-transform">
-                  {logoLetter}
-                </div>
+                {brand?.logoUrl ? (
+                  <img
+                    src={brand.logoUrl}
+                    alt={logoText}
+                    className="h-8 w-auto object-contain dark:brightness-110"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shadow-xs group-hover:scale-105 transition-transform">
+                    {logoLetter}
+                  </div>
+                )}
                 <span className="text-base font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
                   {logoText}
                 </span>
@@ -261,9 +269,17 @@ export default function Header({ content }: { content: SiteContent }) {
         {/* Main Nav Row */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-xs group-hover:scale-105 transition-transform">
-              {logoLetter}
-            </div>
+            {brand?.logoUrl ? (
+              <img
+                src={brand.logoUrl}
+                alt={logoText}
+                className="h-8 w-auto object-contain dark:brightness-110"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-xs group-hover:scale-105 transition-transform">
+                {logoLetter}
+              </div>
+            )}
             <div className="flex flex-col">
               <span className="text-base font-bold tracking-tight text-foreground leading-tight group-hover:text-primary transition-colors">
                 {logoText}
@@ -379,12 +395,20 @@ export default function Header({ content }: { content: SiteContent }) {
           {/* Centered Brand Wordmark */}
           <div className="flex items-center justify-center lg:px-8">
             <Link href="/" className="text-center group">
-              <span
-                className="text-xl sm:text-2xl font-normal tracking-[0.2em] uppercase text-foreground group-hover:text-primary transition-colors"
-                style={{ fontFamily: 'var(--font-display, inherit)' }}
-              >
-                {logoText}
-              </span>
+              {brand?.logoUrl ? (
+                <img
+                  src={brand.logoUrl}
+                  alt={logoText}
+                  className="h-8 sm:h-9 w-auto object-contain dark:brightness-110 mx-auto"
+                />
+              ) : (
+                <span
+                  className="text-xl sm:text-2xl font-normal tracking-[0.2em] uppercase text-foreground group-hover:text-primary transition-colors"
+                  style={{ fontFamily: 'var(--font-display, inherit)' }}
+                >
+                  {logoText}
+                </span>
+              )}
             </Link>
           </div>
 
@@ -476,9 +500,17 @@ export default function Header({ content }: { content: SiteContent }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo Left */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-xs group-hover:scale-105 transition-transform">
-            {logoLetter}
-          </div>
+          {brand?.logoUrl ? (
+            <img
+              src={brand.logoUrl}
+              alt={logoText}
+              className="h-8 w-auto object-contain dark:brightness-110"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-xs group-hover:scale-105 transition-transform">
+              {logoLetter}
+            </div>
+          )}
           <span className="text-lg font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
             {logoText}
           </span>

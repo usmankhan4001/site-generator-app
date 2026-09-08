@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import type { SiteContent } from '@/site/schema';
@@ -24,6 +24,13 @@ export function LivePreviewContainer({
 
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
+      if (
+        e.origin !== window.location.origin &&
+        !e.origin.startsWith('http://localhost') &&
+        !e.origin.startsWith('http://127.0.0.1')
+      ) {
+        return;
+      }
       const d = e.data;
       if (!d || d.source !== 'studio') return;
       if (d.type === 'content:update' && d.content) {

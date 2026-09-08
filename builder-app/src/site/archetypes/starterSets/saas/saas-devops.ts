@@ -9,16 +9,17 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const saasDevops: StarterContentSet = {
   id: 'saas-devops',
   archetype: 'saas',
-  name: 'DevOps / CI-CD platform',
+  name: 'Forge',
   description:
     'A build-test-deploy pipeline product — ephemeral runners, caching and one-click rollbacks.',
   niche: 'CI/CD platform',
   tags: ['devops', 'ci-cd', 'developer-tools', 'platform', 'automation'],
   needsPersonalization: false,
-  themeId: 'indigo-enterprise',
+  themeId: 'hyper-speed-ultramarine',
   business: {
-    name: 'PipelineForge Technologies, Inc.',
-    shortName: 'PipelineForge',
+    name: 'Forge',
+    legalName: 'PipelineForge Systems, Inc.',
+    shortName: 'Forge',
     registrationNumber: 'DE-7742119',
     jurisdiction: 'Delaware, USA',
     governingLaw: 'the laws of the State of Delaware',
@@ -28,11 +29,11 @@ export const saasDevops: StarterContentSet = {
     website: 'pipelineforge.example',
     supportHours: 'Monday – Friday, 08:00 – 20:00 (ET)',
   },
-  brand: { logoText: 'PipelineForge' },
+  brand: { logoText: 'Forge' },
   meta: {
-    title: 'PipelineForge — ship every commit with confidence',
+    title: 'Forge — ship every commit with confidence',
     description:
-      'PipelineForge runs your builds, tests and deploys on ephemeral runners that start in seconds, with caching that works and rollbacks that take one click.',
+      'Forge runs your builds, tests and deploys on ephemeral runners that start in seconds, with caching that works and rollbacks that take one click.',
   },
   slots: {
     home: {
@@ -192,7 +193,7 @@ export const saasDevops: StarterContentSet = {
         ],
       },
       cta: {
-        headline: 'Point your next pipeline at PipelineForge',
+        headline: 'Point your next pipeline at Forge',
         subtitle:
           'Connect a repository and watch the first build run. No card, no sales call.',
         primaryCta: { label: 'Start free trial', href: '/pricing' },

@@ -83,8 +83,8 @@ export function ProjectCard({
   return (
     <div
       className={cn(
-        'group relative flex flex-col justify-between rounded-xl border border-border/80 bg-card/60 p-5 transition-all duration-200',
-        'hover:border-foreground/25 hover:bg-card hover:shadow-sm',
+        'group relative flex flex-col justify-between rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200',
+        'hover:border-foreground/25 hover:shadow-subtle',
         busy && 'pointer-events-none opacity-60',
       )}
     >
@@ -123,7 +123,7 @@ export function ProjectCard({
             {menuOpen && (
               <div
                 role="menu"
-                className="absolute right-0 top-8 z-30 w-44 overflow-hidden rounded-lg border border-border/80 bg-popover p-1 shadow-xl backdrop-blur-md"
+                className="absolute right-0 top-8 z-30 w-44 overflow-hidden rounded-lg border border-border bg-popover p-1 shadow-dropdown"
               >
                 <MenuItem
                   icon={<ExternalLink className="h-3.5 w-3.5" />}
@@ -247,7 +247,7 @@ function MenuItem({
       className={cn(
         'flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs font-medium transition-colors',
         destructive
-          ? 'text-red-400 hover:bg-red-500/10'
+          ? 'text-destructive hover:bg-destructive/10'
           : 'text-foreground hover:bg-accent',
       )}
     >

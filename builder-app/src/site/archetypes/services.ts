@@ -106,6 +106,8 @@ export const services: ArchetypeMeta = {
     'construction_engineering',
     'services-consulting',
     'services-fintech',
+    'services-accounting-firm',
+    'services-insurance-broker',
   ],
 };
 

@@ -6,8 +6,10 @@
  */
 
 import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
+import { db, schema } from '@/db';
 import { prisma } from '@/lib/db';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -108,8 +110,22 @@ export function resolveTrustedOrigins(request?: Request): string[] {
   return Array.from(origins);
 }
 
+const isPostgres = Boolean(
+  process.env.DATABASE_URL?.startsWith('postgres') || process.env.DATABASE_URL?.startsWith('postgresql')
+);
+
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, { provider: 'sqlite' }),
+  database: isPostgres
+    ? drizzleAdapter(db, {
+        provider: 'pg',
+        schema: {
+          user: schema.user,
+          session: schema.session,
+          account: schema.account,
+          verification: schema.verification,
+        },
+      })
+    : prismaAdapter(prisma, { provider: 'sqlite' }),
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
   trustedOrigins: async (request) => resolveTrustedOrigins(request),
   advanced: {

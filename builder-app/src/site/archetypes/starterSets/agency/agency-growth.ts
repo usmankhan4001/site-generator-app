@@ -8,16 +8,17 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const agencyGrowth: StarterContentSet = {
   id: 'agency-growth',
   archetype: 'agency',
-  name: 'Performance Growth Consultancy',
+  name: 'Northscale',
   description:
     'Scientific growth marketing, paid media scaling, programmatic SEO, and full-funnel CRO for high-velocity B2B and DTC brands.',
   niche: 'Performance marketing & growth consultancy',
   tags: ['growth-marketing', 'performance-media', 'cro', 'paid-search', 'paid-social', 'retention'],
   needsPersonalization: false,
-  themeId: 'cyber-slate-volt',
+  themeId: 'sunset-amber',
   business: {
-    name: 'NorthScale Growth Partners Pte. Ltd.',
-    shortName: 'NorthScale',
+    name: 'Northscale',
+    legalName: 'Northscale Growth Pte. Ltd.',
+    shortName: 'Northscale',
     registrationNumber: '202108924K',
     jurisdiction: 'Singapore (ACRA)',
     governingLaw: 'the laws of Singapore',
@@ -27,9 +28,9 @@ export const agencyGrowth: StarterContentSet = {
     website: 'northscale.example',
     supportHours: 'Monday – Friday, 09:00 – 18:00 (SGT / GMT+8)',
   },
-  brand: { logoText: 'NorthScale' },
+  brand: { logoText: 'Northscale' },
   meta: {
-    title: 'NorthScale — Data-Driven Performance Marketing & Growth Advisory',
+    title: 'Northscale — Data-Driven Performance Marketing & Growth Advisory',
     description:
       'We scale paid acquisition, engineer rigorous conversion funnels, and maximize customer lifetime value with algorithmic precision.',
   },
@@ -40,7 +41,7 @@ export const agencyGrowth: StarterContentSet = {
         headline: 'Predictable customer acquisition at',
         accentText: 'enterprise scale',
         subtitle:
-          'NorthScale combines quantitative media buying, statistical CRO testing, and predictive lifecycle modeling to turn capital into compounding revenue.',
+          'Northscale combines quantitative media buying, statistical CRO testing, and predictive lifecycle modeling to turn capital into compounding revenue.',
         primaryCta: { label: 'Request Growth Audit', href: '/contact' },
         secondaryCta: { label: 'Explore Case Studies', href: '/services' },
         trustBadges: ['$140M+ Managed Spend', 'Meta & Google Premier Partner', '4.2x Median Blended ROAS'],
@@ -127,7 +128,7 @@ export const agencyGrowth: StarterContentSet = {
             role: 'Chief Marketing Officer',
             company: 'OmniPay Global',
             rating: 5,
-            text: 'NorthScale cut our Customer Acquisition Cost by 41% while increasing monthly new funded accounts from 1,200 to over 5,500 in 6 months.',
+            text: 'Northscale cut our Customer Acquisition Cost by 41% while increasing monthly new funded accounts from 1,200 to over 5,500 in 6 months.',
           },
           {
             name: 'Brett Callaghan',

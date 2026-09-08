@@ -259,7 +259,7 @@ const livingProducts: CatalogItem[] = [
 export const storeLiving: StarterContentSet = {
   id: 'store-living',
   archetype: 'store',
-  name: 'Nordic Living & Studio Ceramics',
+  name: 'Nordik',
   description:
     'Scandinavian modern furniture, handcrafted stoneware ceramics, mouth-blown glassware, and architectural lighting designed in Copenhagen.',
   niche: 'Scandinavian modern furniture, ceramics & lighting',
@@ -277,8 +277,9 @@ export const storeLiving: StarterContentSet = {
   needsPersonalization: false,
   themeId: 'terracotta-living',
   business: {
-    name: 'Nordik Form Living ApS',
-    shortName: 'Nordik Form',
+    name: 'Nordik',
+    legalName: 'Nordik Form Living ApS',
+    shortName: 'Nordik',
     registrationNumber: 'DK39824108',
     jurisdiction: 'Copenhagen, Denmark (Erhvervsstyrelsen)',
     governingLaw: 'the laws of the Kingdom of Denmark',
@@ -288,9 +289,9 @@ export const storeLiving: StarterContentSet = {
     website: 'nordikform.example',
     supportHours: 'Monday – Friday, 10:00 – 17:00 (CET)',
   },
-  brand: { logoText: 'Nordik Form' },
+  brand: { logoText: 'Nordik' },
   meta: {
-    title: 'Nordik Form — Scandinavian Modern Furniture, Handcrafted Ceramics & Lighting',
+    title: 'Nordik — Scandinavian Modern Furniture, Handcrafted Ceramics & Lighting',
     description:
       'Wheel-thrown tactile stoneware plates, solid white oak furniture, mouth-blown lighting, and architectural home objects celebrating wabi-sabi simplicity.',
   },
@@ -301,7 +302,7 @@ export const storeLiving: StarterContentSet = {
         headline: 'Tactile Scandinavian design for mindful,',
         accentText: 'enduring spaces',
         subtitle:
-          'Nordik Form designs solid white oak furniture, double-fired stoneware pottery, and warm ambient lighting. Crafted with natural materials that develop rich character over decades of domestic life.',
+          'Nordik designs solid white oak furniture, double-fired stoneware pottery, and warm ambient lighting. Crafted with natural materials that develop rich character over decades of domestic life.',
         primaryCta: { label: 'Explore The Collection', href: '/catalog' },
         secondaryCta: { label: 'Our Design Ethos', href: '/about' },
         trustBadges: ['FSC Certified Solid Oak', 'High-Fired 1280°C Stoneware', 'Breakage-Free Courier Delivery'],
@@ -380,7 +381,7 @@ export const storeLiving: StarterContentSet = {
             role: 'Interior Designer',
             location: 'Montreal',
             rating: 5,
-            text: 'We specified Nordik Form furniture and lighting for three residential projects this year. The packaging was immaculate, zero breakages, and clients are uniformly in love with the tactile finish.',
+            text: 'We specified Nordik furniture and lighting for three residential projects this year. The packaging was immaculate, zero breakages, and clients are uniformly in love with the tactile finish.',
           },
         ],
       },
@@ -463,7 +464,7 @@ export const storeLiving: StarterContentSet = {
       story: {
         eyebrow: 'Our Heritage',
         title: 'A rejection of disposable interior trends',
-        description: 'Founded in Copenhagen, Nordik Form creates furniture and tableware intended to last for generations.',
+        description: 'Founded in Copenhagen, Nordik creates furniture and tableware intended to last for generations.',
         blocks: [
           {
             heading: 'Honoring Natural Materiality',
@@ -508,7 +509,7 @@ export const storeLiving: StarterContentSet = {
         ],
       },
       cta: {
-        headline: 'Experience Nordik Form in your sanctuary',
+        headline: 'Experience Nordik in your sanctuary',
         subtitle: 'Explore our complete catalog of Scandinavian furniture, ceramics, and lighting.',
         primaryCta: { label: 'Browse The Collection', href: '/catalog' },
         secondaryCta: { label: 'Contact Our Team', href: '/contact' },

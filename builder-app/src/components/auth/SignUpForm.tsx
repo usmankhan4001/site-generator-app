@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Loader2, AlertCircle, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,7 +31,7 @@ export function SignUpForm({
   initialEmail = '',
   isInvite = false,
   inviteNotice,
-  redirect = '/onboarding',
+  redirect = '/create',
 }: SignUpFormProps) {
   const router = useRouter();
   const [name, setName] = useState('');
@@ -93,7 +94,7 @@ export function SignUpForm({
         }
       }
 
-      const targetPath = redirect && redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : '/onboarding';
+      const targetPath = redirect && redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : '/create';
       router.push(targetPath);
       router.refresh();
     } catch {
@@ -103,23 +104,23 @@ export function SignUpForm({
   }
 
   return (
-    <Card className="w-full max-w-md border-border/80 bg-card/95 shadow-subtle backdrop-blur-xs">
+    <Card className="w-full max-w-md border-border bg-card shadow-subtle">
       <CardHeader className="space-y-1.5 pb-6">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-semibold tracking-tight text-foreground">
             {isInvite ? 'Accept your invitation' : 'Create your account'}
           </CardTitle>
           {isInvite && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+            <Badge variant="subtle" className="gap-1">
               <Sparkles className="size-3" />
               Invited
-            </span>
+            </Badge>
           )}
         </div>
         <CardDescription className="text-sm text-muted-foreground">
           {isInvite
             ? 'Complete your profile to join the workspace and launch sites.'
-            : 'Get started with the autonomous site studio in seconds.'}
+            : 'Create your Site Studio account in seconds.'}
         </CardDescription>
       </CardHeader>
 
@@ -234,7 +235,7 @@ export function SignUpForm({
       <CardFooter className="flex items-center justify-center border-t border-border/60 bg-muted/20 py-4 text-xs text-muted-foreground">
         <span>Already have an account?&nbsp;</span>
         <Link
-          href="/sign-in"
+          href={redirect && redirect !== '/' ? `/sign-in?redirect=${encodeURIComponent(redirect)}` : '/sign-in'}
           className="font-medium text-primary underline-offset-4 hover:underline"
         >
           Sign in

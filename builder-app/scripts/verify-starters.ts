@@ -53,8 +53,9 @@ for (const tc of testCases) {
   
   const site = createSiteContentFromArchetype(tc.archetype, tc.id);
   
-  if (site.business.name !== tc.expectedName) {
-    throw new Error(`Expected business name "${tc.expectedName}", got "${site.business.name}"`);
+  const businessName = site.business.legalName || site.business.name;
+  if (site.business.name !== tc.expectedName && site.business.legalName !== tc.expectedName) {
+    throw new Error(`Expected business name "${tc.expectedName}", got name="${site.business.name}", legalName="${site.business.legalName}"`);
   }
   if (site.header?.variant !== tc.expectedHeaderVariant) {
     throw new Error(`Expected header variant "${tc.expectedHeaderVariant}", got "${site.header?.variant}"`);

@@ -567,6 +567,75 @@ export async function automateGitHubPush(
 export const createAndPushGitHubRepo = automateGitHubPush;
 
 /**
+ * Returns the contents of the `.github/workflows/pages.yml` file used to deploy
+ * a Next.js site to GitHub Pages. The workflow builds the static HTML export
+ * (`output: 'export'`) into `./out` and publishes the static artifacts via
+ * `actions/deploy-pages`.
+ *
+ * Static export requirements:
+ * 1. `next.config.ts` or `next.config.js` should configure `output: 'export'`.
+ * 2. Unoptimized images (`images: { unoptimized: true }`) for static hosting.
+ * 3. Static files are generated in `./out` and published to GitHub Pages.
+ */
+export function createPagesWorkflow(): string {
+  return `name: Deploy to GitHub Pages
+
+# Deploys static HTML export of Next.js site to GitHub Pages.
+# Static export requirements:
+# - next.config.ts should have \`output: 'export'\` and \`images: { unoptimized: true }\`.
+# - Output artifact is uploaded from './out'.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build static site
+        run: npm run build
+        env:
+          NEXT_OUTPUT: export
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+  deploy:
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+`;
+}
+
+/**
  * Deletes a repository on GitHub (useful for test teardown)
  */
 export async function deleteGitHubRepository(

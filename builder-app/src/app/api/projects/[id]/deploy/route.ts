@@ -58,6 +58,20 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const project = await getProject(id, actor);
   if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  // Concurrency guard: prevent multiple deployments running concurrently for the same project
+  const runningDeployment = await prisma.deployment.findFirst({
+    where: { projectId: id, status: 'running' },
+  });
+  if (runningDeployment) {
+    return NextResponse.json(
+      {
+        error: 'A deployment is already running for this project. Please wait for it to finish.',
+        deploymentId: runningDeployment.id,
+      },
+      { status: 409 },
+    );
+  }
+
   let body: {
     domain?: string;
     customDomain?: string;
@@ -70,12 +84,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     // Body is optional
   }
 
+  const fallbackSlug = (project.name || 'site')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'site';
+
   const targetDomain =
     body.customDomain ||
     body.domain ||
     project.customDomain ||
     project.domain ||
-    `${project.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}.cname.dokploy.app`;
+    `${fallbackSlug}.cname.dokploy.app`;
 
   const cleanDomain = targetDomain
     .replace(/^https?:\/\//i, '')
@@ -161,7 +180,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     await appendLog('Codebase assembled successfully with custom content, Dockerfile, and theme tokens.');
 
     await appendLog('Step 2/3: Synchronizing Git repository with GitHub automation...');
-    const repoSlug = `site-${cleanDomain.replace(/[^a-z0-9-]/g, '-')}`;
+    const repoSlug = `site-${cleanDomain.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`;
     const ghResult = await automateGitHubPush({
       token: githubToken,
       repoName: repoSlug,
@@ -183,7 +202,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     });
 
     const provisionResult = await client.provisionAndDeploy({
-      projectName: `Airwallex - ${cleanDomain}`,
+      projectName: `Site Studio - ${cleanDomain}`,
       gitUrl: ghResult.cloneUrl,
       branch: ghResult.defaultBranch || 'main',
       domain: cleanDomain,
@@ -207,6 +226,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         domain: cleanDomain,
         customDomain: cleanDomain,
         status: 'live',
+        publishRequestedAt: null,
       },
       actor,
     );
@@ -216,6 +236,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       data: {
         liveUrl,
         repoUrl: ghResult.htmlUrl,
+        publishRequestedAt: null,
       },
     });
 

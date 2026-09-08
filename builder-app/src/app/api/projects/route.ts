@@ -3,9 +3,11 @@ import {
   listProjects,
   createProjectFromTemplate,
   createProjectFromArchetype,
+  createProjectFromContent,
 } from '@/lib/studio/projects';
 import { getActor } from '@/lib/session';
 import type { ArchetypeId } from '@/site/archetypes/types';
+import type { SiteContent } from '@/site/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,11 +27,24 @@ export async function POST(req: Request) {
     archetypeId?: ArchetypeId;
     starterSetId?: string | null;
     name?: string;
+    content?: SiteContent;
   };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  if (body.content) {
+    try {
+      const project = await createProjectFromContent(body.content, body.name, actor);
+      return NextResponse.json({ project }, { status: 201 });
+    } catch (err) {
+      return NextResponse.json(
+        { error: err instanceof Error ? err.message : 'Failed to create project' },
+        { status: 400 },
+      );
+    }
   }
 
   if (body.archetypeId) {
@@ -48,6 +63,7 @@ export async function POST(req: Request) {
       );
     }
   }
+
 
   if (!body.templateId) {
     return NextResponse.json(

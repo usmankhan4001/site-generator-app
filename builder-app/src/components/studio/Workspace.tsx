@@ -1,36 +1,124 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, PanelLeft, Monitor, RotateCw } from 'lucide-react';
-import { useStudio } from '@/store/studio';
+import { ArrowLeft, RotateCw, X } from 'lucide-react';
+import { useStudio, DEVICE_WIDTH } from '@/store/studio';
 import { Button } from '@/components/ui/button';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
 import { TopBar } from './TopBar';
 import { StepRail } from './StepRail';
+import { AddSectionDrawer } from './AddSectionDrawer';
+import { BusinessProfileModal } from './BusinessProfileModal';
+import { ExportHostModal } from './ExportHostModal';
 import { RightPanel } from './RightPanel';
 import { PreviewPane } from './PreviewPane';
 
-type MobileView = 'panel' | 'preview';
-
 export function Workspace({ projectId }: { projectId: string }) {
+  const meta = useStudio((s) => s.meta);
   const loading = useStudio((s) => s.loading);
   const error = useStudio((s) => s.error);
   const hasContent = useStudio((s) => s.content != null);
-  const [mobileView, setMobileView] = useState<MobileView>('panel');
+  const viewMode = useStudio((s) => s.viewMode);
+  const setViewMode = useStudio((s) => s.setViewMode);
+  const device = useStudio((s) => s.device);
+  const selectedSectionId = useStudio((s) => s.selectedSectionId);
+  const undo = useStudio((s) => s.undo);
+  const redo = useStudio((s) => s.redo);
 
+  const [pagesOpen, setPagesOpen] = useState(false);
+  const [addSectionOpen, setAddSectionOpen] = useState(false);
+  const [insertIndex, setInsertIndex] = useState<number | undefined>(undefined);
+  const [businessProfileOpen, setBusinessProfileOpen] = useState(false);
+  const [exportHostOpen, setExportHostOpen] = useState(false);
+  const [propertiesOpen, setPropertiesOpen] = useState(false);
+
+  // Auto-open properties when a section is selected in Edit mode
+  useEffect(() => {
+    if (selectedSectionId && viewMode === 'edit') {
+      setPropertiesOpen(true);
+    }
+  }, [selectedSectionId, viewMode]);
+
+  // Global Keyboard shortcuts
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) && e.key !== 'Escape') {
+        return;
+      }
+
+      // E toggles edit ⇄ preview (browse)
+      if (e.key.toLowerCase() === 'e' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        useStudio.getState().setViewMode(useStudio.getState().viewMode === 'edit' ? 'preview' : 'edit');
+        return;
+      }
+
+      // Escape closes modals and drawers
+      if (e.key === 'Escape') {
+        setPagesOpen(false);
+        setAddSectionOpen(false);
+        setBusinessProfileOpen(false);
+        setExportHostOpen(false);
+        setPropertiesOpen(false);
+        return;
+      }
+
+      // Undo: Ctrl+Z / Cmd+Z
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+        return;
+      }
+
+      // Redo: Ctrl+Shift+Z / Cmd+Shift+Z or Ctrl+Y
+      if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && e.shiftKey) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y')) {
+        e.preventDefault();
+        redo();
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [undo, redo]);
+
+  // Hydrate project on mount
   useEffect(() => {
     useStudio.getState().hydrate(projectId);
     return () => useStudio.getState().reset();
   }, [projectId]);
 
+  const togglePages = useCallback(() => {
+    setPagesOpen((o) => !o);
+    setAddSectionOpen(false);
+  }, []);
+
+  const openAddSection = useCallback((targetIndex?: number) => {
+    setInsertIndex(targetIndex);
+    setAddSectionOpen(true);
+    setPagesOpen(false);
+  }, []);
+
+  const closeAddSection = useCallback(() => {
+    setAddSectionOpen(false);
+    setInsertIndex(undefined);
+  }, []);
+
+  const toggleProperties = useCallback(() => setPropertiesOpen((o) => !o), []);
+  const closePages = useCallback(() => setPagesOpen(false), []);
+  const closeProperties = useCallback(() => setPropertiesOpen(false), []);
+
+  const dw = DEVICE_WIDTH[device];
+
+  // Loading / error states
   if (loading && !hasContent) return <WorkspaceSkeleton />;
 
   if (error && !hasContent) {
     return (
       <div className="flex h-dvh w-full items-center justify-center bg-background p-6 text-foreground">
-        <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 text-center">
+        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 text-center shadow-xl">
           <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-destructive/10 text-destructive">
             <RotateCw className="h-5 w-5" />
           </div>
@@ -57,95 +145,70 @@ export function Workspace({ projectId }: { projectId: string }) {
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="flex h-dvh w-full flex-col overflow-hidden bg-background text-foreground">
-        <TopBar />
+      <div className="relative h-dvh w-full overflow-hidden bg-background text-foreground">
+        {/* Pages drawer (left) */}
+        <StepRail open={pagesOpen} onClose={closePages} />
 
-        <div className="flex min-h-0 flex-1">
-          <StepRail />
+        {/* Add Block / Sections Palette drawer (left) */}
+        <AddSectionDrawer
+          open={addSectionOpen}
+          onClose={closeAddSection}
+          insertIndex={insertIndex}
+        />
 
-          <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-            {/* Mobile view toggle — hidden on lg where both panes are visible */}
-            <div className="flex shrink-0 items-center gap-1 border-b border-border bg-card px-2 py-1.5 lg:hidden">
-              <MobileToggle view={mobileView} onChange={setMobileView} />
-            </div>
+        {/* Centralized Business Details Modal */}
+        <BusinessProfileModal
+          open={businessProfileOpen}
+          onClose={() => setBusinessProfileOpen(false)}
+        />
 
-            <main
-              className={cn(
-                'min-h-0 flex-1 lg:block',
-                mobileView === 'preview' ? 'block' : 'hidden lg:block',
-              )}
-            >
-              <PreviewPane />
-            </main>
+        {/* Visual Export & Hosting Hub Modal */}
+        <ExportHostModal
+          open={exportHostOpen}
+          onClose={() => setExportHostOpen(false)}
+          projectId={projectId}
+          projectName={meta?.name || 'my-site'}
+        />
 
-            <aside
-              className={cn(
-                'thin-scroll min-h-0 shrink-0 overflow-y-auto border-border bg-card lg:block lg:w-[360px] lg:flex-none lg:border-l',
-                mobileView === 'panel' ? 'block flex-1' : 'hidden',
-              )}
-            >
-              <RightPanel />
-            </aside>
-          </div>
+        {/* Full-bleed Canvas */}
+        <div className="relative h-full w-full">
+          {/* Floating Toolbar Island */}
+          <TopBar
+            pagesOpen={pagesOpen}
+            onTogglePages={togglePages}
+            onOpenAddSection={() => openAddSection()}
+            onOpenBusinessProfile={() => setBusinessProfileOpen(true)}
+            onOpenExportHost={() => setExportHostOpen(true)}
+            onToggleProperties={toggleProperties}
+          />
+
+          {/* Live Preview Canvas takes full width/height */}
+          <PreviewPane
+            dw={dw}
+            projectId={projectId}
+            onOpenAddSectionAt={(idx) => openAddSection(idx)}
+          />
         </div>
+
+        {/* Properties drawer (right) */}
+        <RightPanel open={propertiesOpen} onClose={closeProperties} />
       </div>
     </TooltipProvider>
-  );
-}
-
-function MobileToggle({
-  view,
-  onChange,
-}: {
-  view: MobileView;
-  onChange: (v: MobileView) => void;
-}) {
-  const item = (v: MobileView, label: string, Icon: typeof PanelLeft) => (
-    <button
-      type="button"
-      onClick={() => onChange(v)}
-      className={cn(
-        'inline-flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
-        view === v
-          ? 'bg-background text-foreground shadow-sm'
-          : 'text-muted-foreground hover:text-foreground',
-      )}
-    >
-      <Icon className="h-3.5 w-3.5" />
-      {label}
-    </button>
-  );
-  return (
-    <div className="flex w-full rounded-lg bg-muted p-1">
-      {item('panel', 'Editor', PanelLeft)}
-      {item('preview', 'Preview', Monitor)}
-    </div>
   );
 }
 
 function WorkspaceSkeleton() {
   return (
     <div className="flex h-dvh w-full flex-col overflow-hidden bg-background text-foreground">
-      <div className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-card px-4">
-        <div className="h-7 w-7 animate-pulse rounded-md bg-muted" />
-        <div className="h-4 w-40 animate-pulse rounded bg-muted" />
-        <div className="ml-auto h-7 w-24 animate-pulse rounded bg-muted" />
+      <div className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card px-6">
+        <div className="flex items-center gap-3">
+          <div className="h-7 w-7 animate-pulse rounded-md bg-muted" />
+          <div className="h-4 w-40 animate-pulse rounded bg-muted" />
+        </div>
+        <div className="h-8 w-28 animate-pulse rounded-xl bg-muted" />
       </div>
-      <div className="flex min-h-0 flex-1">
-        <div className="flex w-56 shrink-0 flex-col gap-2 border-r border-border bg-card p-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-12 w-full animate-pulse rounded-lg bg-muted" />
-          ))}
-        </div>
-        <div className="studio-canvas flex flex-1 items-center justify-center">
-          <div className="h-3/4 w-3/4 max-w-4xl animate-pulse rounded-lg border border-border bg-muted/40" />
-        </div>
-        <div className="hidden w-[360px] shrink-0 flex-col gap-4 border-l border-border bg-card p-4 lg:flex">
-          <div className="h-4 w-32 animate-pulse rounded bg-muted" />
-          <div className="h-24 w-full animate-pulse rounded-lg bg-muted" />
-          <div className="h-24 w-full animate-pulse rounded-lg bg-muted" />
-          <div className="h-24 w-full animate-pulse rounded-lg bg-muted" />
-        </div>
+      <div className="flex min-h-0 flex-1 items-center justify-center p-8">
+        <div className="h-full w-full max-w-5xl animate-pulse rounded-2xl border border-border bg-muted/20" />
       </div>
     </div>
   );

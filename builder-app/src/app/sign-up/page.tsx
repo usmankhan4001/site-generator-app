@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Layers } from 'lucide-react';
 import { prisma } from '@/lib/db';
@@ -7,17 +8,23 @@ import { SignUpForm } from '@/components/auth/SignUpForm';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Create your account — Airwallex Site Cloner',
+  title: 'Sign up — Site Studio',
   description: 'Create an account to start generating and deploying high-converting sites.',
 };
 
 function sanitizeRedirect(redirectParam?: string): string {
-  if (!redirectParam) return '/onboarding';
+  if (!redirectParam) return '/create';
   if (redirectParam.startsWith('/') && !redirectParam.startsWith('//') && !redirectParam.startsWith('/\\')) {
     return redirectParam;
   }
-  return '/onboarding';
+  return '/create';
 }
+
+const previews = [
+  { src: '/template-previews/saas.jpg', alt: 'SaaS template preview' },
+  { src: '/template-previews/store.jpg', alt: 'Store template preview' },
+  { src: '/template-previews/luxury.jpg', alt: 'Luxury template preview' },
+];
 
 export default async function SignUpPage({
   searchParams,
@@ -50,38 +57,54 @@ export default async function SignUpPage({
   }
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      {/* Subtle background ambient glow */}
-      <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden">
-        <div className="h-[420px] w-[540px] rounded-full bg-primary/[0.04] blur-3xl" />
-      </div>
-
-      <div className="w-full max-w-md space-y-6">
-        {/* Brand Header */}
-        <div className="flex flex-col items-center text-center">
-          <Link
-            href="/"
-            className="group mb-2 inline-flex items-center gap-2 rounded-xl border border-border/80 bg-card p-2.5 shadow-subtle transition-transform hover:scale-[1.02]"
-          >
-            <div className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground font-semibold text-xs shadow-xs">
-              <Layers className="size-4" />
+    <main className="relative flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <div className="grid w-full max-w-5xl items-center gap-12 lg:grid-cols-2">
+        {/* Brand panel (hidden on small screens) */}
+        <div className="hidden flex-col lg:flex">
+          <Link href="/" className="group inline-flex items-center gap-2.5">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-semibold shadow-xs">
+              <Layers className="size-5" />
             </div>
-            <span className="text-sm font-semibold tracking-tight text-foreground">
-              Airwallex Site Cloner
-            </span>
+            <span className="text-lg font-semibold tracking-tight text-foreground">Site Studio</span>
           </Link>
+
+          <h1 className="mt-8 text-3xl font-semibold leading-tight tracking-tight text-foreground">
+            Design, theme, and ship multi-page business sites.
+          </h1>
+          <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+            Start from a curated archetype, tune the sections and theme, and deploy a compliant
+            storefront or business site in minutes.
+          </p>
+
+          <div className="mt-10 grid grid-cols-3 gap-3">
+            {previews.map((p) => (
+              <div
+                key={p.src}
+                className="overflow-hidden rounded-lg border border-border/70 shadow-subtle"
+              >
+                <Image
+                  src={p.src}
+                  alt={p.alt}
+                  width={320}
+                  height={200}
+                  className="h-auto w-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Auth Card */}
-        <SignUpForm
-          token={isInvite ? token : undefined}
-          initialEmail={inviteEmail}
-          isInvite={isInvite}
-          inviteNotice={inviteNotice}
-          redirect={safeRedirect}
-        />
+        {/* Auth card */}
+        <div className="mx-auto w-full max-w-md">
+          <SignUpForm
+            token={isInvite ? token : undefined}
+            initialEmail={inviteEmail}
+            isInvite={isInvite}
+            inviteNotice={inviteNotice}
+            redirect={safeRedirect}
+          />
+        </div>
       </div>
     </main>
   );
 }
-

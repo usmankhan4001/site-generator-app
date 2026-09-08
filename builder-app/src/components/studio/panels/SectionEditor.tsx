@@ -6,6 +6,10 @@ import type {
   Section,
   HeaderProps,
   HeaderVariant,
+  FooterConfig,
+  FooterVariant,
+  FooterColumn,
+  NavItem,
   HeroProps,
   HeroVariant,
   StatsBarProps,
@@ -31,6 +35,10 @@ import type {
   CorporateRegistrationProps,
   ContactPanelProps,
   PolicyDocumentProps,
+  CheckoutProps,
+  HeroLeadFormConfig,
+  PricingComparisonFeature,
+  FeatureGridTab,
   CatalogItem,
   Testimonial,
   Faq,
@@ -56,6 +64,7 @@ import {
   ListField,
   SectionLabel,
 } from './fields';
+import { AiRewriteButton } from './AiRewriteButton';
 
 /** Section-heading fields shared by most editors. */
 function HeadingFields<T extends { eyebrow?: string; title?: string; description?: string }>({
@@ -83,7 +92,15 @@ export function SectionEditor({ section }: { section: Section }) {
   const updateSectionProps = useStudio((s) => s.updateSectionProps);
   const patch = (p: Record<string, unknown>) => updateSectionProps(section.id, p);
 
-  switch (section.type) {
+  return (
+    <div className="space-y-3">
+      <AiRewriteButton sectionType={section.type} sectionId={section.id} />
+      <div className="border-t border-border pt-3">{renderEditor()}</div>
+    </div>
+  );
+
+  function renderEditor() {
+    switch (section.type) {
     case 'header' as any:
       return <HeaderEditor props={section.props as any} patch={patch} />;
     case 'hero':
@@ -126,8 +143,11 @@ export function SectionEditor({ section }: { section: Section }) {
       return <ContactPanelEditor props={section.props} patch={patch} />;
     case 'policyDocument':
       return <PolicyDocumentEditor props={section.props} patch={patch} />;
+    case 'checkout':
+      return <CheckoutEditor props={section.props} patch={patch} />;
     default:
       return <p className="text-xs text-muted-foreground">No editor for this section yet.</p>;
+    }
   }
 }
 
@@ -140,43 +160,50 @@ export function HeaderEditor({
   props: HeaderProps;
   patch: (p: Partial<HeaderProps>) => void;
 }) {
-  const currentVariant = props.variant ?? 'default';
+  const currentVariant = props.variant ?? 'standard';
 
   return (
     <>
       <VariantPicker<HeaderVariant>
-        label="Header Layout Variant"
+        label="Header Layout"
+        sectionType="header"
         value={currentVariant}
         onChange={(v) => patch({ variant: v })}
         options={[
           {
-            value: 'default',
-            label: 'Standard Clean Nav',
-            description: 'Logo left, centered navigation links, primary action button right.',
+            value: 'standard',
+            label: 'Standard',
+            description: 'Logo left, centered nav links, primary action button right.',
             badge: 'Default',
           },
           {
-            value: 'corporate_utility',
-            label: 'Corporate Utility Bar',
-            description: 'Top utility tier with phone, email, hours, and jurisdiction badge + main nav row.',
-            badge: 'Corporate / B2B',
-          },
-          {
             value: 'floating_glass_pill',
-            label: 'Floating Glass Pill',
+            label: 'Floating glass',
             description: 'Floating centered glassmorphic pill bar with backdrop blur and sleek borders.',
             badge: 'Modern Tech',
           },
           {
+            value: 'corporate_utility',
+            label: 'Corporate',
+            description: 'Top utility tier with phone, email, hours, and jurisdiction badge + main nav row.',
+            badge: 'Corporate / B2B',
+          },
+          {
             value: 'editorial_centered',
-            label: 'Editorial Centered',
+            label: 'Editorial',
             description: 'Centered luxury brand wordmark with split left/right navigation links.',
             badge: 'Luxury / Editorial',
+          },
+          {
+            value: 'minimal',
+            label: 'Minimal',
+            description: 'Clean, understated bar with just the essentials.',
+            badge: 'Minimal',
           },
         ]}
       />
 
-      <SectionLabel>Announcement Banner</SectionLabel>
+      <SectionLabel>Announcement Bar</SectionLabel>
       <SwitchField
         label="Show announcement bar"
         checked={!!props.showAnnouncement}
@@ -199,12 +226,253 @@ export function HeaderEditor({
         </>
       )}
 
-      <SectionLabel>Header Behavior</SectionLabel>
+      <SectionLabel>Behavior</SectionLabel>
       <SwitchField
         label="Sticky navigation"
         checked={props.sticky !== false}
         onChange={(v) => patch({ sticky: v })}
-        hint="Keep the navigation header fixed at the top of the viewport when scrolling."
+        hint="Keep the header fixed at the top of the viewport when scrolling."
+      />
+      <SwitchField
+        label="Transparent topbar"
+        checked={!!props.transparent}
+        onChange={(v) => patch({ transparent: v })}
+        hint="Translucent backdrop-blur styling over the page."
+      />
+
+      <SectionLabel>Header Action</SectionLabel>
+      <CtaField
+        label="Secondary CTA"
+        value={props.secondaryCta}
+        onChange={(v) => patch({ secondaryCta: v })}
+      />
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------- footer -- */
+
+export function FooterEditor() {
+  const footer = useStudio((s) => s.content?.footer);
+  const mutate = useStudio((s) => s.mutate);
+
+  if (!footer) return null;
+
+  const patch = (p: Partial<FooterConfig>) =>
+    mutate((d) => {
+      d.footer = { ...d.footer, ...p } as FooterConfig;
+    });
+
+  const currentVariant = footer.variant ?? 'columns';
+
+  return (
+    <>
+      <VariantPicker<FooterVariant>
+        label="Footer Layout"
+        sectionType="footer"
+        value={currentVariant}
+        onChange={(v) => patch({ variant: v })}
+        options={[
+          {
+            value: 'columns',
+            label: 'Columns',
+            description: 'Multi-column link footer with a brand block.',
+            badge: 'Default',
+          },
+          {
+            value: 'corporate_utility',
+            label: 'Corporate',
+            description: 'Utility-heavy footer for B2B / compliance sites.',
+            badge: 'Corporate',
+          },
+          {
+            value: 'editorial_center',
+            label: 'Editorial',
+            description: 'Centered brand statement with minimal links.',
+            badge: 'Editorial',
+          },
+          {
+            value: 'minimal_inline',
+            label: 'Minimal',
+            description: 'Single-line inline footer.',
+            badge: 'Minimal',
+          },
+          {
+            value: 'newsletter_split',
+            label: 'Newsletter',
+            description: 'Split layout with a prominent newsletter box.',
+            badge: 'Newsletter',
+          },
+        ]}
+      />
+
+      <TextField
+        label="Tagline"
+        value={footer.tagline}
+        onChange={(v) => patch({ tagline: v || undefined })}
+        placeholder="Short brand statement shown in the footer."
+      />
+
+      <SectionLabel>Columns</SectionLabel>
+      <ListField<FooterColumn>
+        label="Link columns"
+        items={footer.columns}
+        onChange={(v) => patch({ columns: v })}
+        newItem={() => ({ title: 'Column', links: [] })}
+        itemTitle={(c) => c.title || 'Column'}
+        addLabel="Add column"
+        renderItem={(col, updateCol) => (
+          <div className="space-y-3">
+            <TextField
+              label="Column title"
+              value={col.title}
+              onChange={(v) => updateCol({ title: v })}
+            />
+            <ListField<NavItem>
+              label="Links"
+              items={col.links}
+              onChange={(v) => updateCol({ links: v })}
+              newItem={() => ({ label: 'Link', href: '/' })}
+              itemTitle={(l) => l.label || 'Link'}
+              addLabel="Add link"
+              renderItem={(link, updateLink) => (
+                <div className="space-y-2">
+                  <TextField
+                    label="Label"
+                    value={link.label}
+                    onChange={(v) => updateLink({ label: v })}
+                  />
+                  <TextField
+                    label="Href"
+                    value={link.href}
+                    onChange={(v) => updateLink({ href: v })}
+                  />
+                </div>
+              )}
+            />
+          </div>
+        )}
+      />
+
+      <SectionLabel>Legal</SectionLabel>
+      <ListField<NavItem>
+        label="Legal links"
+        items={footer.legalLinks}
+        onChange={(v) => patch({ legalLinks: v })}
+        newItem={() => ({ label: 'Privacy Policy', href: '/privacy' })}
+        itemTitle={(l) => l.label || 'Link'}
+        addLabel="Add legal link"
+        renderItem={(link, updateLink) => (
+          <div className="space-y-2">
+            <TextField
+              label="Label"
+              value={link.label}
+              onChange={(v) => updateLink({ label: v })}
+            />
+            <TextField
+              label="Href"
+              value={link.href}
+              onChange={(v) => updateLink({ href: v })}
+            />
+          </div>
+        )}
+      />
+      <SwitchField
+        label="Show legal bar"
+        checked={footer.showLegalBar}
+        onChange={(v) => patch({ showLegalBar: v })}
+        hint="Statutory registration line under the copyright."
+      />
+      <SwitchField
+        label="Show payment badges"
+        checked={footer.showPaymentBadges}
+        onChange={(v) => patch({ showPaymentBadges: v })}
+        hint="Payment-scheme + PCI badge row for merchant sites."
+      />
+      <TextField
+        label="Badge text"
+        value={footer.badgeText}
+        onChange={(v) => patch({ badgeText: v || undefined })}
+        placeholder="PCI DSS Level 1 · SOC 2 Type II"
+      />
+      <TextArea
+        label="Secondary legal text"
+        value={footer.secondaryLegalText}
+        onChange={(v) => patch({ secondaryLegalText: v || undefined })}
+        rows={2}
+        placeholder="Regulatory disclosure or disclaimer."
+      />
+
+      <SectionLabel>Newsletter</SectionLabel>
+      <SwitchField
+        label="Newsletter signup"
+        checked={!!footer.newsletter}
+        onChange={(v) =>
+          patch({
+            newsletter: v
+              ? {
+                  title: 'Stay in the loop',
+                  description: '',
+                  placeholder: 'you@email.com',
+                  buttonLabel: 'Subscribe',
+                }
+              : undefined,
+          })
+        }
+        hint="Show a newsletter subscription box."
+      />
+      {footer.newsletter && (
+        <>
+          <TextField
+            label="Title"
+            value={footer.newsletter.title}
+            onChange={(v) => patch({ newsletter: { ...footer.newsletter, title: v } })}
+          />
+          <TextField
+            label="Description"
+            value={footer.newsletter.description}
+            onChange={(v) => patch({ newsletter: { ...footer.newsletter, description: v } })}
+          />
+          <TextField
+            label="Placeholder"
+            value={footer.newsletter.placeholder}
+            onChange={(v) => patch({ newsletter: { ...footer.newsletter, placeholder: v } })}
+          />
+          <TextField
+            label="Button label"
+            value={footer.newsletter.buttonLabel}
+            onChange={(v) => patch({ newsletter: { ...footer.newsletter, buttonLabel: v } })}
+          />
+        </>
+      )}
+
+      <SectionLabel>Social Links</SectionLabel>
+      <ListField<NonNullable<FooterConfig['socialLinks']>[number]>
+        label="Social profiles"
+        items={footer.socialLinks}
+        onChange={(v) => patch({ socialLinks: v })}
+        newItem={() => ({ platform: 'X', href: 'https://x.com/', label: '' })}
+        itemTitle={(s) => s.platform || 'Social'}
+        addLabel="Add social link"
+        renderItem={(s, updateS) => (
+          <div className="space-y-2">
+            <TextField
+              label="Platform"
+              value={s.platform}
+              onChange={(v) => updateS({ platform: v })}
+            />
+            <TextField
+              label="URL"
+              value={s.href}
+              onChange={(v) => updateS({ href: v })}
+            />
+            <TextField
+              label="Label"
+              value={s.label}
+              onChange={(v) => updateS({ label: v || undefined })}
+            />
+          </div>
+        )}
       />
     </>
   );
@@ -288,6 +556,13 @@ function HeroEditor({ props, patch }: { props: HeroProps; patch: (p: Partial<Her
       />
       <TextArea label="Subtitle" value={props.subtitle} onChange={(v) => patch({ subtitle: v })} rows={2} />
       <ImageField value={props.image} onChange={(v) => patch({ image: v })} />
+      <StringListField
+        label="Additional gallery / collage images"
+        items={props.images}
+        onChange={(v) => patch({ images: v })}
+        placeholder="https://images.unsplash.com/..."
+        addLabel="Add image URL"
+      />
       <TextField
         label="Demo video URL (optional)"
         value={props.videoUrl}
@@ -311,6 +586,71 @@ function HeroEditor({ props, patch }: { props: HeroProps; patch: (p: Partial<Her
         placeholder="99.99% Uptime SLA"
         addLabel="Add trust badge"
       />
+
+      <SectionLabel>Embedded Metric Counters</SectionLabel>
+      <ListField<StatItem>
+        label="Stats (for stats_split / stats_banner variants)"
+        items={props.stats}
+        onChange={(v) => patch({ stats: v })}
+        newItem={() => ({ value: '99.99%', label: 'Uptime SLA' })}
+        itemTitle={(it) => `${it.value} — ${it.label}`}
+        addLabel="Add stat item"
+        renderItem={(it, update) => (
+          <div className="space-y-2">
+            <TextField label="Stat value" value={it.value} onChange={(v) => update({ value: v })} />
+            <TextField label="Stat label" value={it.label} onChange={(v) => update({ label: v })} />
+            <TextField label="Stat subtext" value={it.subtext} onChange={(v) => update({ subtext: v || undefined })} />
+          </div>
+        )}
+      />
+
+      <SectionLabel>Lead Capture Form</SectionLabel>
+      <SwitchField
+        label="Enable lead form (for lead_form variant)"
+        checked={!!props.leadForm}
+        onChange={(v) =>
+          patch({
+            leadForm: v
+              ? {
+                  title: 'Request a Demo & Consultation',
+                  description: 'Speak with an enterprise specialist within 15 minutes.',
+                  submitLabel: 'Get Started Today',
+                  placeholder: 'name@company.com',
+                  successMessage: 'Thank you! We will reach out shortly.',
+                }
+              : undefined,
+          })
+        }
+      />
+      {props.leadForm && (
+        <div className="space-y-2 rounded-xl border border-border bg-muted/20 p-3">
+          <TextField
+            label="Form title"
+            value={props.leadForm.title}
+            onChange={(v) => patch({ leadForm: { ...props.leadForm, title: v } })}
+          />
+          <TextField
+            label="Form description"
+            value={props.leadForm.description}
+            onChange={(v) => patch({ leadForm: { ...props.leadForm, description: v } })}
+          />
+          <TextField
+            label="Submit button label"
+            value={props.leadForm.submitLabel}
+            onChange={(v) => patch({ leadForm: { ...props.leadForm, submitLabel: v } })}
+          />
+          <TextField
+            label="Email input placeholder"
+            value={props.leadForm.placeholder}
+            onChange={(v) => patch({ leadForm: { ...props.leadForm, placeholder: v } })}
+          />
+          <TextField
+            label="Success message"
+            value={props.leadForm.successMessage}
+            onChange={(v) => patch({ leadForm: { ...props.leadForm, successMessage: v } })}
+          />
+        </div>
+      )}
     </>
   );
 }
@@ -443,6 +783,7 @@ function FeatureGridEditor({
       <HeadingFields props={props} patch={patch} />
       <VariantPicker<FeatureGridVariant>
         label="Layout Variant"
+        sectionType="featureGrid"
         value={currentVariant}
         onChange={(v) => patch({ variant: v })}
         options={[
@@ -478,6 +819,45 @@ function FeatureGridEditor({
           },
         ]}
       />
+      <div className="grid grid-cols-2 gap-2">
+        <NumberField
+          label="Columns (2-4)"
+          value={props.columns}
+          onChange={(v) => patch({ columns: v || undefined })}
+          min={2}
+          max={4}
+        />
+        <SelectField
+          label="Ticker speed"
+          value={props.speed ?? 'normal'}
+          onChange={(v) => patch({ speed: v as any })}
+          options={[
+            { value: 'slow', label: 'Slow' },
+            { value: 'normal', label: 'Normal' },
+            { value: 'fast', label: 'Fast' },
+          ]}
+        />
+      </div>
+
+      <SectionLabel>Category Tabs (for tabbed_showcase variant)</SectionLabel>
+      <ListField<FeatureGridTab>
+        label="Showcase tabs"
+        items={props.tabs}
+        onChange={(v) => patch({ tabs: v })}
+        newItem={() => ({ id: `tab-${Date.now().toString(36)}`, label: 'New tab' })}
+        itemTitle={(t) => t.label || 'Tab'}
+        addLabel="Add tab"
+        renderItem={(tab, updateTab) => (
+          <div className="space-y-2">
+            <TextField label="Tab ID" value={tab.id} onChange={(v) => updateTab({ id: v })} />
+            <TextField label="Tab label" value={tab.label} onChange={(v) => updateTab({ label: v })} />
+            <TextField label="Icon (lucide name)" value={tab.icon} onChange={(v) => updateTab({ icon: v || undefined })} />
+            <TextField label="Category tag filter" value={tab.tag} onChange={(v) => updateTab({ tag: v || undefined })} />
+          </div>
+        )}
+      />
+
+      <SectionLabel>Feature Items</SectionLabel>
       <ListField<FeatureGridProps['items'][number]>
         label="Features"
         items={props.items}
@@ -539,6 +919,35 @@ function CatalogItemFields({
             <TextField label="SKU" value={it.sku} onChange={(v) => update({ sku: v || undefined })} />
             <TextField label="Category" value={it.category} onChange={(v) => update({ category: v || undefined })} />
           </div>
+          <div className="grid grid-cols-2 gap-2">
+            <NumberField
+              label="Compare at price (original)"
+              value={it.compareAtPrice ?? it.originalPrice}
+              onChange={(v) => update({ compareAtPrice: v ?? undefined, originalPrice: v ?? undefined })}
+              min={0}
+            />
+            <TextField
+              label="Discount badge"
+              value={it.discountBadge}
+              onChange={(v) => update({ discountBadge: v || undefined })}
+              placeholder="Save 25%"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <NumberField
+              label="Rating (1-5)"
+              value={it.rating}
+              onChange={(v) => update({ rating: v ?? undefined })}
+              min={1}
+              max={5}
+            />
+            <NumberField
+              label="Review count"
+              value={it.reviewCount}
+              onChange={(v) => update({ reviewCount: v ?? undefined })}
+              min={0}
+            />
+          </div>
           <SwitchField label="In stock" checked={it.inStock !== false} onChange={(v) => update({ inStock: v })} />
         </>
       ) : null}
@@ -573,6 +982,7 @@ function PricingTiersEditor({
       <HeadingFields props={props} patch={patch} />
       <VariantPicker<PricingTiersVariant>
         label="Layout Variant"
+        sectionType="pricingTiers"
         value={currentVariant}
         onChange={(v) => patch({ variant: v })}
         options={[
@@ -608,6 +1018,45 @@ function PricingTiersEditor({
       </div>
       <TextField label="CTA link" value={props.ctaHref} onChange={(v) => patch({ ctaHref: v || undefined })} placeholder="/contact" />
       <TextField label="Footnote / Disclaimer" value={props.footnote} onChange={(v) => patch({ footnote: v || undefined })} placeholder="Prices exclude local taxes." />
+
+      <SectionLabel>Comparison Matrix Features</SectionLabel>
+      <ListField<PricingComparisonFeature>
+        label="Comparison feature rows"
+        items={props.comparisonFeatures}
+        onChange={(v) => patch({ comparisonFeatures: v })}
+        newItem={() => ({ feature: 'New feature', tierValues: {} })}
+        itemTitle={(f) => f.feature || 'Feature'}
+        addLabel="Add comparison row"
+        renderItem={(feat, updateFeat) => (
+          <div className="space-y-2.5">
+            <TextField
+              label="Feature name"
+              value={feat.feature}
+              onChange={(v) => updateFeat({ feature: v })}
+            />
+            <TextField
+              label="Feature category / Group"
+              value={feat.category}
+              onChange={(v) => updateFeat({ category: v || undefined })}
+              placeholder="Core Capabilities, Security & Compliance"
+            />
+            <TextField
+              label="Tooltip explanation"
+              value={feat.tooltip}
+              onChange={(v) => updateFeat({ tooltip: v || undefined })}
+            />
+            <RecordField
+              label="Tier values (e.g. tier-id: true, tier-2: Unlimited)"
+              value={feat.tierValues as Record<string, string>}
+              onChange={(v) => updateFeat({ tierValues: v })}
+              keyPlaceholder="Tier Name or ID"
+              valuePlaceholder="true, Included, 100 GB..."
+            />
+          </div>
+        )}
+      />
+
+      <SectionLabel>Plan Tiers</SectionLabel>
       <ListField<CatalogItem>
         label="Tiers"
         items={props.tiers}
@@ -636,6 +1085,7 @@ function ProductGridEditor({
       <HeadingFields props={props} patch={patch} />
       <VariantPicker<ProductGridVariant>
         label="Layout Variant"
+        sectionType="productGrid"
         value={currentVariant}
         onChange={(v) => patch({ variant: v, layout: v as any })}
         options={[
@@ -671,6 +1121,25 @@ function ProductGridEditor({
           },
         ]}
       />
+      <div className="grid grid-cols-2 gap-2">
+        <NumberField
+          label="Columns (2-4)"
+          value={props.columns}
+          onChange={(v) => patch({ columns: v || undefined })}
+          min={2}
+          max={4}
+        />
+        <SelectField
+          label="Ticker speed"
+          value={props.speed ?? 'normal'}
+          onChange={(v) => patch({ speed: v as any })}
+          options={[
+            { value: 'slow', label: 'Slow' },
+            { value: 'normal', label: 'Normal' },
+            { value: 'fast', label: 'Fast' },
+          ]}
+        />
+      </div>
       <TextField label="Currency" value={props.currency} onChange={(v) => patch({ currency: v || undefined })} placeholder="USD" />
       <StringListField label="Filter categories" items={props.categories} onChange={(v) => patch({ categories: v })} />
       <CtaField label="Bottom CTA" value={props.cta} onChange={(v) => patch({ cta: v })} />
@@ -703,6 +1172,7 @@ function TestimonialsEditor({
       <HeadingFields props={props} patch={patch} />
       <VariantPicker<TestimonialsVariant>
         label="Layout Variant"
+        sectionType="testimonials"
         value={currentVariant}
         onChange={(v) => patch({ variant: v })}
         options={[
@@ -1164,6 +1634,35 @@ function PolicyDocumentEditor({
             <TextArea label="Body (markdown)" value={it.body} onChange={(v) => update({ body: v })} rows={5} />
           </>
         )}
+      />
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------- checkout -- */
+
+export function CheckoutEditor({
+  props,
+  patch,
+}: {
+  props: CheckoutProps;
+  patch: (p: Partial<CheckoutProps>) => void;
+}) {
+  return (
+    <>
+      <HeadingFields props={props} patch={patch} />
+      <TextField
+        label="Pay button label"
+        value={props.payLabel}
+        onChange={(v) => patch({ payLabel: v || undefined })}
+        placeholder="Pay & Place Order"
+      />
+      <TextArea
+        label="Compliance footnote / Note"
+        value={props.note}
+        onChange={(v) => patch({ note: v || undefined })}
+        rows={2}
+        placeholder="By placing your order, you agree to the Terms of Service. All payments are 256-bit SSL encrypted."
       />
     </>
   );

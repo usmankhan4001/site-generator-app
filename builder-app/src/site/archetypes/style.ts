@@ -79,7 +79,7 @@ export function gridGap(s: ArchetypeStyle): string {
 
 /**
  * Card surface. `bordered` / `elevated` reproduce today's
- * `card-elevated rounded-xl border border-border/80 bg-card` (both the
+ * `card-elevated border border-border/80 bg-card` (both the
  * no-archetype `services` and `store` fall here). `editorial` drops the card
  * entirely; `flat` is the sturdy workshop panel.
  */
@@ -90,11 +90,11 @@ export function cardClass(s: ArchetypeStyle): string {
     case 'flat':
       return 'rounded-none border border-border bg-card';
     case 'outline-hover':
-      return 'rounded-xl border border-transparent hover:border-border bg-card/50 transition-colors';
+      return 'rounded-[var(--radius-card,0.75rem)] border border-transparent hover:border-border bg-card/50 transition-colors';
     case 'bordered':
     case 'elevated':
     default:
-      return 'card-elevated rounded-xl border border-border/80 bg-card';
+      return 'card-elevated border border-border/80 bg-card';
   }
 }
 

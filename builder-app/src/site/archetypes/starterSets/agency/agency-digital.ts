@@ -8,7 +8,7 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const agencyDigital: StarterContentSet = {
   id: 'agency-digital',
   archetype: 'agency',
-  name: 'Digital Product Studio',
+  name: 'Vektor',
   description:
     'Strategy-led design and engineering studio crafting iconic brand identities, multi-platform UI/UX, and high-performance web systems.',
   niche: 'Design & digital product studio',
@@ -16,8 +16,9 @@ export const agencyDigital: StarterContentSet = {
   needsPersonalization: false,
   themeId: 'neo-grotesque-zinc',
   business: {
-    name: 'Vektor Design Studio Ltd',
-    shortName: 'Vektor Studio',
+    name: 'Vektor',
+    legalName: 'Vektor Studio Ltd.',
+    shortName: 'Vektor',
     registrationNumber: '12984021',
     jurisdiction: 'England & Wales (UK Companies House)',
     governingLaw: 'the laws of England and Wales',
@@ -29,7 +30,7 @@ export const agencyDigital: StarterContentSet = {
   },
   brand: { logoText: 'Vektor' },
   meta: {
-    title: 'Vektor Studio — Digital Product Design & Brand Systems',
+    title: 'Vektor — Digital Product Design & Brand Systems',
     description:
       'We partner with ambitious founders and tier-one enterprises to design category-defining digital products, brand identities, and resilient web platforms.',
   },

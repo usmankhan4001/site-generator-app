@@ -6,7 +6,7 @@
  * editors wire `onChange` to `updateSectionProps` (which the store debounces).
  */
 
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
   ChevronDown,
@@ -45,7 +45,7 @@ export function FieldShell({
       {label ? (
         <label
           htmlFor={htmlFor}
-          className="block text-[13px] font-medium text-foreground"
+          className="block text-sm font-medium text-foreground"
         >
           {label}
         </label>
@@ -128,6 +128,8 @@ export function NumberField({
   placeholder,
   hint,
   min,
+  max,
+  step,
   allowEmpty = true,
 }: {
   label?: string;
@@ -136,6 +138,8 @@ export function NumberField({
   placeholder?: string;
   hint?: string;
   min?: number;
+  max?: number;
+  step?: number;
   allowEmpty?: boolean;
 }) {
   const id = useId();
@@ -146,6 +150,8 @@ export function NumberField({
         type="number"
         inputMode="decimal"
         min={min}
+        max={max}
+        step={step}
         value={value ?? ''}
         placeholder={placeholder}
         onChange={(e) => {
@@ -172,11 +178,11 @@ export function SwitchField({
   hint?: string;
 }) {
   return (
-    <div className="flex items-start justify-between gap-3 py-0.5">
+    <div className="flex items-start justify-between gap-3 py-1">
       <div className="space-y-0.5">
-        <span className="block text-xs font-medium text-foreground">{label}</span>
+        <span className="block text-sm font-medium text-foreground">{label}</span>
         {hint ? (
-          <span className="block text-[11px] leading-snug text-muted-foreground">{hint}</span>
+          <span className="block text-xs leading-snug text-muted-foreground">{hint}</span>
         ) : null}
       </div>
       <Switch checked={checked} onCheckedChange={onChange} />
@@ -216,12 +222,15 @@ export function SelectField<T extends string>({
   );
 }
 
+import { VariantWireframe } from './VariantWireframe';
+
 export interface VariantOption<T extends string = string> {
   value: T;
   label: string;
   description?: string;
   badge?: string;
   icon?: ReactNode;
+  sectionType?: 'hero' | 'featureGrid' | 'testimonials' | 'pricingTiers' | 'header' | 'footer' | 'faq' | 'productGrid';
 }
 
 export function VariantPicker<T extends string>({
@@ -230,13 +239,15 @@ export function VariantPicker<T extends string>({
   onChange,
   options,
   hint,
-  columns = 1,
+  sectionType = 'hero',
+  columns = 2,
 }: {
   label?: string;
   value: T | undefined;
   onChange: (v: T) => void;
   options: VariantOption<T>[];
   hint?: string;
+  sectionType?: 'hero' | 'featureGrid' | 'testimonials' | 'pricingTiers' | 'header' | 'footer' | 'faq' | 'productGrid';
   columns?: 1 | 2;
 }) {
   const currentValue = value ?? options[0]?.value;
@@ -245,38 +256,37 @@ export function VariantPicker<T extends string>({
     <FieldShell label={label} hint={hint}>
       <div
         className={cn(
-          'grid gap-2',
+          'grid gap-2.5',
           columns === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1',
         )}
       >
         {options.map((option) => {
           const isSelected = currentValue === option.value;
+          const targetType = option.sectionType || sectionType;
           return (
             <button
               key={option.value}
               type="button"
               onClick={() => onChange(option.value)}
               className={cn(
-                'group relative flex items-start gap-2.5 rounded-xl border p-2.5 sm:p-3 text-left transition-all duration-150 cursor-pointer',
+                'group relative flex flex-col gap-2 rounded-xl border p-2.5 sm:p-3 text-left transition-all duration-200 cursor-pointer overflow-hidden',
                 isSelected
-                  ? 'border-primary bg-primary/10 ring-1 ring-primary/40 shadow-xs'
-                  : 'border-border bg-card hover:border-primary/40 hover:bg-muted/40',
+                  ? 'border-primary bg-primary/10 ring-2 ring-primary/40 shadow-sm'
+                  : 'border-border/70 bg-card/80 hover:border-primary/50 hover:bg-muted/30 hover:shadow-xs',
               )}
             >
-              {/* Radio Indicator */}
-              <div
+              {/* Visual Layout Wireframe Preview */}
+              <VariantWireframe
+                type={targetType}
+                variant={option.value}
                 className={cn(
-                  'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors',
-                  isSelected
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-muted-foreground/40 group-hover:border-primary/60',
+                  'h-16 transition-transform group-hover:scale-[1.02]',
+                  isSelected ? 'border-primary/50 bg-background/90' : 'bg-muted/40',
                 )}
-              >
-                {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
-              </div>
+              />
 
               {/* Text / Badge details */}
-              <div className="min-w-0 flex-1 space-y-1">
+              <div className="min-w-0 w-full space-y-1">
                 <div className="flex items-center justify-between gap-1.5">
                   <div className="flex items-center gap-1.5 min-w-0">
                     {option.icon && (
@@ -292,7 +302,7 @@ export function VariantPicker<T extends string>({
                     <span
                       className={cn(
                         'text-xs font-semibold leading-snug truncate',
-                        isSelected ? 'text-foreground font-bold' : 'text-foreground/90',
+                        isSelected ? 'text-primary font-bold' : 'text-foreground',
                       )}
                     >
                       {option.label}
@@ -302,7 +312,7 @@ export function VariantPicker<T extends string>({
                   {option.badge && (
                     <span
                       className={cn(
-                        'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider',
+                        'shrink-0 rounded-md px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider',
                         isSelected
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted text-muted-foreground',
@@ -895,41 +905,78 @@ export function RecordField({
   valuePlaceholder?: string;
   addLabel?: string;
 }) {
-  const entries = Object.entries(value ?? {});
-  const commit = (next: [string, string][]) => {
+  type Row = { id: string; key: string; value: string };
+  const nextId = useRef(0);
+  const makeId = () => `row-${++nextId.current}-${Date.now().toString(36)}`;
+
+  const [rows, setRows] = useState<Row[]>(() =>
+    Object.entries(value ?? {}).map(([k, v]) => ({
+      id: makeId(),
+      key: k,
+      value: v,
+    })),
+  );
+
+  const lastEmittedRef = useRef<string>(JSON.stringify(value ?? {}));
+
+  const valueJson = JSON.stringify(value ?? {});
+  if (valueJson !== lastEmittedRef.current) {
+    lastEmittedRef.current = valueJson;
+    setRows(
+      Object.entries(value ?? {}).map(([k, v]) => ({
+        id: makeId(),
+        key: k,
+        value: v,
+      })),
+    );
+  }
+
+  const emit = (newRows: Row[]) => {
+    setRows(newRows);
     const out: Record<string, string> = {};
-    for (const [k, v] of next) if (k.trim()) out[k] = v;
+    for (const r of newRows) {
+      if (r.key.trim()) {
+        out[r.key] = r.value;
+      }
+    }
+    lastEmittedRef.current = JSON.stringify(out);
     onChange(out);
   };
+
+  const updateKey = (id: string, newKey: string) => {
+    emit(rows.map((r) => (r.id === id ? { ...r, key: newKey } : r)));
+  };
+
+  const updateValue = (id: string, newValue: string) => {
+    emit(rows.map((r) => (r.id === id ? { ...r, value: newValue } : r)));
+  };
+
+  const removeRow = (id: string) => {
+    emit(rows.filter((r) => r.id !== id));
+  };
+
+  const addRow = () => {
+    setRows((prev) => [...prev, { id: makeId(), key: '', value: '' }]);
+  };
+
   return (
     <FieldShell label={label} hint={hint}>
       <div className="space-y-1.5">
-        {entries.map(([k, v], i) => (
-          <div key={i} className="flex items-center gap-1.5">
+        {rows.map((row) => (
+          <div key={row.id} className="flex items-center gap-1.5">
             <Input
-              value={k}
+              value={row.key}
               placeholder={keyPlaceholder}
-              onChange={(e) => {
-                const next = [...entries] as [string, string][];
-                next[i] = [e.target.value, v];
-                commit(next);
-              }}
+              onChange={(e) => updateKey(row.id, e.target.value)}
               className="h-8 w-2/5 text-xs"
             />
             <Input
-              value={v}
+              value={row.value}
               placeholder={valuePlaceholder}
-              onChange={(e) => {
-                const next = [...entries] as [string, string][];
-                next[i] = [k, e.target.value];
-                commit(next);
-              }}
+              onChange={(e) => updateValue(row.id, e.target.value)}
               className="h-8 flex-1 text-xs"
             />
-            <IconBtn
-              label="Remove"
-              onClick={() => commit(entries.filter((_, idx) => idx !== i) as [string, string][])}
-            >
+            <IconBtn label="Remove" onClick={() => removeRow(row.id)}>
               <X className="h-3.5 w-3.5" />
             </IconBtn>
           </div>
@@ -939,7 +986,7 @@ export function RecordField({
           variant="outline"
           size="sm"
           className="h-8 w-full text-xs"
-          onClick={() => commit([...(entries as [string, string][]), ['', '']])}
+          onClick={addRow}
         >
           <Plus className="h-3.5 w-3.5" />
           {addLabel}
@@ -1116,7 +1163,7 @@ export function PanelHeader({ title, hint }: { title: string; hint?: string }) {
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="pt-1 text-xs font-semibold uppercase tracking-wide text-foreground/70">
+    <div className="pt-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
       {children}
     </div>
   );

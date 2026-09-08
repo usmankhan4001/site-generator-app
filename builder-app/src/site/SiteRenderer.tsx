@@ -41,7 +41,12 @@ export function SiteRenderer({ content, page, preview = false }: SiteRendererPro
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/20">
-      <Header content={content} />
+      <div
+        data-section-id={preview ? 'header' : undefined}
+        data-section-type={preview ? 'header' : undefined}
+      >
+        <Header content={content} />
+      </div>
 
       <main className="flex-1">
         {sections.map((section) => {
@@ -60,7 +65,12 @@ export function SiteRenderer({ content, page, preview = false }: SiteRendererPro
         })}
       </main>
 
-      <Footer content={content} />
+      <div
+        data-section-id={preview ? 'footer' : undefined}
+        data-section-type={preview ? 'footer' : undefined}
+      >
+        <Footer content={content} />
+      </div>
       <CartDrawer
         merchantName={content.business?.name}
         checkoutUrl={content.airwallexCheckoutUrl || '/checkout'}

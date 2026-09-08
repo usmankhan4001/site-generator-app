@@ -8,16 +8,18 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const luxuryHorology: StarterContentSet = {
   id: 'luxury-horology',
   archetype: 'luxury',
-  name: 'Haute Horlogerie',
+  name: 'Chronos',
   description:
     'Handcrafted mechanical timepieces, in-house tourbillons, and chronometric masterworks manufactured in the Vallée de Joux.',
   niche: 'Haute horlogerie & precision timepieces',
   tags: ['horology', 'luxury-watches', 'chronometer', 'swiss-made', 'mechanical', 'timepieces', 'craftsmanship'],
   needsPersonalization: false,
-  themeId: 'monochrome-atelier',
+  themeId: 'noir-ivory',
+  accent: '#d4af37',
   business: {
-    name: 'Vanguard Horlogerie SA',
-    shortName: 'Vanguard Genève',
+    name: 'Chronos',
+    legalName: 'Vanguard Horlogerie SA',
+    shortName: 'Chronos',
     registrationNumber: 'CHE-382.910.451',
     jurisdiction: 'Geneva, Switzerland (Registre du Commerce)',
     governingLaw: 'the laws of Switzerland (Canton de Genève)',
@@ -27,9 +29,9 @@ export const luxuryHorology: StarterContentSet = {
     website: 'vanguardhorlogerie.example',
     supportHours: 'Monday – Saturday, 10:00 – 19:00 (CET)',
   },
-  brand: { logoText: 'Vanguard Genève' },
+  brand: { logoText: 'Chronos' },
   meta: {
-    title: 'Vanguard Genève — Masterworks of Haute Horlogerie',
+    title: 'Chronos — Masterworks of Haute Horlogerie',
     description:
       'Discover handcrafted Swiss mechanical chronometers, flying tourbillons, and grand complications finished to the Poinçon de Genève standard.',
   },
@@ -40,7 +42,7 @@ export const luxuryHorology: StarterContentSet = {
         headline: 'Timeless mechanical mastery,',
         accentText: 'engineered for eternity',
         subtitle:
-          'Each Vanguard chronometer is hand-assembled over nine months by a single master watchmaker. Pure sapphire crystal, hand-chamfered bridges, and proprietary in-house calibres.',
+          'Each Chronos chronometer is hand-assembled over nine months by a single master watchmaker. Pure sapphire crystal, hand-chamfered bridges, and proprietary in-house calibres.',
         primaryCta: { label: 'Explore the Calibres', href: '/catalog' },
         secondaryCta: { label: 'Private Salon Appointment', href: '/contact' },
         trustBadges: ['Poinçon de Genève Certified', 'COSC Chronometer Rated', '5-Year International Warranty'],
@@ -81,11 +83,11 @@ export const luxuryHorology: StarterContentSet = {
         eyebrow: 'Our Heritage',
         title: 'Three centuries of horological devotion',
         description:
-          'Born in the high Swiss Jura mountains, Vanguard carries forward the sacred art of independent hand watchmaking.',
+          'Born in the high Swiss Jura mountains, Chronos carries forward the sacred art of independent hand watchmaking.',
         blocks: [
           {
             heading: 'The Sanctity of the Solitary Watchmaker',
-            body: 'Unlike mass-industrialized production lines, every Vanguard timepiece is entrusted to a single master horologist from initial jewel seating to final casing. This intimate relationship between artisan and object imbues each piece with an unrepeatable soul.',
+            body: 'Unlike mass-industrialized production lines, every Chronos timepiece is entrusted to a single master horologist from initial jewel seating to final casing. This intimate relationship between artisan and object imbues each piece with an unrepeatable soul.',
           },
           {
             heading: 'Preserving Disappearing Metiers d’Art',
@@ -101,7 +103,7 @@ export const luxuryHorology: StarterContentSet = {
       },
       collection: {
         eyebrow: 'Current Atelier Editions',
-        title: 'The Vanguard Collection',
+        title: 'The Chronos Collection',
         description:
           'Limited annual production strictly capped at 250 individually numbered pieces worldwide.',
         currency: 'CHF',
@@ -339,14 +341,14 @@ export const luxuryHorology: StarterContentSet = {
             role: 'Private Collector',
             location: 'London',
             rating: 5,
-            text: 'Acquiring a Vanguard piece through the private salon in Geneva was the finest purchasing experience of my collecting journey. A masterpiece on the wrist.',
+            text: 'Acquiring a Chronos piece through the private salon in Geneva was the finest purchasing experience of my collecting journey. A masterpiece on the wrist.',
           },
           {
             name: 'Kenji Takahashi',
             role: 'Watch Journalist & Curatorial Consultant',
             location: 'Tokyo',
             rating: 5,
-            text: 'Vanguard represents the true soul of independent Swiss watchmaking. No marketing gimmicks—just peerless hand craftsmanship and sublime proportions.',
+            text: 'Chronos represents the true soul of independent Swiss watchmaking. No marketing gimmicks—just peerless hand craftsmanship and sublime proportions.',
           },
         ],
       },
@@ -362,7 +364,7 @@ export const luxuryHorology: StarterContentSet = {
     offerings: {
       header: {
         eyebrow: 'Manufacture Horlogère',
-        title: 'The Vanguard Calibres & Timepieces',
+        title: 'The Chronos Calibres & Timepieces',
         subtitle:
           'Each piece is hand-finished in the Vallée de Joux, strictly limited in production, and numbered upon completion.',
       },

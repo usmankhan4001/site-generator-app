@@ -97,8 +97,8 @@ function normalizeImage(raw: unknown): ImagePoolEntry | null {
 
 export function useImagePool(): ImagePoolEntry[] | null {
   return useOptional<ImagePoolEntry[]>(async () => {
-    // @ts-ignore optional module — created by a sibling agent, may not exist
-    const mod: any = await import('@/data/imagePool');
+    // @ts-ignore optional module — moved into the site kit so generated sites are self-contained
+    const mod: any = await import('@/site/lib/imagePool');
     const raw =
       mod?.IMAGE_POOL ?? mod?.IMAGES ?? mod?.imagePool ?? mod?.default ?? null;
     if (!Array.isArray(raw)) return null;

@@ -10,7 +10,6 @@ import {
   Search,
   Sliders,
   Layers,
-  Sparkles,
   LayoutTemplate,
 } from 'lucide-react';
 import { useStudio, useActivePage } from '@/store/studio';
@@ -28,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { PanelHeader, IconBtn } from './fields';
 import { SECTION_LABELS, SECTION_DESCRIPTIONS } from './labels';
 import { summarizeSection } from './sectionSummary';
+import { SectionSkeleton } from './SectionSkeleton';
 
 interface SectionMeta {
   type: SectionType;
@@ -229,10 +229,10 @@ export function SectionsPanel() {
         {/* Header & Navigation Global Section */}
         <div
           className={cn(
-            'group flex items-center justify-between rounded-lg border bg-card/70 px-3 py-2.5 transition-colors',
+            'group flex items-center justify-between rounded-xl border shadow-sm bg-card px-3 py-3 transition-colors',
             selectedSectionId === 'header'
               ? 'border-primary ring-1 ring-primary/40 bg-primary/5'
-              : 'border-border/80 hover:border-border hover:bg-accent/40',
+              : 'border-border hover:border-border hover:bg-accent/40',
           )}
         >
           <button
@@ -266,9 +266,9 @@ export function SectionsPanel() {
           </Button>
         </div>
 
-        <div className="my-2 flex items-center gap-2 px-1 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+        <div className="my-1.5 flex items-center gap-2 px-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
           <Layers className="h-3 w-3" />
-          <span>Page Body Sections ({page.sections.length})</span>
+          <span>Page sections ({page.sections.length})</span>
         </div>
 
         {page.sections.length === 0 ? (
@@ -294,7 +294,7 @@ export function SectionsPanel() {
                   setDragIdx(null);
                 }}
                 className={cn(
-                  'group flex items-center gap-1.5 rounded-lg border bg-card px-1.5 py-2 transition-colors',
+                  'group flex items-center gap-1.5 rounded-xl border shadow-card bg-card px-1.5 py-2.5 transition-colors',
                   isSelected ? 'border-primary ring-1 ring-primary/40 bg-primary/5' : 'border-border',
                   dragIdx === i ? 'border-primary' : '',
                   !section.enabled && 'opacity-50',
@@ -355,14 +355,54 @@ export function SectionsPanel() {
             );
           })
         )}
+
+        {/* Footer & Legal Global Section */}
+        <div
+          className={cn(
+            'group mt-3 flex items-center justify-between rounded-xl border shadow-sm bg-card px-3 py-3 transition-colors',
+            selectedSectionId === 'footer'
+              ? 'border-primary ring-1 ring-primary/40 bg-primary/5'
+              : 'border-border hover:border-border hover:bg-accent/40',
+          )}
+        >
+          <button
+            type="button"
+            onClick={() => selectSection('footer')}
+            className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
+          >
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+              <LayoutTemplate className="h-4 w-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <span className="truncate text-xs font-medium text-foreground">Footer & Legal</span>
+                <span className="shrink-0 rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-medium text-primary uppercase tracking-wider">
+                  {(content.footer?.variant ?? 'columns').replace(/_/g, ' ')}
+                </span>
+              </div>
+              <div className="truncate text-[11px] text-muted-foreground">
+                Columns, legal bar, social links & newsletter
+              </div>
+            </div>
+          </button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs text-muted-foreground hover:text-foreground"
+            onClick={() => selectSection('footer')}
+          >
+            <Sliders className="h-3.5 w-3.5" />
+          </Button>
+        </div>
       </div>
 
       <div className="border-t border-border p-3">
         <Button
           type="button"
-          variant="outline"
+          variant="default"
           size="sm"
-          className="w-full gap-1.5 shadow-sm"
+          className="w-full gap-1.5"
           onClick={() => setAddOpen(true)}
         >
           <Plus className="h-3.5 w-3.5" />
@@ -453,9 +493,9 @@ function AddSectionDialog({
         </div>
 
         {/* Section items grid */}
-        <div className="thin-scroll grid max-h-[55vh] grid-cols-1 gap-3 overflow-y-auto p-5 sm:grid-cols-2">
+        <div className="thin-scroll grid max-h-[55vh] grid-cols-2 gap-3 overflow-y-auto p-5 md:grid-cols-3">
           {filteredSections.length === 0 ? (
-            <div className="col-span-2 py-12 text-center text-xs text-muted-foreground">
+            <div className="col-span-full py-12 text-center text-xs text-muted-foreground">
               No sections match "{searchQuery}" in this category.
             </div>
           ) : (
@@ -466,43 +506,22 @@ function AddSectionDialog({
                   key={type}
                   type="button"
                   onClick={() => onPick(type)}
-                  className="group relative flex flex-col justify-between rounded-lg border border-border/90 bg-card p-3.5 text-left transition-all hover:border-primary hover:bg-accent/30 hover:shadow-subtle focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
-                  <div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-foreground group-hover:text-primary">
-                        {SECTION_LABELS[type]}
+                  <SectionThumb type={type} />
+                  <div className="flex items-center justify-between gap-2 px-2.5 pb-1.5 pt-2">
+                    <span className="truncate text-xs font-semibold text-foreground group-hover:text-primary">
+                      {SECTION_LABELS[type]}
+                    </span>
+                    {meta?.variants && meta.variants.length > 0 ? (
+                      <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                        {meta.variants.length} variant{meta.variants.length === 1 ? '' : 's'}
                       </span>
-                      {meta?.categoryLabel ? (
-                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                          {meta.categoryLabel}
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                      {SECTION_DESCRIPTIONS[type]}
-                    </p>
+                    ) : null}
                   </div>
-
-                  {/* Variant tags */}
-                  {meta?.variants && meta.variants.length > 0 ? (
-                    <div className="mt-3 border-t border-border/60 pt-2">
-                      <div className="mb-1 text-[10px] font-semibold text-muted-foreground flex items-center gap-1">
-                        <Sparkles className="h-2.5 w-2.5 text-primary" />
-                        Supported Layouts ({meta.variants.length}):
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {meta.variants.map((v) => (
-                          <span
-                            key={v}
-                            className="rounded border border-border/70 bg-background/80 px-1.5 py-0.5 text-[10px] font-medium text-foreground/80"
-                          >
-                            {v}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
+                  <p className="line-clamp-1 px-2.5 text-[11px] text-muted-foreground">
+                    {SECTION_DESCRIPTIONS[type]}
+                  </p>
                 </button>
               );
             })
@@ -510,5 +529,17 @@ function AddSectionDialog({
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Visual preview for a section tile. Renders a distinct muted-gray wireframe
+ * schematic of the section's real layout for every section type.
+ */
+function SectionThumb({ type }: { type: SectionType }) {
+  return (
+    <div className="relative aspect-video w-full overflow-hidden border-b border-border bg-muted/40">
+      <SectionSkeleton type={type} />
+    </div>
   );
 }

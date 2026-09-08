@@ -1,18 +1,26 @@
 'use client';
 
+import { useState } from 'react';
 import { ArrowLeft, Copy, Trash2 } from 'lucide-react';
 import { useStudio, useSelectedSection } from '@/store/studio';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { SECTION_LABELS, SECTION_DESCRIPTIONS } from './labels';
-import { SectionEditor } from './SectionEditor';
+import { SectionEditor, FooterEditor } from './SectionEditor';
+import { HowToEditHint } from './HowToEditHint';
 
 export function Inspector() {
   const section = useSelectedSection();
   const selectSection = useStudio((s) => s.selectSection);
   const removeSection = useStudio((s) => s.removeSection);
   const mutate = useStudio((s) => s.mutate);
+  const [chromeTab, setChromeTab] = useState<'header' | 'footer'>('header');
 
   if (!section) return null;
+
+  const isHeader = section.id === 'header';
+  const isFooter = section.id === 'footer';
+  const isChrome = isHeader || isFooter;
 
   const duplicate = () => {
     mutate((draft) => {
@@ -40,36 +48,41 @@ export function Inspector() {
         </button>
         <div>
           <h2 className="text-sm font-semibold text-foreground">
-            {SECTION_LABELS[section.type]}
+            {SECTION_LABELS[section.type as keyof typeof SECTION_LABELS] || section.type}
           </h2>
-          <p className="text-xs text-muted-foreground">{SECTION_DESCRIPTIONS[section.type]}</p>
+          <p className="text-xs text-muted-foreground">
+            {SECTION_DESCRIPTIONS[section.type as keyof typeof SECTION_DESCRIPTIONS] || ''}
+          </p>
         </div>
       </div>
 
       <div className="thin-scroll min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
-        <SectionEditor section={section} />
+        <HowToEditHint />
+        {isFooter ? <FooterEditor /> : <SectionEditor key={section.id} section={section} />}
       </div>
 
-      <div className="flex gap-2 border-t border-border p-3">
-        <Button variant="outline" size="sm" className="flex-1" onClick={duplicate}>
-          <Copy className="h-3.5 w-3.5" />
-          Duplicate
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="flex-1 text-destructive hover:bg-destructive/10 hover:text-destructive"
-          onClick={() => {
-            if (window.confirm(`Delete the "${SECTION_LABELS[section.type]}" section?`)) {
-              removeSection(section.id);
-              selectSection(null);
-            }
-          }}
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-          Delete
-        </Button>
-      </div>
+      {!isChrome && (
+        <div className="flex gap-2 border-t border-border p-3">
+          <Button variant="outline" size="sm" className="flex-1 shadow-sm" onClick={duplicate}>
+            <Copy className="h-3.5 w-3.5" />
+            Duplicate
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            onClick={() => {
+              if (window.confirm(`Delete the "${SECTION_LABELS[section.type]}" section?`)) {
+                removeSection(section.id);
+                selectSection(null);
+              }
+            }}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Delete
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -260,7 +260,7 @@ const gadgetProducts: CatalogItem[] = [
 export const storeGadgets: StarterContentSet = {
   id: 'store-gadgets',
   archetype: 'store',
-  name: 'Next-Gen EDC & Smart Hardware',
+  name: 'Kinetix',
   description:
     'Gallium nitride fast chargers, aerospace titanium EDC multi-tools, MagSafe folding power stations, and biometric smart hardware engineered in San Francisco.',
   niche: 'EDC lifestyle gadgets, modular smart devices & tech essentials',
@@ -277,8 +277,9 @@ export const storeGadgets: StarterContentSet = {
   needsPersonalization: false,
   themeId: 'cyber-slate-volt',
   business: {
-    name: 'Kinetix Hardware Labs Inc.',
-    shortName: 'Kinetix Labs',
+    name: 'Kinetix',
+    legalName: 'Kinetix Hardware Labs Inc.',
+    shortName: 'Kinetix',
     registrationNumber: 'US-CA-9284102',
     jurisdiction: 'California, United States (California Secretary of State)',
     governingLaw: 'the laws of the State of California and the United States',
@@ -288,9 +289,9 @@ export const storeGadgets: StarterContentSet = {
     website: 'kinetixlabs.example',
     supportHours: 'Monday – Friday, 08:30 – 17:30 (PST)',
   },
-  brand: { logoText: 'Kinetix Labs' },
+  brand: { logoText: 'Kinetix' },
   meta: {
-    title: 'Kinetix Labs — Next-Gen EDC Hardware & Modular Smart Gadgets',
+    title: 'Kinetix — Next-Gen EDC Hardware & Modular Smart Gadgets',
     description:
       'Discover 140W GaN travel chargers, Grade 5 titanium EDC tools, Apple Find My tracker cards, and biometric smart hardware engineered in San Francisco.',
     ogImage: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80',
@@ -302,7 +303,7 @@ export const storeGadgets: StarterContentSet = {
         headline: 'Next-generation smart hardware for high-output',
         accentText: 'digital workflows',
         subtitle:
-          'Kinetix Labs engineers modular GaN chargers, Grade 5 titanium pocket tools, and smart biometric hardware designed to streamline your daily carry.',
+          'Kinetix engineers modular GaN chargers, Grade 5 titanium pocket tools, and smart biometric hardware designed to streamline your daily carry.',
         primaryCta: { label: 'Shop The Hardware', href: '/catalog' },
         secondaryCta: { label: 'Explore Engineering Lab', href: '/about' },
         image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80',
@@ -469,7 +470,7 @@ export const storeGadgets: StarterContentSet = {
       story: {
         eyebrow: 'Our Story',
         title: 'Eliminating bulky cords and disposable plastic gadgets',
-        description: 'Kinetix Labs was founded in San Francisco by hardware engineers frustrated by heavy chargers, fragile cables, and generic tech accessories.',
+        description: 'Kinetix was founded in San Francisco by hardware engineers frustrated by heavy chargers, fragile cables, and generic tech accessories.',
         blocks: [
           {
             heading: 'Semiconductor Innovation',
@@ -522,7 +523,7 @@ export const storeGadgets: StarterContentSet = {
     },
     contact: {
       header: {
-        headline: 'Get in Touch with Kinetix Labs',
+        headline: 'Get in Touch with Kinetix',
         subtitle: 'Have questions about charging compatibility, device pairing, or order tracking? Contact our San Francisco team.',
       },
       form: {

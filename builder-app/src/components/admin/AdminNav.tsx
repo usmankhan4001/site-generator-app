@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, FolderKanban, Mail, Rocket } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, Users, FolderKanban, Mail, Rocket, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { authClient } from '@/lib/auth-client';
 
 const LINKS = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard, exact: true },
@@ -15,6 +16,13 @@ const LINKS = [
 
 export function AdminNav() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleSignOut() {
+    await authClient.signOut();
+    router.push('/sign-in');
+    router.refresh();
+  }
 
   return (
     <nav className="flex flex-col gap-0.5">
@@ -36,6 +44,15 @@ export function AdminNav() {
           </Link>
         );
       })}
+
+      <button
+        type="button"
+        onClick={handleSignOut}
+        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-destructive text-left"
+      >
+        <LogOut className="h-4 w-4" />
+        Sign out
+      </button>
     </nav>
   );
 }

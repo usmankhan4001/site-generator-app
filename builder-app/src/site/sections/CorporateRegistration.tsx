@@ -18,7 +18,7 @@ export default function CorporateRegistration({
 }) {
   const b = content.business;
 
-  const entityName = props.entityName ?? b.name;
+  const entityName = props.entityName ?? b.legalName ?? b.name;
   const registrationNumber = props.registrationNumber ?? b.registrationNumber;
   const jurisdiction = props.jurisdiction ?? b.jurisdiction;
   const governingLaw = props.governingLaw ?? b.governingLaw;

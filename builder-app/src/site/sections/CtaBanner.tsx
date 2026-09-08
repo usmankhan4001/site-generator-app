@@ -32,13 +32,14 @@ export default function CtaBanner({
     <section className={cn(sectionPadding(s), 'bg-muted/30 border-y border-border')}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2
+          data-edit-prop="headline"
           className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground"
           style={isAtelier ? { fontFamily: 'var(--font-display)' } : undefined}
         >
           {headline}
         </h2>
         {subtitle && (
-          <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
+          <p data-edit-prop="subtitle" className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
             {subtitle}
           </p>
         )}

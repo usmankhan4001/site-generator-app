@@ -1,183 +1,276 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Card, CardContent } from '@/components/ui/card';
+import { ArrowLeft } from 'lucide-react';
+import { recommendArchetypes } from '@/lib/studio/recommend';
 import { BusinessStep } from './BusinessStep';
-import { LegalStep } from './LegalStep';
-import { StyleStep } from './StyleStep';
 import { BrandStep } from './BrandStep';
-import { EMPTY_ONBOARDING, type LegalDetails, type OnboardingData } from './types';
+import { StyleStep } from './StyleStep';
+import { BriefStep } from './BriefStep';
+import { LoadingStep } from './LoadingStep';
+import { ProgressBar } from './primitives';
+import { EMPTY_ONBOARDING, type OnboardingData } from './types';
 
-const STEPS = [
-  {
-    title: 'Tell us about your business',
-    subtitle: 'This helps us pick the best site archetype and generate relevant copy.',
-  },
-  {
-    title: 'Entity & compliance details',
-    subtitle: 'These details are woven into your footer, contact section, and legal policies.',
-  },
-  {
-    title: 'Pick your aesthetic',
-    subtitle: 'Choose the visual tone that matches your brand.',
-  },
-  {
-    title: 'Add your brand assets',
-    subtitle: 'Upload your logo and pick your accent color.',
-  },
-];
-
+/**
+ * Typeform-style one-question-at-a-time onboarding flow.
+ *
+ * Each question fills the entire viewport. Transitions slide the current
+ * question out to the left and the next one in from the right. No back
+ * button — press Escape to go back. Enter or Continue advances.
+ *
+ * Steps:
+ * 0 — What do you do? (category cards)
+ * 1 — What's it called? (business name)
+ * 2 — Pick a vibe (theme swatches)
+ * 3 — Anything else? (optional brief)
+ * 4 — Loading / AI generation
+ */
 export function OnboardingFlow({ firstName }: { firstName?: string }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
+  const [transitioning, setTransitioning] = useState(false);
+  const [slideKey, setSlideKey] = useState(0);
   const [data, setData] = useState<OnboardingData>(EMPTY_ONBOARDING);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  const patch = (partial: Partial<OnboardingData>) => {
+  const TOTAL_STEPS = 4; // steps 0-3 are questions, step 4 is loading
+  const progressPercent = Math.min((step / TOTAL_STEPS) * 100, 100);
+
+  const patch = useCallback((partial: Partial<OnboardingData>) => {
     setData((prev) => ({ ...prev, ...partial }));
-  };
+  }, []);
 
-  const patchLegal = (partial: Partial<LegalDetails>) => {
-    setData((prev) => ({
-      ...prev,
-      legal: { ...prev.legal, ...partial },
-    }));
-  };
+  /** Advance to the next slide. */
+  const advance = useCallback(
+    (delayMs = 200) => {
+      if (transitioning || step >= TOTAL_STEPS) return;
+      setTransitioning(true);
+      // Wait for exit animation, then mount new slide
+      setTimeout(() => {
+        setStep((s) => s + 1);
+        setSlideKey((k) => k + 1);
+        setTransitioning(false);
+      }, delayMs);
+    },
+    [transitioning, step],
+  );
 
-  const canContinue = () => {
-    if (step === 0) {
-      return data.niche.trim().length > 0;
-    }
-    return true;
-  };
+  /** Go back one slide (Escape key). */
+  const goBack = useCallback(() => {
+    if (transitioning || step <= 0 || step >= TOTAL_STEPS) return;
+    setTransitioning(true);
+    setTimeout(() => {
+      setStep((s) => s - 1);
+      setSlideKey((k) => k + 1);
+      setTransitioning(false);
+    }, 200);
+  }, [transitioning, step]);
 
-  const handleNext = async () => {
-    setError(null);
-    if (step < STEPS.length - 1) {
-      setStep((s) => s + 1);
-      return;
-    }
+  // Keyboard: Escape goes back
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (step >= TOTAL_STEPS) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        goBack();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [step, goBack]);
 
-    setSubmitting(true);
+  /** Save onboarding + create site via AI, or fallback to archetype blueprint. */
+  const submitAndGenerate = useCallback(async () => {
+    setStep(TOTAL_STEPS); // Show loading immediately
+
     try {
-      const res = await fetch('/api/onboarding', {
+      // 1. Save onboarding data
+      const saveRes = await fetch('/api/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          niche: data.niche,
+          preferredMode: data.preferredMode,
+          stylePref: data.stylePref,
+        }),
       });
-
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(json.error || 'Failed to save onboarding answers.');
+      if (!saveRes.ok) {
+        const err = await saveRes.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to save onboarding.');
       }
 
-      // Hand the just-submitted niche + mode to the dashboard so it can open
-      // "New Site" straight at Step 2 instead of re-asking what this site is for.
-      const params = new URLSearchParams({ newProject: '1', niche: data.niche });
-      if (data.preferredMode) params.set('mode', data.preferredMode);
-      router.push(`/?${params.toString()}`);
-      router.refresh();
+      // 2. Try AI generation
+      const aiRes = await fetch('/api/ai/generate-site', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brief: {
+            name: data.businessName || data.niche,
+            niche: data.niche,
+            mode: data.preferredMode,
+            vibe: data.stylePref,
+            brief: data.brief,
+          },
+        }),
+      });
+
+      if (aiRes.ok) {
+        const aiData = await aiRes.json();
+        if (aiData.success) {
+          const projectId = aiData.project?.id || aiData.content?.projectId;
+          if (projectId) {
+            router.push(`/project/${projectId}`);
+            return;
+          }
+        }
+      }
+
+      // 3. Fallback: 503 or any AI failure → archetype blueprint
+      setNotice(
+        "AI isn't configured yet — you have a starting template to customize.",
+      );
+
+      const recommendations = recommendArchetypes({
+        niche: data.niche,
+        preferredMode: data.preferredMode,
+        stylePref: data.stylePref,
+      });
+
+      const topRec = recommendations[0];
+      if (!topRec) {
+        throw new Error('No suitable template found.');
+      }
+
+      const projectRes = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          archetypeId: topRec.archetypeId,
+          starterSetId: topRec.starterSetId ?? null,
+          name: data.businessName || data.niche,
+        }),
+      });
+
+      if (!projectRes.ok) {
+        const err = await projectRes.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to create project.');
+      }
+
+      const projectData = await projectRes.json();
+      const projectId = projectData.project?.id;
+      if (projectId) {
+        router.push(`/project/${projectId}`);
+        return;
+      }
+
+      // Safety net
+      router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred.');
-      setSubmitting(false);
+      console.error('[Onboarding] Error during submission:', err);
+      router.push('/');
     }
-  };
-
-  const handleBack = () => {
-    setError(null);
-    if (step > 0) {
-      setStep((s) => s - 1);
-    }
-  };
-
-  const progressPercent = ((step + 1) / STEPS.length) * 100;
-  const current = STEPS[step];
+  }, [data, router]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col justify-between py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto w-full space-y-8">
-        {/* Header with progress */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
-            <span>
-              {firstName ? `Welcome, ${firstName} — ` : ''}Step {step + 1} of {STEPS.length}
-            </span>
-            <span>{Math.round(progressPercent)}% completed</span>
-          </div>
-          <Progress value={progressPercent} className="h-1.5" />
-        </div>
+    <div className="relative min-h-screen overflow-hidden bg-[#fafafa]">
+      {/* Top progress bar */}
+      <ProgressBar percent={progressPercent} />
 
-        {/* Step Title */}
-        <div className="space-y-1.5">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-            {current.title}
-          </h1>
-          <p className="text-sm text-muted-foreground leading-relaxed">{current.subtitle}</p>
-        </div>
+      {/* Back button for steps 1-3 */}
+      {step > 0 && step < TOTAL_STEPS && (
+        <button
+          type="button"
+          onClick={goBack}
+          className="fixed left-6 top-6 z-50 inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/90 px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-md transition-all hover:bg-background hover:text-foreground hover:shadow active:scale-95"
+          aria-label="Back to previous step"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          <span>Back</span>
+        </button>
+      )}
 
-        {/* Step Body */}
-        <Card className="border border-border bg-card">
-          <CardContent className="p-6 sm:p-8">
-            {step === 0 && <BusinessStep data={data} patch={patch} />}
-            {step === 1 && <LegalStep data={data} patchLegal={patchLegal} />}
-            {step === 2 && <StyleStep data={data} patch={patch} />}
-            {step === 3 && <BrandStep data={data} patch={patch} />}
+      {/* Sliding viewport */}
+      <div className="relative h-screen w-full">
+        {/* Outgoing slide (exits left or right) */}
+        {transitioning && (
+          <div
+            key={`exit-${slideKey}`}
+            className="absolute inset-0 animate-slide-out-left"
+            aria-hidden
+          />
+        )}
 
-            {error && (
-              <div className="mt-6 rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive">
-                {error}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Incoming slide */}
+        <div
+          key={`slide-${slideKey}-${step}`}
+          className="absolute inset-0 animate-slide-in-right"
+        >
+          {step === 0 && (
+            <BusinessStep
+              selectedId={
+                data.niche === 'Local Business'
+                  ? 'local'
+                  : data.niche === 'Online Store'
+                    ? 'store'
+                    : data.niche === 'Professional Services'
+                      ? 'professional'
+                      : data.niche === 'Agency / Studio'
+                        ? 'agency'
+                        : data.niche === 'SaaS / Software'
+                          ? 'saas'
+                          : data.niche === 'Luxury / Premium'
+                            ? 'luxury'
+                            : ''
+              }
+              onSelect={(_id, label, mode) => {
+                setData((prev) => ({
+                  ...prev,
+                  niche: label,
+                  preferredMode: mode,
+                }));
+                advance(250);
+              }}
+            />
+          )}
 
-        {/* Bottom Actions */}
-        <div className="flex items-center justify-between pt-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={handleBack}
-            disabled={step === 0 || submitting}
-            className="gap-2"
-          >
-            <ArrowLeft className="size-4" />
-            Back
-          </Button>
+          {step === 1 && (
+            <BrandStep
+              value={data.businessName}
+              onChange={(v) => patch({ businessName: v })}
+              onContinue={() => advance(200)}
+            />
+          )}
 
-          <Button
-            type="button"
-            onClick={handleNext}
-            disabled={!canContinue() || submitting}
-            className="gap-2 min-w-[120px]"
-          >
-            {submitting ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Setting up…
-              </>
-            ) : step === STEPS.length - 1 ? (
-              <>
-                <Check className="size-4" />
-                Finish & create site
-              </>
-            ) : (
-              <>
-                Continue
-                <ArrowRight className="size-4" />
-              </>
-            )}
-          </Button>
+          {step === 2 && (
+            <StyleStep
+              selectedId={data.stylePref}
+              onSelect={(id) => {
+                patch({ stylePref: id });
+                advance(250);
+              }}
+            />
+          )}
+
+          {step === 3 && (
+            <BriefStep
+              value={data.brief}
+              onChange={(v) => patch({ brief: v })}
+              onContinue={() => submitAndGenerate()}
+              onSkip={() => submitAndGenerate()}
+            />
+          )}
+
+          {step >= TOTAL_STEPS && <LoadingStep notice={notice} />}
         </div>
       </div>
 
-      <footer className="text-center text-xs text-muted-foreground py-4">
-        You can always adjust these settings later in the site workspace.
-      </footer>
+      {/* Subtle footer */}
+      {step < TOTAL_STEPS && (
+        <div className="fixed inset-x-0 bottom-0 z-40 pb-4 text-center text-xs text-muted-foreground/60">
+          {firstName ? `Welcome, ${firstName}` : ''}
+        </div>
+      )}
     </div>
   );
 }

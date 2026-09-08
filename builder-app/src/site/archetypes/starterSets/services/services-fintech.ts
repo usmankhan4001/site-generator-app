@@ -8,7 +8,7 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const servicesFintech: StarterContentSet = {
   id: 'services-fintech',
   archetype: 'services',
-  name: 'Fintech Licensing & Regulatory Compliance',
+  name: 'Aegis',
   description:
     'Institutional regulatory licensing, AML/CFT frameworks, payment institution authorization (MAS, FCA, EMI, VASP), and risk governance for global fintechs.',
   niche: 'Fintech licensing & regulatory compliance',
@@ -16,8 +16,9 @@ export const servicesFintech: StarterContentSet = {
   needsPersonalization: false,
   themeId: 'emerald-precision',
   business: {
-    name: 'Aegis Regulatory Advisory Pte. Ltd.',
-    shortName: 'Aegis Compliance',
+    name: 'Aegis',
+    legalName: 'Aegis Regulatory Advisory Pte. Ltd.',
+    shortName: 'Aegis',
     registrationNumber: '201934812G',
     jurisdiction: 'Singapore (ACRA)',
     governingLaw: 'the laws of Singapore',
@@ -27,9 +28,9 @@ export const servicesFintech: StarterContentSet = {
     website: 'aegisregulatory.example',
     supportHours: 'Monday – Friday, 09:00 – 18:00 (SGT)',
   },
-  brand: { logoText: 'Aegis Regulatory' },
+  brand: { logoText: 'Aegis' },
   meta: {
-    title: 'Aegis Regulatory — Global Fintech Licensing & Compliance Advisory',
+    title: 'Aegis — Global Fintech Licensing & Compliance Advisory',
     description:
       'We secure MAS MPI/SPI, UK FCA EMI, and European payment licenses while architecting institutional AML/CFT risk governance frameworks.',
   },

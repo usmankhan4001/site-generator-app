@@ -41,7 +41,10 @@ export function InvitesTable({ rows }: { rows: InviteRow[] }) {
     }
   }
 
-  async function revoke(id: string) {
+  async function revoke(id: string, email?: string) {
+    if (!window.confirm(`Are you sure you want to revoke the invite for ${email || 'this user'}?`)) {
+      return;
+    }
     setBusyId(id);
     setError(null);
     try {
@@ -104,7 +107,7 @@ export function InvitesTable({ rows }: { rows: InviteRow[] }) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => revoke(row.id)}
+                        onClick={() => revoke(row.id, row.email)}
                         disabled={busyId === row.id}
                       >
                         {busyId === row.id ? (

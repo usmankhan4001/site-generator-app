@@ -9,6 +9,17 @@ import { cn } from '@/lib/utils';
 import { PanelHeader, SectionLabel, FieldShell } from './fields';
 import { Input } from '@/components/ui/input';
 
+const ACCENT_PRESETS = [
+  '#6366f1',
+  '#0ea5e9',
+  '#10b981',
+  '#f59e0b',
+  '#ef4444',
+  '#ec4899',
+  '#8b5cf6',
+  '#14b8a6',
+];
+
 export function DesignPanel() {
   const content = useStudio((s) => s.content);
   const setTheme = useStudio((s) => s.setTheme);
@@ -65,8 +76,8 @@ export function DesignPanel() {
                   type="button"
                   onClick={() => setLayoutSystem(content.layoutSystem === sys.id ? undefined : sys.id)}
                   className={cn(
-                    'flex w-full flex-col items-start gap-0.5 rounded-lg border p-3 text-left transition-colors',
-                    active ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/40',
+                    'flex w-full flex-col items-start gap-0.5 rounded-xl border p-3 text-left shadow-sm transition-colors',
+                    active ? 'border-primary bg-primary/10 ring-1 ring-primary/40' : 'border-border bg-card hover:border-primary/40',
                   )}
                 >
                   <span className="flex items-center gap-2 text-xs font-semibold text-foreground">
@@ -115,6 +126,40 @@ export function DesignPanel() {
               </button>
             ) : null}
           </div>
+          <div className="grid grid-cols-4 gap-2">
+            {ACCENT_PRESETS.map((hex) => {
+              const active = accentValue.toLowerCase() === hex.toLowerCase();
+              return (
+                <button
+                  key={hex}
+                  type="button"
+                  title={hex}
+                  aria-label={`Accent ${hex}`}
+                  onClick={() => {
+                    setAccentDraft(hex);
+                    setAccent(hex);
+                  }}
+                  className={cn(
+                    'flex w-full items-center gap-2 rounded-xl border p-2 text-left transition-colors',
+                    active
+                      ? 'border-primary bg-primary/10 ring-1 ring-primary/40 shadow-sm'
+                      : 'border-border bg-card hover:border-primary/40',
+                  )}
+                >
+                  <span
+                    className="h-5 w-5 shrink-0 rounded-full border border-black/10"
+                    style={{ background: hex }}
+                  />
+                  <span className="min-w-0 truncate font-mono text-[11px] text-foreground">
+                    {hex}
+                  </span>
+                  {active ? (
+                    <Check className="ml-auto h-3 w-3 shrink-0 text-primary" />
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
         </FieldShell>
       </div>
 
@@ -149,8 +194,8 @@ function ModeButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-colors',
-        active ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/40',
+        'flex flex-col items-start gap-1 rounded-xl border p-3 text-left shadow-sm transition-colors',
+        active ? 'border-primary bg-primary/10 ring-1 ring-primary/40' : 'border-border bg-card hover:border-primary/40',
       )}
     >
       <Icon className={cn('h-4 w-4', active ? 'text-primary' : 'text-muted-foreground')} />
@@ -179,8 +224,8 @@ function ThemeGrid({
             type="button"
             onClick={() => onPick(t.id)}
             className={cn(
-              'relative flex flex-col gap-1.5 rounded-lg border p-2.5 text-left transition-colors',
-              active ? 'border-primary ring-1 ring-primary' : 'border-border hover:border-primary/40',
+              'relative flex flex-col gap-1.5 rounded-xl border p-2.5 text-left shadow-sm transition-colors',
+              active ? 'border-primary ring-2 ring-primary/50' : 'border-border hover:border-primary/40',
             )}
             style={{ background: t.preview.bg }}
           >

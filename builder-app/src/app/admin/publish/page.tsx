@@ -17,10 +17,21 @@ export default async function AdminPublishPage() {
     requestedAt: p.publishRequestedAt!.toISOString(),
   }));
 
+  const [dbDokployKey, dbDokployHost, dbGithubToken] = await Promise.all([
+    prisma.setting.findUnique({ where: { key: 'dokploy:apiKey' } }),
+    prisma.setting.findUnique({ where: { key: 'dokploy:host' } }),
+    prisma.setting.findUnique({ where: { key: 'github:token' } }),
+  ]);
+  const deployConfigured = Boolean(
+    (dbDokployKey?.value || process.env.DOKPLOY_API_KEY) &&
+      (dbDokployHost?.value || process.env.DOKPLOY_HOST) &&
+      (dbGithubToken?.value || process.env.GITHUB_TOKEN || process.env.GH_TOKEN),
+  );
+
   return (
     <div>
       <header className="mb-8">
-        <h1 className="text-xl font-semibold tracking-tight">Publish queue</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Publish queue</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {rows.length === 0
             ? 'No pending publish requests.'
@@ -28,7 +39,7 @@ export default async function AdminPublishPage() {
         </p>
       </header>
 
-      <PublishQueue rows={rows} />
+      <PublishQueue rows={rows} deployConfigured={deployConfigured} />
     </div>
   );
 }

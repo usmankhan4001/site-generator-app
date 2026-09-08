@@ -29,7 +29,7 @@ import type { ArchetypeId, StarterContentSet } from '@/site/archetypes/types';
 import { ARCHETYPES, STARTER_SETS } from '@/site/archetypes';
 import { defaultPropsFor } from '@/site/sections/defaults';
 import { buildPolicyPage } from '@/site/archetypes/policies';
-import { diversifyImages } from '@/data/diversifyImages';
+import { diversifyImages } from '@/site/lib/diversifyImages';
 
 /* ============================================================================
  * Placeholders
@@ -122,8 +122,9 @@ export function createSiteContentFromArchetype(
   starterSetId: string | null,
 ): SiteContent {
   const arch = ARCHETYPES[archetypeId];
+  const effectiveStarterId = starterSetId || arch.starterSetIds?.[0] || null;
   const starterSet: StarterContentSet | undefined =
-    (starterSetId && STARTER_SETS[starterSetId]) || undefined;
+    (effectiveStarterId && STARTER_SETS[effectiveStarterId]) || undefined;
 
   const business: BusinessInfo = { ...PLACEHOLDER_BUSINESS, ...starterSet?.business };
 

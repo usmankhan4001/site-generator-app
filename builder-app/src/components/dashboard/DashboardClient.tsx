@@ -7,11 +7,13 @@ import {
   FolderGit2,
   Layers,
   Loader2,
+  LogOut,
   Plus,
   RefreshCw,
   Search,
   Sparkles,
 } from 'lucide-react';
+import { authClient } from '@/lib/auth-client';
 import type { ProjectSummary } from '@/lib/studio/projects';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,27 +24,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { NewProjectDialog, type TemplateOption } from './NewProjectDialog';
 import { ProjectCard } from './ProjectCard';
 import type { PreferredMode } from '@/components/onboarding/types';
 
-export function DashboardClient({ templates }: { templates: TemplateOption[] }) {
+export function DashboardClient() {
   const router = useRouter();
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [newOpen, setNewOpen] = useState(false);
-  const [newProjectSeed, setNewProjectSeed] = useState<{
-    niche: string;
-    mode?: PreferredMode;
-  } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ProjectSummary | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  // Auto-open "New Site" at Step 2 right after onboarding hands off a niche match,
-  // e.g. `/?newProject=1&niche=...&mode=services`. Read via window.location (not
-  // useSearchParams) so this needs no Suspense boundary around the dashboard page.
+  // Route the onboarding hand-off (e.g. `/?newProject=1&niche=...&mode=services`)
+  // to the full-page create flow, carrying the niche/mode along to prefill Step 1.
+  // Read via window.location (not useSearchParams) so this needs no Suspense
+  // boundary around the dashboard page.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('newProject') !== '1') return;
@@ -50,17 +47,11 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
     const modeParam = params.get('mode');
     const mode: PreferredMode | undefined =
       modeParam === 'ecommerce' || modeParam === 'services' ? modeParam : undefined;
-    if (niche) {
-      setNewProjectSeed({ niche, mode });
-      setNewOpen(true);
-    }
-    router.replace('/', { scroll: false });
+    const qs = new URLSearchParams();
+    if (niche) qs.set('niche', niche);
+    if (mode) qs.set('mode', mode);
+    router.replace(`/create${qs.toString() ? `?${qs.toString()}` : ''}`, { scroll: false });
   }, [router]);
-
-  const handleNewOpenChange = useCallback((next: boolean) => {
-    setNewOpen(next);
-    if (!next) setNewProjectSeed(null);
-  }, []);
 
   const load = useCallback(async () => {
     setError(null);
@@ -138,7 +129,7 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
           <div className="flex items-center gap-2">
             <span className="flex h-6 items-center gap-1.5 rounded-full border border-border/80 bg-muted/30 px-2.5 text-[11px] font-semibold tracking-wide text-foreground">
               <Sparkles className="h-3 w-3 text-primary" />
-              Studio Dashboard
+              Site Studio
             </span>
             {projects && projects.length > 0 && (
               <span className="text-xs text-muted-foreground">
@@ -146,7 +137,7 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
               </span>
             )}
           </div>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             Sites & Digital Properties
           </h1>
           <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
@@ -156,9 +147,19 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
 
         <div className="flex items-center gap-2">
           <Button
-            onClick={() => setNewOpen(true)}
-            className="h-9 gap-1.5 px-4 shadow-sm"
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              await authClient.signOut();
+              router.push('/sign-in');
+              router.refresh();
+            }}
+            className="h-9 gap-1.5 px-3 text-xs"
           >
+            <LogOut className="h-3.5 w-3.5" />
+            <span>Sign out</span>
+          </Button>
+          <Button onClick={() => router.push('/create')} className="h-9 gap-1.5 px-4 shadow-sm">
             <Plus className="h-4 w-4" />
             <span>New Site</span>
           </Button>
@@ -167,7 +168,7 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
 
       {/* Global Error Banner */}
       {error && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-xs text-destructive">
           <span className="inline-flex items-center gap-2">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {error}
@@ -175,7 +176,7 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
           <button
             type="button"
             onClick={() => void load()}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium hover:bg-red-500/15 transition-colors"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium hover:bg-destructive/15 transition-colors"
           >
             <RefreshCw className="h-3 w-3" />
             Retry
@@ -184,7 +185,7 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
       )}
 
       {/* Filter / Search Bar if projects exist */}
-      {!loading && !empty && projects.length > 2 && (
+      {!loading && !empty && (
         <div className="flex items-center justify-between gap-3">
           <div className="relative w-full max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -204,7 +205,7 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-[170px] animate-pulse rounded-xl border border-border/60 bg-card/40"
+              className="h-[170px] animate-pulse rounded-xl border border-border/60 bg-card"
             />
           ))}
         </div>
@@ -212,7 +213,7 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
 
       {/* Empty State */}
       {empty && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-card/20 px-6 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 bg-card px-6 py-16 text-center shadow-sm">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-muted/40 text-muted-foreground shadow-sm">
             <Layers className="h-6 w-6 text-foreground/70" />
           </div>
@@ -221,7 +222,7 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
             Launch your first site in seconds. Choose from 6 curated archetypes (SaaS, Agency, Luxury, Services, Store, Local Business) with ready-made niche starter kits.
           </p>
 
-          <Button className="mt-6 gap-1.5 shadow-sm" onClick={() => setNewOpen(true)}>
+          <Button className="mt-6 gap-1.5 shadow-sm" onClick={() => router.push('/create')}>
             <Plus className="h-4 w-4" />
             Create Your First Site
           </Button>
@@ -251,16 +252,6 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
         </>
       )}
 
-      {/* Archetype & Starter Set Picker Dialog */}
-      <NewProjectDialog
-        templates={templates}
-        open={newOpen}
-        onOpenChange={handleNewOpenChange}
-        skipToStep2={newProjectSeed !== null}
-        initialNiche={newProjectSeed?.niche}
-        initialMode={newProjectSeed?.mode}
-      />
-
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteTarget !== null}
@@ -268,7 +259,7 @@ export function DashboardClient({ templates }: { templates: TemplateOption[] }) 
           if (!open && !deleting) setDeleteTarget(null);
         }}
       >
-        <DialogContent className="border-border/80 bg-background/95 shadow-2xl backdrop-blur-xl sm:max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-base font-semibold text-foreground">
               Delete Site

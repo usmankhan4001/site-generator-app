@@ -21,7 +21,7 @@ export default async function AdminProjectsPage() {
   return (
     <div>
       <header className="mb-8">
-        <h1 className="text-xl font-semibold tracking-tight">Projects</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {rows.length} {rows.length === 1 ? 'project' : 'projects'} across all clients.
         </p>
