@@ -82,13 +82,13 @@ export const SECTION_FIELDS: Partial<Record<SectionType, FieldSpec[]>> = {
     { kind: 'text', key: 'description' },
     { kind: 'text', key: 'discountBadge' },
     { kind: 'text', key: 'footnote' },
-    { kind: 'objects', key: 'tiers', itemKeys: ['name', 'description', 'badge'] },
+    { kind: 'objects', key: 'tiers', itemKeys: ['name', 'description', 'badge', 'features'] },
   ],
   productGrid: [
     { kind: 'text', key: 'eyebrow' },
     { kind: 'text', key: 'title' },
     { kind: 'text', key: 'description' },
-    { kind: 'objects', key: 'items', itemKeys: ['name', 'description', 'category'] },
+    { kind: 'objects', key: 'items', itemKeys: ['name', 'description', 'category', 'features'] },
   ],
   testimonials: [
     { kind: 'text', key: 'eyebrow' },
@@ -156,7 +156,14 @@ export const SECTION_FIELDS: Partial<Record<SectionType, FieldSpec[]>> = {
     { kind: 'text', key: 'description' },
     { kind: 'strings', key: 'locations' },
   ],
-  contactPanel: [{ kind: 'text', key: 'submitLabel' }],
+  contactPanel: [
+    { kind: 'text', key: 'eyebrow' },
+    { kind: 'text', key: 'title' },
+    { kind: 'text', key: 'subtitle' },
+    { kind: 'text', key: 'description' },
+    { kind: 'text', key: 'submitLabel' },
+    { kind: 'strings', key: 'inquiryOptions' },
+  ],
 };
 
 /* ============================================================================
@@ -182,6 +189,7 @@ async function chatCompletion(opts: {
   system: string;
   user: string;
   model?: string;
+  maxTokens?: number;
 }): Promise<string> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 60_000);
@@ -201,7 +209,7 @@ async function chatCompletion(opts: {
           { role: 'user', content: opts.user },
         ],
         temperature: 0.85,
-        max_tokens: 2000,
+        max_tokens: opts.maxTokens ?? 2000,
       }),
       signal: controller.signal,
     });
@@ -232,9 +240,17 @@ export async function structuredCompletion(opts: {
   system: string;
   user: string;
   model?: string;
+  maxTokens?: number;
 }): Promise<Record<string, unknown>> {
   const raw = await chatCompletion(opts);
-  return extractJson(raw);
+  try {
+    return extractJson(raw);
+  } catch (err) {
+    throw new Error(
+      `AI response could not be parsed as JSON (${(err as Error).message}). It may have been cut off — try again` +
+        `${opts.maxTokens ? '' : ' with a higher maxTokens'}.`,
+    );
+  }
 }
 
 /** Crudely extract the largest JSON object from a model response. */

@@ -30,12 +30,37 @@ export async function POST(req: Request) {
     mode?: unknown;
     vibe?: unknown;
     brief?: unknown;
+    themeId?: unknown;
+    business?: unknown;
   };
   if (typeof brief.niche !== 'string' || !brief.niche.trim()) {
     return NextResponse.json({ error: 'brief.niche is required' }, { status: 400 });
   }
   if (body.archetypeId !== undefined && !isArchetypeId(body.archetypeId)) {
     return NextResponse.json({ error: 'Unknown archetypeId' }, { status: 400 });
+  }
+
+  const BUSINESS_KEYS = [
+    'legalName',
+    'registrationNumber',
+    'jurisdiction',
+    'governingLaw',
+    'registeredAddress',
+    'email',
+    'phone',
+    'website',
+    'taxId',
+    'asNumber',
+    'supportHours',
+  ] as const;
+
+  let business: Record<string, string> | undefined;
+  if (brief.business && typeof brief.business === 'object' && !Array.isArray(brief.business)) {
+    business = {};
+    const raw = brief.business as Record<string, unknown>;
+    for (const key of BUSINESS_KEYS) {
+      if (typeof raw[key] === 'string') business[key] = raw[key] as string;
+    }
   }
 
   try {
@@ -46,6 +71,8 @@ export async function POST(req: Request) {
         mode: typeof brief.mode === 'string' ? brief.mode : undefined,
         vibe: typeof brief.vibe === 'string' ? brief.vibe : undefined,
         brief: typeof brief.brief === 'string' ? brief.brief : undefined,
+        themeId: typeof brief.themeId === 'string' ? brief.themeId : undefined,
+        business,
       },
       archetypeId: body.archetypeId,
     });

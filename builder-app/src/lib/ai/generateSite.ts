@@ -11,19 +11,22 @@
  *  - The model only writes copy: a structured plan of per-page, per-section
  *    text-field patches, validated against `SECTION_FIELDS` allow-lists.
 
- *  - We START from `createSiteContentFromArchetype(archetypeId, null)` (the
- *    blank blueprint) so every page/section/nav/footer/policy is already a valid
- *    `SiteContent`; we then overlay the chosen theme/logo/images, the AI copy,
- *    the business identity and meta. This keeps the result schema-valid by
- *    construction.
+ *  - We START from `createSiteContentFromArchetype(archetypeId, starterSetId)`
+ *    (the best-matching starter set for the brief, or the archetype's blank
+ *    blueprint when nothing matches) so every page/section/nav/footer/policy
+ *    is already a valid `SiteContent`; we then overlay the chosen theme/logo/
+ *    images, the AI copy, the business identity and meta — and rebuild the
+ *    policy pages from that final business info. This keeps the result
+ *    schema-valid by construction.
  *
  * Server-only: resolves the OpenRouter key server-side, never in the browser.
  */
 
-import type { SiteContent, Section, SectionType } from '@/site/schema';
+import type { BusinessInfo, SiteContent, Section, SectionType } from '@/site/schema';
 import type { ArchetypeId } from '@/site/archetypes/types';
 import { ARCHETYPES } from '@/site/archetypes';
 import { createSiteContentFromArchetype } from '@/site/archetypes/compose';
+import { buildPolicyPage } from '@/site/archetypes/policies';
 import { diversifyImages } from '@/site/lib/diversifyImages';
 import { catalogFor, buildCatalogText } from '@/lib/ai/catalog';
 import {
@@ -32,6 +35,7 @@ import {
   pickImagesForBrief,
 } from '@/lib/ai/assetPicker';
 import { recommendArchetypes } from '@/lib/studio/recommend';
+import { THEMES_LIST } from '@/site/themes';
 import {
   getOpenRouterKey,
   isConfiguredKey,
@@ -51,6 +55,10 @@ export interface GenerateBrief {
   vibe?: string;
   /** Optional additional context/instructions from user brief. */
   brief?: string;
+  /** Explicit theme id chosen on the style step — overrides the automatic pick. */
+  themeId?: string;
+  /** Business/legal details collected on the details step. Blank fields are ignored. */
+  business?: Partial<Omit<BusinessInfo, 'name' | 'shortName'>>;
 }
 
 export interface GenerateSiteInput {
@@ -145,6 +153,19 @@ function applySectionPatch(
   return filtered;
 }
 
+/** Sync every contactPanel's support-hours line to the real business info — the
+ * AI never sees `business.supportHours` (applied after copy generation), so
+ * without this it would keep whatever the starter set's seed hours said. */
+function syncContactSupportHours(site: SiteContent, supportHours?: string): void {
+  if (!supportHours?.trim()) return;
+  for (const page of site.pages) {
+    for (const section of page.sections) {
+      if (section.type !== 'contactPanel') continue;
+      (section as unknown as { props: Record<string, unknown> }).props.supportHours = supportHours;
+    }
+  }
+}
+
 /** Assign the picker-chosen images to hero / feature / product / prose slots. */
 function applyPickedImages(site: SiteContent, images: string[]): void {
   if (!images.length) return;
@@ -201,14 +222,26 @@ export async function generateSiteFromBrief({
     throw err;
   }
 
-  // 1. Resolve the archetype — explicit id wins, else recommend from the brief.
+  // 1. Resolve the archetype + starter set from the FULL free-text brief (name,
+  // niche and the user's own description all feed the keyword match) — explicit
+  // archetypeId wins for the archetype, but the best-matching starter set for
+  // that archetype is still picked from the brief so the site starts from
+  // niche-appropriate defaults instead of always the archetype's first pack.
+
+  const nicheQuery = [brief.name, brief.niche, brief.brief].filter((s) => s?.trim()).join('. ');
+  const recs = recommendArchetypes({ niche: nicheQuery, preferredMode: brief.mode });
 
   let resolvedArchetypeId = archetypeId;
+  let resolvedStarterSetId: string | null = null;
 
   if (!resolvedArchetypeId) {
-    const recs = recommendArchetypes({ niche: brief.niche, preferredMode: brief.mode });
     resolvedArchetypeId = recs[0]?.archetypeId ?? 'saas';
+    resolvedStarterSetId = recs[0]?.starterSetId ?? null;
+  } else {
+    resolvedStarterSetId =
+      recs.find((r) => r.archetypeId === resolvedArchetypeId && r.starterSetId)?.starterSetId ?? null;
   }
+
   const arch = ARCHETYPES[resolvedArchetypeId];
   if (!arch) throw new Error(`Unknown archetype: ${resolvedArchetypeId}`);
 
@@ -225,7 +258,10 @@ export async function generateSiteFromBrief({
 
 
   const seed = `${brief.name || ''}:${brief.niche || ''}:${brief.brief || ''}`.trim() || resolvedArchetypeId;
-  const theme = pickThemeForNiche(resolvedArchetypeId, seed);
+  const explicitTheme = brief.themeId && THEMES_LIST.some((t) => t.id === brief.themeId) ? brief.themeId : undefined;
+  const theme = explicitTheme
+    ? { themeId: explicitTheme, accent: THEMES_LIST.find((t) => t.id === explicitTheme)!.preview.accent }
+    : pickThemeForNiche(resolvedArchetypeId, seed);
   const logo = pickLogoForNiche(brief.niche, brief.vibe);
   const images = pickImagesForBrief(resolvedArchetypeId, seed, 6);
 
@@ -240,6 +276,7 @@ export async function generateSiteFromBrief({
     '- Keep the tone professional, specific and confident — never generic or buzzwordy.',
     '- Ground every claim in the business brief and additional context; never invent hard numbers the user did not supply.',
     '- Keep legal/brand nouns (exact business name, registration details) untouched.',
+    '- For list fields inside repeated items (e.g. a product/tier\'s "features"), write every item fully — a leftover unrelated value is worse than a shorter, on-topic one. Never leave a field that reads as a different, unrelated business or industry.',
     'Output ONLY a JSON object with exactly this shape:',
     '{',
     '  "pages": {',
@@ -273,14 +310,16 @@ export async function generateSiteFromBrief({
     'Write the copy for every section on every page and return a JSON object per the schema.',
   ].filter((line) => line !== undefined && line !== null).join('\n');
 
-  const plan = await structuredCompletion({ apiKey, system, user, model });
+  // A full multi-page, multi-section copy plan is much larger than a single
+  // section rewrite — undersizing this truncates the JSON mid-response.
+  const plan = await structuredCompletion({ apiKey, system, user, model, maxTokens: 8000 });
   const pagesPlan = isPlainObject(plan.pages) ? (plan.pages as Record<string, unknown>) : {};
 
   // 5. Compose from the blank archetype blueprint (already schema-valid).
 
 
 
-  const content = createSiteContentFromArchetype(resolvedArchetypeId, null);
+  const content = createSiteContentFromArchetype(resolvedArchetypeId, resolvedStarterSetId);
 
   // 6. Apply the AI copy per section via the allow-list safe merge.
 
@@ -313,6 +352,37 @@ export async function generateSiteFromBrief({
   };
   content.brand = { ...content.brand, logoText: brand };
   content.meta = { ...content.meta, title: brand };
+
+  // Overlay the business/legal details collected on the details step. Only
+  // non-blank fields are applied so an untouched field keeps the starter
+  // set's (or placeholder's) existing value instead of being blanked out.
+  const bd = brief.business;
+  if (bd) {
+    const overlay: Partial<BusinessInfo> = {};
+    if (bd.legalName?.trim()) overlay.legalName = bd.legalName.trim();
+    if (bd.registrationNumber?.trim()) overlay.registrationNumber = bd.registrationNumber.trim();
+    if (bd.jurisdiction?.trim()) overlay.jurisdiction = bd.jurisdiction.trim();
+    if (bd.governingLaw?.trim()) overlay.governingLaw = bd.governingLaw.trim();
+    else if (bd.jurisdiction?.trim()) overlay.governingLaw = `the laws of ${bd.jurisdiction.trim()}`;
+    if (bd.registeredAddress?.trim()) overlay.registeredAddress = bd.registeredAddress.trim();
+    if (bd.email?.trim()) overlay.email = bd.email.trim();
+    if (bd.phone?.trim()) overlay.phone = bd.phone.trim();
+    if (bd.website?.trim()) overlay.website = bd.website.trim();
+    if (bd.taxId?.trim()) overlay.taxId = bd.taxId.trim();
+    if (bd.asNumber?.trim()) overlay.asNumber = bd.asNumber.trim();
+    if (bd.supportHours?.trim()) overlay.supportHours = bd.supportHours.trim();
+    content.business = { ...content.business, ...overlay };
+  }
+
+  // The policy pages (privacy/terms/refund/shipping) are plain prose strings
+  // interpolated from `business` at compose time — before the brand + details
+  // overlay above ran, so they'd otherwise still name the starter set's
+  // placeholder entity. Rebuild them now from the final, real business info.
+  for (const slug of arch.composition.policies) {
+    const idx = content.pages.findIndex((p) => p.key === `policy:${slug}`);
+    if (idx !== -1) content.pages[idx] = buildPolicyPage(slug, content.business);
+  }
+  syncContactSupportHours(content, content.business.supportHours);
 
   const metaPlan = isPlainObject(plan.meta) ? (plan.meta as Record<string, unknown>) : {};
   if (typeof metaPlan.description === 'string' && metaPlan.description.trim()) {
