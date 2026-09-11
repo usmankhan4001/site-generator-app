@@ -94,7 +94,7 @@ export const SECTION_FIELDS: Partial<Record<SectionType, FieldSpec[]>> = {
     { kind: 'text', key: 'eyebrow' },
     { kind: 'text', key: 'title' },
     { kind: 'text', key: 'description' },
-    { kind: 'objects', key: 'items', itemKeys: ['text', 'name', 'role', 'company', 'metricLabel'] },
+    { kind: 'objects', key: 'items', itemKeys: ['text', 'name', 'role', 'company', 'metric', 'metricLabel'] },
   ],
   faq: [
     { kind: 'text', key: 'eyebrow' },

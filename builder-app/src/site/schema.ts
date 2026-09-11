@@ -560,11 +560,18 @@ export interface TestimonialsProps extends SectionHeading {
 
 /* ------------------------------------------------------------------- Faq -- */
 
+/** Multi-layout architecture variant: accordion, two_column, grid_cards. */
+export type FaqVariant = 'accordion' | 'two_column' | 'grid_cards';
+
 export interface FaqProps extends SectionHeading {
   items: Faq[];
+  variant?: FaqVariant;
 }
 
 /* ------------------------------------------------------------- CtaBanner -- */
+
+/** Multi-layout architecture variant: centered, split_visual, gradient_banner. */
+export type CtaBannerVariant = 'centered' | 'split_visual' | 'gradient_banner';
 
 export interface CtaBannerProps {
   headline: string;
@@ -572,6 +579,9 @@ export interface CtaBannerProps {
   primaryCta?: CtaLink;
   secondaryCta?: CtaLink;
   guarantee?: string;
+  variant?: CtaBannerVariant;
+  /** Picker-assigned visual for `split_visual` — never AI-written. */
+  image?: string;
 }
 
 /* ------------------------------------------------------------ PageHeader -- */

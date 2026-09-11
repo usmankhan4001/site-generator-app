@@ -108,12 +108,17 @@ const OPTIONAL_SECTION_TYPES = new Set<SectionType>([
  * not weak components, but structural sameness never reaching them.
  * (`lead_form` is intentionally excluded from hero — it needs real lead-form
  * copy the AI doesn't write yet, so picking it would show generic fallback
- * text; safe to add once that's writable.)
+ * text; safe to add once that's writable. `rating_masonry` is excluded from
+ * testimonials for the same reason — its review-count/rating summary isn't
+ * AI-writable, so picking it would show a made-up "520+ reviews" figure.)
  */
 const VARIANT_OPTIONS: Partial<Record<SectionType, string[]>> = {
   hero: ['split', 'centered', 'stacked', 'editorial', 'fullbleed_display', 'stats_banner_split', 'asymmetric_bento_collage'],
   featureGrid: ['even', 'asymmetric_bento', 'sticky_scroll', 'tabbed_showcase', 'zigzag_rows'],
   pricingTiers: ['cards', 'glow_card_deck', 'comparison_table', 'custom_quote_service'],
+  testimonials: ['cards', 'infinite_marquee', 'editorial_pullquote'],
+  faq: ['accordion', 'two_column', 'grid_cards'],
+  ctaBanner: ['centered', 'split_visual', 'gradient_banner'],
 };
 
 /**
@@ -243,6 +248,11 @@ function applyPickedImages(site: SiteContent, images: string[]): void {
         case 'prose':
           if (!p.image) p.image = next();
           break;
+        case 'ctaBanner':
+          // Only the split_visual variant renders an image — don't spend a
+          // picked image on centered/gradient_banner, which never show one.
+          if (p.variant === 'split_visual' && !p.image) p.image = next();
+          break;
         default:
           break;
       }
@@ -337,6 +347,9 @@ export async function generateSiteFromBrief({
     `    hero: ${VARIANT_OPTIONS.hero!.join(', ')} — split: classic two-column copy + image, most businesses. centered: copy-only, no strong image. stacked: full-width banner image with copy below, product/place-led businesses. editorial: large display type, upmarket/premium/editorial brands. fullbleed_display: full-bleed video/image opener, businesses with a striking visual or demo. stats_banner_split: headline plus a 4-metric grid, businesses with real quantifiable numbers to lead with. asymmetric_bento_collage: multi-image collage, visual/image-rich products or spaces.`,
     `    featureGrid: ${VARIANT_OPTIONS.featureGrid!.join(', ')} — even: uniform card grid, many roughly-equal features. asymmetric_bento: one large flagship feature plus smaller ones, when one capability leads. sticky_scroll: narrative left panel + detailed right-hand cards, a handful of features that need real explanation. tabbed_showcase: switchable tabs, distinct audiences or use-cases. zigzag_rows: alternating large-image rows, features that each deserve a big illustrative image.`,
     `    pricingTiers: ${VARIANT_OPTIONS.pricingTiers!.join(', ')} — cards: plain tier cards, straightforward fixed pricing. glow_card_deck: highlighted recommended tier with monthly/annual toggle, subscription SaaS. comparison_table: full feature-by-feature matrix, tiers that differ across many concrete features worth comparing side by side. custom_quote_service: bespoke package tiles, B2B/bespoke engagements without fixed public pricing.`,
+    `    testimonials: ${VARIANT_OPTIONS.testimonials!.join(', ')} — cards: even grid of quotes, several testimonials of similar weight. infinite_marquee: continuously scrolling dual rows, many short quotes to convey volume of praise. editorial_pullquote: one large featured quote with portrait, a single standout endorsement worth spotlighting (optionally with a real "metric" value if the business actually gave you one — never invent a number here).`,
+    `    faq: ${VARIANT_OPTIONS.faq!.join(', ')} — accordion: single collapsible list, a handful of questions. two_column: split into two accordion columns, a longer question list. grid_cards: every question and answer visible at once, a short list where showing everything upfront reads as confident and transparent.`,
+    `    ctaBanner: ${VARIANT_OPTIONS.ctaBanner!.join(', ')} — centered: plain centred closer, most businesses. split_visual: copy left with a supporting image right, visual/image-led businesses (an image is only shown if one is available — fine to pick regardless). gradient_banner: bold full-bleed colour band, a punchier high-energy closer.`,
     '  Every section type not listed here has only one layout — never add "variant" to those.',
     'Output ONLY a JSON object with exactly this shape:',
     '{',
