@@ -99,6 +99,7 @@ export function ExportHostModal({
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformOption>(PLATFORMS[0]);
   const [downloading, setDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -113,20 +114,33 @@ export function ExportHostModal({
 
   const exportUrl = `/api/projects/${projectId}/export`;
 
-  const handleDownloadAndGuide = () => {
+  const handleDownload = async () => {
     setDownloading(true);
-    // Trigger download
-    const link = document.createElement('a');
-    link.href = exportUrl;
-    link.download = `${projectName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-source.zip`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    setTimeout(() => {
-      setDownloading(false);
+    setDownloadError(null);
+    setDownloadSuccess(false);
+    try {
+      const res = await fetch(exportUrl);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Export failed (${res.status})`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const filename = `${projectName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-source.zip`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       setDownloadSuccess(true);
-    }, 1200);
+    } catch (err) {
+      console.error('[export] error:', err);
+      setDownloadError(err instanceof Error ? err.message : 'Export failed');
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -249,14 +263,15 @@ export function ExportHostModal({
                 </div>
               </div>
 
-              <a
-                href={exportUrl}
-                download
-                className="inline-flex items-center gap-1.5 rounded-xl bg-background border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-accent shadow-xs"
+              <button
+                type="button"
+                onClick={handleDownload}
+                disabled={downloading}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-background border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-accent shadow-xs disabled:opacity-50"
               >
                 <Download className="h-3.5 w-3.5" />
-                <span>Download .zip</span>
-              </a>
+                <span>{downloading ? 'Exporting...' : 'Download .zip'}</span>
+              </button>
             </div>
           </div>
 
@@ -318,13 +333,20 @@ export function ExportHostModal({
                   <span>Source package downloaded! Open the guide below to complete deployment.</span>
                 </div>
               )}
+
+              {downloadError && (
+                <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                  <X className="h-4 w-4 shrink-0" />
+                  <span>{downloadError}</span>
+                </div>
+              )}
             </div>
 
             {/* Bottom Actions */}
             <div className="pt-6 space-y-2">
               <Button
                 size="lg"
-                onClick={handleDownloadAndGuide}
+                onClick={handleDownload}
                 disabled={downloading}
                 className="w-full gap-2 rounded-xl text-xs font-semibold shadow-md"
               >

@@ -67,16 +67,25 @@ export function ProjectCard({
     setExporting(true);
     setMenuOpen(false);
     try {
+      const res = await fetch(`/api/projects/${project.id}/export`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Export failed (${res.status})`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = `/api/projects/${project.id}/export`;
+      link.href = url;
       link.download = `${project.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-source.zip`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch {
-      console.error('Export failed');
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed', err);
+      alert(err instanceof Error ? err.message : 'Export failed');
     } finally {
-      setTimeout(() => setExporting(false), 1000);
+      setExporting(false);
     }
   }
 

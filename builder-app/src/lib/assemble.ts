@@ -28,19 +28,20 @@ export interface AssembleSiteOptions {
 
 function resolveTemplateRoot(): string {
   const candidates = [
-    resolve(process.cwd(), '../template'),
     resolve(process.cwd(), 'template'),
+    resolve(process.cwd(), '../template'),
     resolve(process.cwd(), '../../template'),
     resolve(__dirname, '../../../template'),
     resolve(__dirname, '../../template'),
     resolve(__dirname, '../template'),
+    resolve(__dirname, 'template'),
   ];
   for (const c of candidates) {
     if (existsSync(c) && existsSync(join(c, 'package.json'))) {
       return c;
     }
   }
-  return resolve(process.cwd(), '../template');
+  return resolve(process.cwd(), 'template');
 }
 
 function resolveSiteKitSrc(): string {

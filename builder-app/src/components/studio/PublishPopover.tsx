@@ -41,12 +41,39 @@ export function PublishPopover() {
     error?: string;
   } | null>(null);
   const [savingDomain, setSavingDomain] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   // Checkout URL for demo-mode callout
   const [checkoutUrlInput, setCheckoutUrlInput] = useState(
     content?.airwallexCheckoutUrl ?? '',
   );
   const [savingCheckoutUrl, setSavingCheckoutUrl] = useState(false);
+
+  async function handleExport() {
+    if (!meta) return;
+    setExporting(true);
+    try {
+      const res = await fetch(`/api/projects/${meta.id}/export`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Export failed (${res.status})`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${(content?.business?.name || meta.name || 'site').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-source.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed', err);
+      alert(err instanceof Error ? err.message : 'Export failed');
+    } finally {
+      setExporting(false);
+    }
+  }
 
   // Airwallex onboarding readiness — computed live from the site content.
   const airwallexAudit = content ? auditAirwallexReadiness(content) : null;
@@ -430,14 +457,19 @@ export function PublishPopover() {
       {/* ── Secondary actions ─────────────────────────────────────────── */}
 
       {/* Export zip — quiet secondary */}
-      <a
-        href={`/api/projects/${meta.id}/export`}
-        download
-        className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-xs text-muted-foreground shadow-sm transition-colors hover:bg-muted/50 hover:text-foreground"
+      <button
+        type="button"
+        onClick={handleExport}
+        disabled={exporting}
+        className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-xs text-muted-foreground shadow-sm transition-colors hover:bg-muted/50 hover:text-foreground disabled:opacity-50"
       >
-        <Download className="h-3.5 w-3.5 shrink-0" />
-        Export source (.zip)
-      </a>
+        {exporting ? (
+          <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
+        ) : (
+          <Download className="h-3.5 w-3.5 shrink-0" />
+        )}
+        {exporting ? 'Exporting source...' : 'Export source (.zip)'}
+      </button>
 
       {/* Need more options? → guides */}
       <Link
