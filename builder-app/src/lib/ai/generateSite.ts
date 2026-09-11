@@ -33,6 +33,7 @@ import {
   pickThemeForNiche,
   pickLogoForNiche,
   pickImagesForBrief,
+  hashStr,
 } from '@/lib/ai/assetPicker';
 import { recommendArchetypes } from '@/lib/studio/recommend';
 import { THEMES_LIST } from '@/site/themes';
@@ -94,6 +95,34 @@ const OPTIONAL_SECTION_TYPES = new Set<SectionType>([
   'slaTable',
   'locationList',
 ]);
+
+/**
+ * Curated, render-safe layout variants per section type. Each component
+ * already implements every one of these (hero/featureGrid/pricingTiers are
+ * multi-variant components) — but nothing in the generation path ever chose
+ * among them: hero's variant was a fixed per-archetype switch, featureGrid's
+ * was a fixed per-archetype grid-style lookup, and pricingTiers defaulted to
+ * "cards" unless one specific starter set happened to be used. The result:
+ * every business landing in the same archetype rendered byte-identical
+ * layouts. This is the actual mechanism behind "every site looks generic" —
+ * not weak components, but structural sameness never reaching them.
+ * (`lead_form` is intentionally excluded from hero — it needs real lead-form
+ * copy the AI doesn't write yet, so picking it would show generic fallback
+ * text; safe to add once that's writable.)
+ */
+const VARIANT_OPTIONS: Partial<Record<SectionType, string[]>> = {
+  hero: ['split', 'centered', 'stacked', 'editorial', 'fullbleed_display', 'stats_banner_split', 'asymmetric_bento_collage'],
+  featureGrid: ['even', 'asymmetric_bento', 'sticky_scroll', 'tabbed_showcase', 'zigzag_rows'],
+  pricingTiers: ['cards', 'glow_card_deck', 'comparison_table', 'custom_quote_service'],
+};
+
+/**
+ * Deterministic fallback pick so layout diversity never depends on the model
+ * remembering to choose — mirrors `pickThemeForNiche`'s seeded-hash approach.
+ */
+function pickVariant(options: string[], seed: string): string {
+  return options[hashStr(seed) % options.length];
+}
 
 /* ============================================================================
  * Small local helpers
@@ -304,11 +333,16 @@ export async function generateSiteFromBrief({
     '- For list fields inside repeated items (e.g. a product/tier\'s "features"), write every item fully — a leftover unrelated value is worse than a shorter, on-topic one. Never leave a field that reads as a different, unrelated business or industry.',
     '- Make this site feel built specifically for THIS business, not a generic template: lean on concrete facts from the brief (services offered, location, experience, credentials, what makes it distinct) rather than filler that could apply to any company.',
     `- Some section types are OPTIONAL and may be turned off per business: ${[...OPTIONAL_SECTION_TYPES].join(', ')}. For any of these, you may add "enabled": false alongside its fields to omit it from that page — do this only when the section genuinely doesn't fit (e.g. skip "pricingTiers" if public pricing wasn't mentioned, skip "testimonials" with none to draw on, skip "faq" for a one-line service). Every other section type is required and always shown; never add "enabled" to those. Don't disable sections purely for variety, and never disable every optional section on the same page — the goal is a page shaped around what this specific business actually has to say, not a shorter page.`,
+    `- Some section types have several visual layout variants of EQUAL quality — none of them is a fallback or default, each just suits different content. Actively choose the one that best fits THIS specific business by adding "variant": "<value>" alongside its fields. Two different businesses should usually end up with two different choices here — picking the same familiar layout out of caution is the wrong instinct; only reuse a layout across businesses when it's genuinely the better fit both times, not out of habit.`,
+    `    hero: ${VARIANT_OPTIONS.hero!.join(', ')} — split: classic two-column copy + image, most businesses. centered: copy-only, no strong image. stacked: full-width banner image with copy below, product/place-led businesses. editorial: large display type, upmarket/premium/editorial brands. fullbleed_display: full-bleed video/image opener, businesses with a striking visual or demo. stats_banner_split: headline plus a 4-metric grid, businesses with real quantifiable numbers to lead with. asymmetric_bento_collage: multi-image collage, visual/image-rich products or spaces.`,
+    `    featureGrid: ${VARIANT_OPTIONS.featureGrid!.join(', ')} — even: uniform card grid, many roughly-equal features. asymmetric_bento: one large flagship feature plus smaller ones, when one capability leads. sticky_scroll: narrative left panel + detailed right-hand cards, a handful of features that need real explanation. tabbed_showcase: switchable tabs, distinct audiences or use-cases. zigzag_rows: alternating large-image rows, features that each deserve a big illustrative image.`,
+    `    pricingTiers: ${VARIANT_OPTIONS.pricingTiers!.join(', ')} — cards: plain tier cards, straightforward fixed pricing. glow_card_deck: highlighted recommended tier with monthly/annual toggle, subscription SaaS. comparison_table: full feature-by-feature matrix, tiers that differ across many concrete features worth comparing side by side. custom_quote_service: bespoke package tiles, B2B/bespoke engagements without fixed public pricing.`,
+    '  Every section type not listed here has only one layout — never add "variant" to those.',
     'Output ONLY a JSON object with exactly this shape:',
     '{',
     '  "pages": {',
     '    "<pageKey>": {',
-    '      "<sectionType>": { "<field>": "<value>", ..., "enabled": true|false },',
+    '      "<sectionType>": { "<field>": "<value>", ..., "enabled": true|false, "variant": "<value>" },',
     '      ...',
     '    },',
     '    ...',
@@ -316,7 +350,7 @@ export async function generateSiteFromBrief({
     '  "meta": { "description": "..." },',
     '  "footer": { "tagline": "..." }',
     '}',
-    'Where <pageKey> is one of the page keys in the blueprint, <sectionType> is a section type in the catalog, and <field> is one of that section\'s writable text fields. "enabled" is optional and only meaningful for the optional section types listed above.',
+    'Where <pageKey> is one of the page keys in the blueprint, <sectionType> is a section type in the catalog, and <field> is one of that section\'s writable text fields. "enabled" and "variant" are both optional and only meaningful for the section types called out above.',
     'Write copy for every section on every page. Do not include keys that are not listed.',
   ].join('\n');
 
@@ -355,17 +389,31 @@ export async function generateSiteFromBrief({
     const pagePlan = isPlainObject(pagesPlan[page.key]) ? (pagesPlan[page.key] as Record<string, unknown>) : {};
     for (const section of page.sections) {
       const patch = isPlainObject(pagePlan[section.type]) ? (pagePlan[section.type] as Record<string, unknown>) : {};
+      const sec = section as unknown as { props: Record<string, unknown>; enabled: boolean };
 
       // Structural toggle: only optional section types may be switched off,
       // and only on the AI's say-so — this is what lets two businesses in the
       // same archetype end up with genuinely different pages instead of an
       // identical section list every time.
       if (OPTIONAL_SECTION_TYPES.has(section.type) && typeof patch.enabled === 'boolean') {
-        (section as unknown as { enabled: boolean }).enabled = patch.enabled;
+        sec.enabled = patch.enabled;
+      }
+
+      // Layout variant: always resolve for section types that have more than
+      // one, regardless of whether the model chose one — the AI's pick wins
+      // when it named a valid option, otherwise a seeded deterministic pick
+      // guarantees two businesses never end up with the same fixed layout
+      // just because they share an archetype.
+      const variantOptions = VARIANT_OPTIONS[section.type];
+      if (variantOptions) {
+        const aiVariant = typeof patch.variant === 'string' ? patch.variant : undefined;
+        sec.props.variant =
+          aiVariant && variantOptions.includes(aiVariant)
+            ? aiVariant
+            : pickVariant(variantOptions, `${seed}:${page.key}:${section.type}`);
       }
 
       if (Object.keys(patch).length === 0) continue;
-      const sec = section as unknown as { props: Record<string, unknown> };
       const merged = applySectionPatch(section.type, sec.props, patch);
       if (Object.keys(merged).length === 0) continue;
       sec.props = { ...sec.props, ...merged };

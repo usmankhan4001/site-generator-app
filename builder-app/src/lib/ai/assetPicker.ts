@@ -19,7 +19,7 @@ import { ARCHETYPES } from '@/site/archetypes';
  * Deterministic hashing (mirrors the approach in `imagePool.ts`)
  * ========================================================================== */
 
-function hashStr(input: string): number {
+export function hashStr(input: string): number {
   let h = 0;
   for (let i = 0; i < input.length; i++) {
     h = (h * 31 + input.charCodeAt(i)) >>> 0;
