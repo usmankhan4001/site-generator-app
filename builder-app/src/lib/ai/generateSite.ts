@@ -70,6 +70,31 @@ export interface GenerateSiteInput {
   model?: string;
 }
 
+/**
+ * Section types the AI may switch off per business — never the identity/entry
+ * section of a page (hero, pageHeader, contactPanel) or a structural section
+ * (corporateRegistration, policyDocument, checkout). Every archetype's every
+ * page opens with exactly one non-optional type, so disabling only from this
+ * list can never leave a page with zero enabled sections.
+ */
+const OPTIONAL_SECTION_TYPES = new Set<SectionType>([
+  'statsBar',
+  'trustBar',
+  'featureGrid',
+  'pricingTiers',
+  'productGrid',
+  'testimonials',
+  'faq',
+  'ctaBanner',
+  'prose',
+  'timeline',
+  'teamGrid',
+  'valueGrid',
+  'processSteps',
+  'slaTable',
+  'locationList',
+]);
+
 /* ============================================================================
  * Small local helpers
  * ========================================================================== */
@@ -277,11 +302,13 @@ export async function generateSiteFromBrief({
     '- Ground every claim in the business brief and additional context; never invent hard numbers the user did not supply.',
     '- Keep legal/brand nouns (exact business name, registration details) untouched.',
     '- For list fields inside repeated items (e.g. a product/tier\'s "features"), write every item fully — a leftover unrelated value is worse than a shorter, on-topic one. Never leave a field that reads as a different, unrelated business or industry.',
+    '- Make this site feel built specifically for THIS business, not a generic template: lean on concrete facts from the brief (services offered, location, experience, credentials, what makes it distinct) rather than filler that could apply to any company.',
+    `- Some section types are OPTIONAL and may be turned off per business: ${[...OPTIONAL_SECTION_TYPES].join(', ')}. For any of these, you may add "enabled": false alongside its fields to omit it from that page — do this only when the section genuinely doesn't fit (e.g. skip "pricingTiers" if public pricing wasn't mentioned, skip "testimonials" with none to draw on, skip "faq" for a one-line service). Every other section type is required and always shown; never add "enabled" to those. Don't disable sections purely for variety, and never disable every optional section on the same page — the goal is a page shaped around what this specific business actually has to say, not a shorter page.`,
     'Output ONLY a JSON object with exactly this shape:',
     '{',
     '  "pages": {',
     '    "<pageKey>": {',
-    '      "<sectionType>": { "<field>": "<value>", ... },',
+    '      "<sectionType>": { "<field>": "<value>", ..., "enabled": true|false },',
     '      ...',
     '    },',
     '    ...',
@@ -289,7 +316,7 @@ export async function generateSiteFromBrief({
     '  "meta": { "description": "..." },',
     '  "footer": { "tagline": "..." }',
     '}',
-    'Where <pageKey> is one of the page keys in the blueprint, <sectionType> is a section type in the catalog, and <field> is one of that section\'s writable text fields.',
+    'Where <pageKey> is one of the page keys in the blueprint, <sectionType> is a section type in the catalog, and <field> is one of that section\'s writable text fields. "enabled" is optional and only meaningful for the optional section types listed above.',
     'Write copy for every section on every page. Do not include keys that are not listed.',
   ].join('\n');
 
@@ -328,11 +355,27 @@ export async function generateSiteFromBrief({
     const pagePlan = isPlainObject(pagesPlan[page.key]) ? (pagesPlan[page.key] as Record<string, unknown>) : {};
     for (const section of page.sections) {
       const patch = isPlainObject(pagePlan[section.type]) ? (pagePlan[section.type] as Record<string, unknown>) : {};
+
+      // Structural toggle: only optional section types may be switched off,
+      // and only on the AI's say-so — this is what lets two businesses in the
+      // same archetype end up with genuinely different pages instead of an
+      // identical section list every time.
+      if (OPTIONAL_SECTION_TYPES.has(section.type) && typeof patch.enabled === 'boolean') {
+        (section as unknown as { enabled: boolean }).enabled = patch.enabled;
+      }
+
       if (Object.keys(patch).length === 0) continue;
       const sec = section as unknown as { props: Record<string, unknown> };
       const merged = applySectionPatch(section.type, sec.props, patch);
       if (Object.keys(merged).length === 0) continue;
       sec.props = { ...sec.props, ...merged };
+    }
+
+    // Defensive floor: every archetype's every page opens with a required
+    // (non-toggleable) section today, so this should never trigger — but if a
+    // future archetype ever breaks that invariant, never ship an empty page.
+    if (!page.sections.some((s) => (s as unknown as { enabled: boolean }).enabled)) {
+      (page.sections[0] as unknown as { enabled: boolean }).enabled = true;
     }
   }
 

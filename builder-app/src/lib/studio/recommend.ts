@@ -36,36 +36,147 @@ const STYLE_MAP: Record<string, ArchetypeId[]> = {
 const STOP_WORDS = new Set([
   'a',
   'about',
+  'after',
+  'again',
+  'all',
+  'also',
+  'am',
   'an',
   'and',
+  'any',
   'are',
   'as',
   'at',
   'be',
+  'been',
+  'being',
+  'both',
+  'but',
   'by',
+  'can',
+  'could',
+  'did',
+  'do',
+  'does',
+  'done',
+  'down',
+  'during',
+  'each',
+  'few',
+  'first',
   'for',
   'from',
+  'further',
+  'had',
+  'has',
+  'have',
+  'having',
+  'her',
+  'here',
+  'hers',
+  'him',
+  'his',
   'how',
   'i',
+  'id',
+  'ill',
+  'im',
   'in',
+  'into',
   'is',
   'it',
+  'its',
+  'ive',
+  'just',
+  'last',
+  'let',
+  'lets',
+  'may',
+  'me',
+  'might',
+  'mid',
+  'more',
+  'most',
+  'must',
   'my',
+  'new',
+  'no',
+  'nor',
+  'not',
+  'off',
   'of',
   'on',
+  'once',
+  'one',
+  'only',
   'or',
+  'other',
   'our',
+  'out',
+  'over',
+  'own',
+  'quite',
+  'really',
+  'second',
+  'shall',
+  'she',
+  'should',
+  'since',
+  'so',
+  'some',
+  'still',
+  'such',
+  'than',
   'that',
-  'the',
+  'their',
+  'theirs',
+  'them',
+  'then',
+  'there',
+  'these',
+  'they',
+  'third',
   'this',
+  'those',
+  'through',
   'to',
+  'too',
+  'two',
+  'under',
+  'up',
+  'very',
   'was',
   'we',
+  'were',
   'what',
+  'when',
+  'where',
+  'which',
+  'who',
+  'whom',
+  'whose',
+  'why',
+  'will',
   'with',
+  'would',
+  'yet',
   'you',
   'your',
 ]);
+
+/**
+ * Whether `needle` appears in `haystack` as a whole word/phrase — bounded by
+ * non-alphanumeric characters (or the string ends) on both sides, never as a
+ * fragment inside an unrelated word. Plain `.includes()` let short tokens
+ * like "am" or "no" match inside words like "team" or "homeware", producing
+ * false-positive archetype/starter-set matches unrelated to what the user
+ * actually typed.
+ */
+function containsWholeWord(haystack: string, needle: string): boolean {
+  if (!needle) return false;
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(?:^|[^a-z0-9])${escaped}(?:[^a-z0-9]|$)`, 'i').test(haystack);
+}
 
 function tokenize(text: string): string[] {
   return text
@@ -117,7 +228,7 @@ export function recommendArchetypes(
       // Substring check against keywords
       for (const kw of arch.keywords) {
         const kwLower = kw.toLowerCase();
-        if (nicheRaw.includes(kwLower) || kwLower.includes(nicheRaw)) {
+        if (containsWholeWord(nicheRaw, kwLower) || containsWholeWord(kwLower, nicheRaw)) {
           score += 35;
           matchedTokens.push(kw);
           break;
@@ -133,7 +244,7 @@ export function recommendArchetypes(
       ].join(' ');
 
       for (const token of userTokens) {
-        if (archSearchSpace.includes(token)) {
+        if (containsWholeWord(archSearchSpace, token)) {
           score += 15;
           if (!matchedTokens.includes(token)) {
             matchedTokens.push(token);
@@ -186,14 +297,14 @@ export function recommendArchetypes(
     // Niche & keyword matching against starter set tags & niche
     if (nicheRaw) {
       const setNicheLower = set.niche.toLowerCase();
-      if (nicheRaw.includes(setNicheLower) || setNicheLower.includes(nicheRaw)) {
+      if (containsWholeWord(nicheRaw, setNicheLower) || containsWholeWord(setNicheLower, nicheRaw)) {
         score += 45;
         matchedTokens.push(set.niche);
       }
 
       for (const tag of set.tags) {
         const tagLower = tag.toLowerCase();
-        if (nicheRaw.includes(tagLower) || tagLower.includes(nicheRaw)) {
+        if (containsWholeWord(nicheRaw, tagLower) || containsWholeWord(tagLower, nicheRaw)) {
           score += 30;
           if (!matchedTokens.includes(tag)) {
             matchedTokens.push(tag);
@@ -210,7 +321,7 @@ export function recommendArchetypes(
       ].join(' ');
 
       for (const token of userTokens) {
-        if (setSearchSpace.includes(token)) {
+        if (containsWholeWord(setSearchSpace, token)) {
           score += 20;
           if (!matchedTokens.includes(token)) {
             matchedTokens.push(token);
