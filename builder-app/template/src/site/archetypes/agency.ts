@@ -99,7 +99,7 @@ export const agency: ArchetypeMeta = {
     ],
     footer: { showLegalBar: true, showPaymentBadges: false },
   },
-  starterSetIds: ['agency-digital', 'agency-growth'],
+  starterSetIds: ['agency-digital', 'agency-growth', 'agency-brand-studio', 'agency-motion-house'],
 };
 
 export default agency;

@@ -21,6 +21,7 @@ import {
   Plus,
   Building2,
   PanelRightClose,
+  PanelRightOpen,
   ChevronDown,
   Download,
   Eye,
@@ -52,6 +53,7 @@ function relativeTime(from: number, now: number): string {
 
 interface FloatingToolbarProps {
   pagesOpen: boolean;
+  propertiesOpen?: boolean;
   onTogglePages: () => void;
   onOpenAddSection: () => void;
   onOpenBusinessProfile: () => void;
@@ -61,6 +63,7 @@ interface FloatingToolbarProps {
 
 export function TopBar({
   pagesOpen,
+  propertiesOpen = false,
   onTogglePages,
   onOpenAddSection,
   onOpenBusinessProfile,
@@ -344,10 +347,20 @@ export function TopBar({
           type="button"
           onClick={onToggleProperties}
           aria-label="Toggle properties panel"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          title="Section & Design Properties"
+          aria-pressed={propertiesOpen}
+          className={cn(
+            'inline-flex h-8 w-8 items-center justify-center rounded-xl transition-colors',
+            propertiesOpen
+              ? 'bg-primary/15 text-primary'
+              : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+          )}
+          title={propertiesOpen ? 'Hide Inspector Panel' : 'Open Inspector Panel'}
         >
-          <PanelRightClose className="h-4 w-4" />
+          {propertiesOpen ? (
+            <PanelRightClose className="h-4 w-4" />
+          ) : (
+            <PanelRightOpen className="h-4 w-4" />
+          )}
         </button>
       </div>
     </header>

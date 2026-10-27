@@ -140,7 +140,7 @@ const fashionCollection: CatalogItem[] = [
 export const luxuryFashionDtc: StarterContentSet = {
   id: 'luxury_fashion_dtc',
   archetype: 'luxury',
-  name: 'Aura Atelier Fashion',
+  name: 'Aura',
   description:
     'Direct-to-consumer French luxury fashion house specializing in limited-edition silk outerwear, Mongolian cashmere tailoring, and artisanal leather goods.',
   niche: 'Haute Couture & DTC Luxury Fashion',
@@ -159,8 +159,9 @@ export const luxuryFashionDtc: StarterContentSet = {
   accent: '#18181b',
   layoutSystem: 'atelier',
   business: {
-    name: 'Aura Atelier Haute Couture SAS',
-    shortName: 'Aura Atelier',
+    name: 'Aura',
+    legalName: 'Aura Atelier Haute Couture SAS',
+    shortName: 'Aura',
     registrationNumber: 'RCS Paris 849 203 194',
     jurisdiction: 'Paris, France (Chambre Syndicale de la Haute Couture affiliate)',
     governingLaw: 'the laws of France (Tribunal de Commerce de Paris)',
@@ -172,7 +173,7 @@ export const luxuryFashionDtc: StarterContentSet = {
     supportHours: 'Lundi – Samedi, 10:00 – 19:30 (CET)',
   },
   brand: {
-    logoText: 'Aura Atelier',
+    logoText: 'Aura',
   },
   header: {
     variant: 'editorial_centered',
@@ -188,7 +189,7 @@ export const luxuryFashionDtc: StarterContentSet = {
     href: '/catalog',
   },
   meta: {
-    title: 'Aura Atelier Paris — Maison de Haute Couture & Ready-to-Wear',
+    title: 'Aura — Maison de Haute Couture & Ready-to-Wear',
     description:
       'Artisanal silhouettes cut from pure Lyon mulberry silks, unbleached Mongolian cashmere, and French box calfskin. Crafted in Paris with lifetime care.',
     ogImage: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=80',
@@ -239,7 +240,7 @@ export const luxuryFashionDtc: StarterContentSet = {
         headline: 'Pure sculptural silhouettes,',
         accentText: 'woven from timeless silks',
         subtitle:
-          'Aura Atelier crafts limited-edition garments from bespoke Lyon mulberry silks and Mongolian unbleached cashmere. Designed for effortless grace and permanent longevity.',
+          'Aura crafts limited-edition garments from bespoke Lyon mulberry silks and Mongolian unbleached cashmere. Designed for effortless grace and permanent longevity.',
         primaryCta: { label: 'Discover The Collection', href: '/catalog' },
         secondaryCta: { label: 'The Maison Heritage', href: '/about' },
         image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1400&q=85',
@@ -269,7 +270,7 @@ export const luxuryFashionDtc: StarterContentSet = {
             icon: 'Sparkles',
             title: '40-Momme Heavyweight Lyon Silk',
             description:
-              'Woven exclusively for Aura Atelier on historic Jacquard looms in Lyon, creating an unmatched liquid drape and substantial tactile weight.',
+              'Woven exclusively for Aura on historic Jacquard looms in Lyon, creating an unmatched liquid drape and substantial tactile weight.',
             badge: 'Materials',
             image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80',
           },
@@ -287,11 +288,11 @@ export const luxuryFashionDtc: StarterContentSet = {
         eyebrow: 'Maison Philosophy',
         title: 'An antidote to excess: The slow luxury movement',
         description:
-          'Rooted in the storied atelier tradition of the 8th arrondissement, Aura Atelier is a sanctuary of deliberate craftsmanship.',
+          'Rooted in the storied atelier tradition of the 8th arrondissement, Aura is a sanctuary of deliberate craftsmanship.',
         blocks: [
           {
             heading: 'Small-Batch Numbered Editions',
-            body: 'To prevent textile waste and maintain absolute quality control, each Aura Atelier garment is produced in strictly numbered batches of no more than 100 pieces per edition.',
+            body: 'To prevent textile waste and maintain absolute quality control, each Aura garment is produced in strictly numbered batches of no more than 100 pieces per edition.',
           },
           {
             heading: 'Lifetime Care & Complimentary Alteration',
@@ -325,7 +326,7 @@ export const luxuryFashionDtc: StarterContentSet = {
             name: 'Camille de Montmartre',
             role: 'Fashion Features Editor',
             company: 'Vogue France',
-            text: 'Aura Atelier proves that true modern luxury lies in radical restraint. The 40-momme silk trench has already become an indispensable wardrobe pillar for Paris Fashion Week.',
+            text: 'Aura proves that true modern luxury lies in radical restraint. The 40-momme silk trench has already become an indispensable wardrobe pillar for Paris Fashion Week.',
             rating: 5,
           },
           {

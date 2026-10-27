@@ -40,6 +40,18 @@ import { storeOutdoor } from '@/site/archetypes/starterSets/store/store-outdoor'
 import { storeCoffee } from '@/site/archetypes/starterSets/store/store-coffee';
 import { localPlumbing } from '@/site/archetypes/starterSets/local/local-plumbing';
 import { localElectrical } from '@/site/archetypes/starterSets/local/local-electrical';
+import { saasLatticeInfra } from '@/site/archetypes/starterSets/saas/saas-ai-infra';
+import { saasCyber } from '@/site/archetypes/starterSets/saas/saas-cyber';
+import { agencyBrand } from '@/site/archetypes/starterSets/agency/agency-brand';
+import { agencyMotion } from '@/site/archetypes/starterSets/agency/agency-motion';
+import { luxuryFragranceHouse } from '@/site/archetypes/starterSets/luxury/luxury-fragrance';
+import { luxuryJewelry } from '@/site/archetypes/starterSets/luxury/luxury-jewelry';
+import { servicesAccountingFirm } from '@/site/archetypes/starterSets/services/services-accounting';
+import { servicesBrokerage } from '@/site/archetypes/starterSets/services/services-broker';
+import { storeAthletic } from '@/site/archetypes/starterSets/store/store-athletic';
+import { storeSkincare } from '@/site/archetypes/starterSets/store/store-skincare';
+import { localLandscaping } from '@/site/archetypes/starterSets/local/local-landscaping';
+import { localCleaning } from '@/site/archetypes/starterSets/local/local-cleaning';
 
 export {
   legalCorporate,
@@ -65,6 +77,18 @@ export {
   storeCoffee,
   localPlumbing,
   localElectrical,
+  saasLatticeInfra,
+  saasCyber,
+  agencyBrand,
+  agencyMotion,
+  luxuryFragranceHouse,
+  luxuryJewelry,
+  servicesAccountingFirm,
+  servicesBrokerage,
+  storeAthletic,
+  storeSkincare,
+  localLandscaping,
+  localCleaning,
 };
 
 export const ARCHETYPES: Record<ArchetypeId, ArchetypeMeta> = {
@@ -111,6 +135,25 @@ export const STARTER_SETS: Record<string, StarterContentSet> = {
   [storeCoffee.id]: storeCoffee,
   [localPlumbing.id]: localPlumbing,
   [localElectrical.id]: localElectrical,
+  [saasLatticeInfra.id]: saasLatticeInfra,
+  'saas-ai-infra': saasLatticeInfra,
+  [saasCyber.id]: saasCyber,
+  [agencyBrand.id]: agencyBrand,
+  'agency-brand': agencyBrand,
+  [agencyMotion.id]: agencyMotion,
+  'agency-motion': agencyMotion,
+  [luxuryFragranceHouse.id]: luxuryFragranceHouse,
+  'luxury-fragrance': luxuryFragranceHouse,
+  [luxuryJewelry.id]: luxuryJewelry,
+  [servicesAccountingFirm.id]: servicesAccountingFirm,
+  'services-accounting': servicesAccountingFirm,
+  [servicesBrokerage.id]: servicesBrokerage,
+  'services-broker': servicesBrokerage,
+  [storeAthletic.id]: storeAthletic,
+  'store-athletic': storeAthletic,
+  [storeSkincare.id]: storeSkincare,
+  [localLandscaping.id]: localLandscaping,
+  [localCleaning.id]: localCleaning,
 };
 
 export const STARTER_SET_LIST: StarterContentSet[] = [
@@ -137,6 +180,18 @@ export const STARTER_SET_LIST: StarterContentSet[] = [
   storeCoffee,
   localPlumbing,
   localElectrical,
+  saasLatticeInfra,
+  saasCyber,
+  agencyBrand,
+  agencyMotion,
+  luxuryFragranceHouse,
+  luxuryJewelry,
+  servicesAccountingFirm,
+  servicesBrokerage,
+  storeAthletic,
+  storeSkincare,
+  localLandscaping,
+  localCleaning,
 ];
 
 export * from '@/site/archetypes/types';

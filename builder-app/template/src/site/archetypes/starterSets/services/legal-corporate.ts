@@ -9,7 +9,7 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const legalCorporate: StarterContentSet = {
   id: 'legal_corporate',
   archetype: 'services',
-  name: 'Blackwood & Stone Legal Advisory',
+  name: 'Blackwood',
   description:
     'Board-level legal advisory, contentious regulatory enforcement defense, cross-border M&A diligence, and international commercial arbitration for enterprise leaders.',
   niche: 'Corporate Law & International Commercial Arbitration',
@@ -26,8 +26,9 @@ export const legalCorporate: StarterContentSet = {
   themeId: 'blueprint-navy',
   accent: '#1e3a8a',
   business: {
-    name: 'Blackwood & Stone Legal Advisory LLP',
-    shortName: 'Blackwood & Stone',
+    name: 'Blackwood',
+    legalName: 'Blackwood & Stone Legal Advisory LLP',
+    shortName: 'Blackwood',
     registrationNumber: 'OC419823',
     jurisdiction: 'England & Wales (Solicitors Regulation Authority No. 642819)',
     governingLaw: 'the laws of England & Wales',
@@ -39,7 +40,7 @@ export const legalCorporate: StarterContentSet = {
     supportHours: 'Monday – Friday, 08:30 – 19:30 (GMT)',
   },
   brand: {
-    logoText: 'Blackwood & Stone',
+    logoText: 'Blackwood',
   },
   header: {
     variant: 'corporate_utility',
@@ -58,7 +59,7 @@ export const legalCorporate: StarterContentSet = {
     href: '/contact',
   },
   meta: {
-    title: 'Blackwood & Stone Legal Advisory LLP — London & Global Counsel',
+    title: 'Blackwood — London & Global Counsel',
     description:
       'Senior partner-led corporate counsel for cross-border M&A transactions, contentious regulatory defense, and international commercial arbitration.',
     ogImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
@@ -110,7 +111,7 @@ export const legalCorporate: StarterContentSet = {
         headline: 'Strategic counsel for decisive, high-stakes',
         accentText: 'cross-border corporate mandates',
         subtitle:
-          'Blackwood & Stone represents FTSE 250 boards, sovereign investment funds, and global financial sponsors in complex cross-border M&A transactions, contentious regulatory defense, and international commercial arbitration.',
+          'Blackwood represents FTSE 250 boards, sovereign investment funds, and global financial sponsors in complex cross-border M&A transactions, contentious regulatory defense, and international commercial arbitration.',
         primaryCta: { label: 'Explore Practice Areas', href: '/services' },
         secondaryCta: { label: 'Partner Briefing', href: '/contact' },
         image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
@@ -273,14 +274,14 @@ export const legalCorporate: StarterContentSet = {
             name: 'Sir Alistair Sterling',
             role: 'Group Chairman',
             company: 'Sterling Pacific Holdings PLC',
-            text: 'Blackwood & Stone navigated our £1.4B dual-track divestment with unflinching precision. Their senior partner model meant we never spoke to a junior; every negotiation was handled with consummate authority and strategic brilliance.',
+            text: 'Blackwood navigated our £1.4B dual-track divestment with unflinching precision. Their senior partner model meant we never spoke to a junior; every negotiation was handled with consummate authority and strategic brilliance.',
             rating: 5,
           },
           {
             name: 'Elena Rostova',
             role: 'General Counsel',
             company: 'Vanguard Infrastructure Capital',
-            text: 'In our LCIA commercial dispute involving a multi-jurisdictional concession, Blackwood & Stone secured a complete dismissal of all counter-claims and recovered 100% of our enforcement costs. Truly exceptional trial advocates.',
+            text: 'In our LCIA commercial dispute involving a multi-jurisdictional concession, Blackwood secured a complete dismissal of all counter-claims and recovered 100% of our enforcement costs. Truly exceptional trial advocates.',
             rating: 5,
           },
         ],
@@ -291,8 +292,8 @@ export const legalCorporate: StarterContentSet = {
         description: 'Details on engagement governance, conflict checks, and fee transparency.',
         items: [
           {
-            q: 'How does Blackwood & Stone guarantee zero junior leverage?',
-            a: 'Unlike traditional City firms where work is delegated down a pyramid of junior associates, all Blackwood & Stone mandates are directly led and executed by senior equity partners with minimum 15 years of qualified practice.',
+            q: 'How does Blackwood guarantee zero junior leverage?',
+            a: 'Unlike traditional City firms where work is delegated down a pyramid of junior associates, all Blackwood mandates are directly led and executed by senior equity partners with minimum 15 years of qualified practice.',
           },
           {
             q: 'What is your procedure for emergency injunctive relief or freezing orders?',
@@ -322,7 +323,7 @@ export const legalCorporate: StarterContentSet = {
         eyebrow: 'About The Practice',
         headline: 'A premier corporate advisory firm built on partner accountability',
         subtitle:
-          'Founded in the City of London, Blackwood & Stone was established to provide FTSE boards and private equity sponsors with uncompromised senior counsel.',
+          'Founded in the City of London, Blackwood was established to provide FTSE boards and private equity sponsors with uncompromised senior counsel.',
       },
       story: {
         eyebrow: 'Our Heritage',
@@ -500,7 +501,7 @@ export const legalCorporate: StarterContentSet = {
           },
           {
             q: 'What professional indemnity insurance does the firm maintain?',
-            a: 'Blackwood & Stone maintains comprehensive top-tier professional indemnity coverage with leading Lloyd’s of London syndicates exceeding SRA minimum statutory requirements.',
+            a: 'Blackwood maintains comprehensive top-tier professional indemnity coverage with leading Lloyd’s of London syndicates exceeding SRA minimum statutory requirements.',
           },
         ],
       },

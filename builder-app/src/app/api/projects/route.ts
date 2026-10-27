@@ -7,7 +7,7 @@ import {
 } from '@/lib/studio/projects';
 import { getActor } from '@/lib/session';
 import type { ArchetypeId } from '@/site/archetypes/types';
-import type { SiteContent } from '@/site/schema';
+import type { BusinessInfo, SiteContent } from '@/site/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +27,8 @@ export async function POST(req: Request) {
     archetypeId?: ArchetypeId;
     starterSetId?: string | null;
     name?: string;
+    themeId?: string;
+    business?: Partial<BusinessInfo>;
     content?: SiteContent;
   };
   try {
@@ -54,6 +56,10 @@ export async function POST(req: Request) {
         body.starterSetId,
         body.name,
         actor,
+        {
+          themeId: body.themeId,
+          business: body.business,
+        },
       );
       return NextResponse.json({ project }, { status: 201 });
     } catch (err) {

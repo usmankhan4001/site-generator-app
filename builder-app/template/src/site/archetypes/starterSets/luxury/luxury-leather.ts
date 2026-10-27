@@ -8,16 +8,18 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const luxuryLeather: StarterContentSet = {
   id: 'luxury-leather',
   archetype: 'luxury',
-  name: 'Tuscan Artisanal Leather',
+  name: 'Valdarno',
   description:
     'Full-grain vegetable-tanned leather goods, hand-saddle-stitched holdalls, briefcases, and small leather accessories crafted in Florence.',
   niche: 'Tuscan artisanal full-grain leather goods',
   tags: ['luxury-leather', 'tuscan-leather', 'handcrafted', 'vegetable-tanned', 'leather-goods', 'artisan', 'florence'],
   needsPersonalization: false,
-  themeId: 'espresso-amber',
+  themeId: 'saddle-oak',
+  accent: '#92400e',
   business: {
-    name: 'Pelletteria Valdarno S.r.l.',
-    shortName: 'Valdarno Firenze',
+    name: 'Valdarno',
+    legalName: 'Pelletteria Valdarno S.r.l.',
+    shortName: 'Valdarno',
     registrationNumber: 'IT06849200481',
     jurisdiction: 'Florence, Italy (Camera di Commercio di Firenze)',
     governingLaw: 'the laws of the Republic of Italy',
@@ -27,9 +29,9 @@ export const luxuryLeather: StarterContentSet = {
     website: 'valdarnofirenze.example',
     supportHours: 'Monday – Saturday, 09:30 – 19:30 (CET)',
   },
-  brand: { logoText: 'Valdarno Firenze' },
+  brand: { logoText: 'Valdarno' },
   meta: {
-    title: 'Valdarno Firenze — Artisanal Tuscan Full-Grain Leather Goods',
+    title: 'Valdarno — Artisanal Tuscan Full-Grain Leather Goods',
     description:
       'Handcrafted vegetable-tanned Italian leather briefcases, travel holdalls, and bespoke accessories sculpted by master leather artisans in Tuscany.',
   },

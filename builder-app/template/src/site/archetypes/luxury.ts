@@ -101,6 +101,8 @@ export const luxury: ArchetypeMeta = {
     'luxury-horology',
     'luxury-eyewear',
     'luxury-leather',
+    'luxury-fragrance-house',
+    'luxury-jewelry-house',
   ],
 };
 

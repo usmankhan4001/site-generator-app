@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, RotateCw, X } from 'lucide-react';
-import { useStudio, DEVICE_WIDTH } from '@/store/studio';
+import { ArrowLeft, RotateCw } from 'lucide-react';
+import { useStudio, DEVICE_WIDTH, type StudioStep } from '@/store/studio';
 import { Button } from '@/components/ui/button';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { TopBar } from './TopBar';
@@ -23,6 +23,9 @@ export function Workspace({ projectId }: { projectId: string }) {
   const setViewMode = useStudio((s) => s.setViewMode);
   const device = useStudio((s) => s.device);
   const selectedSectionId = useStudio((s) => s.selectedSectionId);
+  const selectSection = useStudio((s) => s.selectSection);
+  const step = useStudio((s) => s.step);
+  const setStep = useStudio((s) => s.setStep);
   const undo = useStudio((s) => s.undo);
   const redo = useStudio((s) => s.redo);
 
@@ -31,7 +34,7 @@ export function Workspace({ projectId }: { projectId: string }) {
   const [insertIndex, setInsertIndex] = useState<number | undefined>(undefined);
   const [businessProfileOpen, setBusinessProfileOpen] = useState(false);
   const [exportHostOpen, setExportHostOpen] = useState(false);
-  const [propertiesOpen, setPropertiesOpen] = useState(false);
+  const [propertiesOpen, setPropertiesOpen] = useState(true);
 
   // Auto-open properties when a section is selected in Edit mode
   useEffect(() => {
@@ -44,24 +47,35 @@ export function Workspace({ projectId }: { projectId: string }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) && e.key !== 'Escape') {
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable) &&
+        e.key !== 'Escape'
+      ) {
         return;
       }
 
       // E toggles edit ⇄ preview (browse)
       if (e.key.toLowerCase() === 'e' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
-        useStudio.getState().setViewMode(useStudio.getState().viewMode === 'edit' ? 'preview' : 'edit');
+        useStudio
+          .getState()
+          .setViewMode(useStudio.getState().viewMode === 'edit' ? 'preview' : 'edit');
         return;
       }
 
-      // Escape closes modals and drawers
+      // Escape closes transient modals and drawers (keeps docked RightPanel open unless section selected)
       if (e.key === 'Escape') {
         setPagesOpen(false);
         setAddSectionOpen(false);
         setBusinessProfileOpen(false);
         setExportHostOpen(false);
-        setPropertiesOpen(false);
+        if (useStudio.getState().selectedSectionId) {
+          useStudio.getState().selectSection(null);
+        }
         return;
       }
 
@@ -73,7 +87,10 @@ export function Workspace({ projectId }: { projectId: string }) {
       }
 
       // Redo: Ctrl+Shift+Z / Cmd+Shift+Z or Ctrl+Y
-      if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && e.shiftKey) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y')) {
+      if (
+        ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && e.shiftKey) ||
+        ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y')
+      ) {
         e.preventDefault();
         redo();
         return;
@@ -106,7 +123,31 @@ export function Workspace({ projectId }: { projectId: string }) {
     setInsertIndex(undefined);
   }, []);
 
-  const toggleProperties = useCallback(() => setPropertiesOpen((o) => !o), []);
+  const handleSelectStep = useCallback(
+    (targetStep: StudioStep) => {
+      if (viewMode !== 'edit') {
+        setViewMode('edit');
+      }
+      if (propertiesOpen && step === targetStep && !selectedSectionId) {
+        setPropertiesOpen(false);
+        return;
+      }
+      selectSection(null);
+      setStep(targetStep);
+      setPropertiesOpen(true);
+    },
+    [viewMode, setViewMode, propertiesOpen, step, selectedSectionId, selectSection, setStep],
+  );
+
+  const toggleProperties = useCallback(() => {
+    if (viewMode !== 'edit') {
+      setViewMode('edit');
+      setPropertiesOpen(true);
+      return;
+    }
+    setPropertiesOpen((o) => !o);
+  }, [viewMode, setViewMode]);
+
   const closePages = useCallback(() => setPagesOpen(false), []);
   const closeProperties = useCallback(() => setPropertiesOpen(false), []);
 
@@ -145,10 +186,7 @@ export function Workspace({ projectId }: { projectId: string }) {
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="relative h-dvh w-full overflow-hidden bg-background text-foreground">
-        {/* Pages drawer (left) */}
-        <StepRail open={pagesOpen} onClose={closePages} />
-
+      <div className="relative flex h-dvh w-full overflow-hidden bg-background text-foreground">
         {/* Add Block / Sections Palette drawer (left) */}
         <AddSectionDrawer
           open={addSectionOpen}
@@ -170,11 +208,20 @@ export function Workspace({ projectId }: { projectId: string }) {
           projectName={meta?.name || 'my-site'}
         />
 
-        {/* Full-bleed Canvas */}
-        <div className="relative h-full w-full">
+        {/* Left/Center Canvas Area (flexes alongside docked RightPanel) */}
+        <div className="relative h-full min-w-0 flex-1 overflow-hidden">
+          {/* StepRail + Quick Pages Drawer */}
+          <StepRail
+            open={pagesOpen}
+            onClose={closePages}
+            propertiesOpen={propertiesOpen && viewMode === 'edit'}
+            onSelectStep={handleSelectStep}
+          />
+
           {/* Floating Toolbar Island */}
           <TopBar
             pagesOpen={pagesOpen}
+            propertiesOpen={propertiesOpen && viewMode === 'edit'}
             onTogglePages={togglePages}
             onOpenAddSection={() => openAddSection()}
             onOpenBusinessProfile={() => setBusinessProfileOpen(true)}
@@ -182,7 +229,7 @@ export function Workspace({ projectId }: { projectId: string }) {
             onToggleProperties={toggleProperties}
           />
 
-          {/* Live Preview Canvas takes full width/height */}
+          {/* Live Preview Canvas */}
           <PreviewPane
             dw={dw}
             projectId={projectId}
@@ -190,8 +237,11 @@ export function Workspace({ projectId }: { projectId: string }) {
           />
         </div>
 
-        {/* Properties drawer (right) */}
-        <RightPanel open={propertiesOpen} onClose={closeProperties} />
+        {/* Docked Properties / Inspector Panel (right) */}
+        <RightPanel
+          open={propertiesOpen && viewMode === 'edit'}
+          onClose={closeProperties}
+        />
       </div>
     </TooltipProvider>
   );

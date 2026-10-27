@@ -11,7 +11,7 @@ export const local: ArchetypeMeta = {
   description:
     'Trade and local services — a direct home with trust badges, service list, process, reviews and a prominent contact panel.',
   mode: 'services',
-  defaultThemeId: 'sunset-amber',
+  defaultThemeId: 'trade-slate',
   treatment: 'workshop',
   keywords: [
     'local',
@@ -100,7 +100,7 @@ export const local: ArchetypeMeta = {
     ],
     footer: { showLegalBar: true, showPaymentBadges: false },
   },
-  starterSetIds: ['local-plumbing', 'local-electrical'],
+  starterSetIds: ['local-plumbing', 'local-electrical', 'local-landscaping', 'local-cleaning'],
 };
 
 export default local;

@@ -35,6 +35,7 @@ export function SectionHeader({
       <div className={cn('max-w-2xl', centered && 'mx-auto text-center', className)}>
         {eyebrow ? (
           <span
+            data-edit-prop="eyebrow"
             className="block text-sm italic text-primary mb-3"
             style={{ fontFamily: 'var(--font-display)' }}
           >
@@ -43,6 +44,7 @@ export function SectionHeader({
         ) : null}
         {title ? (
           <h2
+            data-edit-prop="title"
             className="text-4xl sm:text-5xl font-medium tracking-tight text-foreground leading-[1.08]"
             style={{ fontFamily: 'var(--font-display)' }}
           >
@@ -51,6 +53,7 @@ export function SectionHeader({
         ) : null}
         {description ? (
           <p
+            data-edit-prop="description"
             className={cn(
               'mt-5 text-base text-muted-foreground leading-relaxed',
               centered ? 'mx-auto max-w-lg' : 'max-w-md border-l-2 border-primary/30 pl-5',
@@ -69,6 +72,7 @@ export function SectionHeader({
         <div className={cn('border-t border-border pt-4 mb-5', centered && 'w-24 mx-auto')} />
         {eyebrow ? (
           <span
+            data-edit-prop="eyebrow"
             className="block text-[11px] font-semibold tracking-[0.12em] text-primary mb-3"
             style={{ fontFamily: FONT_MONO }}
           >
@@ -77,12 +81,13 @@ export function SectionHeader({
           </span>
         ) : null}
         {title ? (
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+          <h2 data-edit-prop="title" className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
             {title}
           </h2>
         ) : null}
         {description ? (
           <p
+            data-edit-prop="description"
             className={cn(
               'mt-4 text-sm text-muted-foreground leading-relaxed',
               centered ? 'mx-auto max-w-lg' : 'max-w-lg',
@@ -101,19 +106,20 @@ export function SectionHeader({
         {eyebrow ? (
           <div className={cn('flex items-center gap-2 mb-3', centered && 'justify-center')}>
             <span className="h-2.5 w-2.5 shrink-0 bg-primary" aria-hidden />
-            <span className="text-xs font-bold tracking-[0.16em] uppercase text-primary [font-stretch:condensed]">
+            <span data-edit-prop="eyebrow" className="text-xs font-bold tracking-[0.16em] uppercase text-primary [font-stretch:condensed]">
               {index ? `${index} · ` : ''}
               {eyebrow.toUpperCase()}
             </span>
           </div>
         ) : null}
         {title ? (
-          <h2 className="text-3xl sm:text-[2.5rem] font-extrabold tracking-tight leading-[1.05] text-foreground uppercase [font-stretch:condensed]">
+          <h2 data-edit-prop="title" className="text-3xl sm:text-[2.5rem] font-extrabold tracking-tight leading-[1.05] text-foreground uppercase [font-stretch:condensed]">
             {title}
           </h2>
         ) : null}
         {description ? (
           <p
+            data-edit-prop="description"
             className={cn(
               'mt-4 text-base font-medium text-muted-foreground leading-relaxed',
               centered ? 'mx-auto max-w-xl' : 'max-w-xl',
@@ -143,16 +149,17 @@ export function SectionHeader({
           ) : (
             <span className="h-px w-8 bg-primary" aria-hidden />
           )}
-          <span className="text-xs font-semibold tracking-[0.14em] uppercase text-primary">
+          <span data-edit-prop="eyebrow" className="text-xs font-semibold tracking-[0.14em] uppercase text-primary">
             {eyebrow}
           </span>
         </div>
       ) : null}
       {title ? (
-        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">{title}</h2>
+        <h2 data-edit-prop="title" className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">{title}</h2>
       ) : null}
       {description ? (
         <p
+          data-edit-prop="description"
           className={cn(
             'mt-4 text-base text-muted-foreground leading-relaxed',
             centered ? 'mx-auto max-w-xl' : 'max-w-xl',

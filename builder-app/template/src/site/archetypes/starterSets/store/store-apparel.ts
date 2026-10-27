@@ -275,7 +275,7 @@ const apparelProducts: CatalogItem[] = [
 export const storeApparel: StarterContentSet = {
   id: 'store-apparel',
   archetype: 'store',
-  name: 'Minimalist Organic Apparel',
+  name: 'Botan',
   description:
     'Sustainable everyday wardrobe essentials cut from heavyweight 100% GOTS-certified organic combed cotton and regenerative wool, ethically milled in Portugal.',
   niche: 'Minimalist organic cotton essentials',
@@ -283,20 +283,21 @@ export const storeApparel: StarterContentSet = {
   needsPersonalization: false,
   themeId: 'nordic-sage',
   business: {
-    name: 'Aura Organic Apparel Ltd',
-    shortName: 'Aura Studio',
+    name: 'Botan',
+    legalName: 'Aura Organic Apparel Ltd',
+    shortName: 'Botan',
     registrationNumber: '13872910',
     jurisdiction: 'England & Wales (UK Companies House)',
     governingLaw: 'the laws of England and Wales',
     registeredAddress: '45 Redchurch Street, Shoreditch, London E2 7DJ, United Kingdom',
-    email: 'care@aurastudio.example',
+    email: 'care@botanapparel.example',
     phone: '+44 20 7946 0831',
-    website: 'aurastudio.example',
+    website: 'botanapparel.example',
     supportHours: 'Monday – Friday, 09:00 – 17:30 (GMT)',
   },
-  brand: { logoText: 'Aura Studio' },
+  brand: { logoText: 'Botan' },
   meta: {
-    title: 'Aura Studio — Minimalist 100% Organic Cotton Wardrobe Essentials',
+    title: 'Botan — Minimalist 100% Organic Cotton Wardrobe Essentials',
     description:
       'Timeless heavy-jersey t-shirts, french terry sweatshirts, organic wool knits, and relaxed trousers crafted ethically in northern Portugal from certified organic fibers.',
   },
@@ -334,7 +335,7 @@ export const storeApparel: StarterContentSet = {
         items: apparelProducts,
       },
       highlights: {
-        eyebrow: 'Why Aura',
+        eyebrow: 'Why Botan',
         title: 'Built with intention, worn with ease',
         description:
           'We stripped away logos, synthetic elasticity, and wasteful supply chains to create clothing that lasts.',
@@ -392,7 +393,7 @@ export const storeApparel: StarterContentSet = {
             role: 'Photographer',
             location: 'Edinburgh',
             rating: 5,
-            text: 'Completely unbranded, beautifully proportioned, and impeccably stitched. Aura proves that minimalist basics can be both luxurious and sustainable.',
+            text: 'Completely unbranded, beautifully proportioned, and impeccably stitched. Botan proves that minimalist basics can be both luxurious and sustainable.',
           },
         ],
       },
@@ -461,13 +462,13 @@ export const storeApparel: StarterContentSet = {
         eyebrow: 'Our Philosophy',
         title: 'Designed for longevity, crafted with conscience',
         subtitle:
-          'We founded Aura Studio to challenge the planned obsolescence of modern fashion through pure materials and ethical manufacturing.',
+          'We founded Botan to challenge the planned obsolescence of modern fashion through pure materials and ethical manufacturing.',
       },
       story: {
         eyebrow: 'Our Heritage',
         title: 'From Northern Portuguese Looms to Your Wardrobe',
         description:
-          'Every Aura garment begins in the historic textile valley of Guimarães, Portugal, where traditional weaving meets modern ecological conscience.',
+          'Every Botan garment begins in the historic textile valley of Guimarães, Portugal, where traditional weaving meets modern ecological conscience.',
         blocks: [
           {
             heading: 'Family-Run Solar Powered Mills',
@@ -538,7 +539,7 @@ export const storeApparel: StarterContentSet = {
           },
           {
             q: 'Can I place a wholesale or corporate gifting order?',
-            a: 'Yes, we offer bespoke embroidery and bulk ethical wardrobe solutions for forward-thinking creative studios and corporate teams. Contact care@aurastudio.example for pricing.',
+            a: 'Yes, we offer bespoke embroidery and bulk ethical wardrobe solutions for forward-thinking creative studios and corporate teams. Contact care@botanapparel.example for pricing.',
           },
         ],
       },

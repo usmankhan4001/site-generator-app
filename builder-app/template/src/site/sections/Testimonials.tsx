@@ -223,8 +223,10 @@ export default function Testimonials({
   ) {
     const featured = items[0];
     const meta = [featured.role, featured.company].filter(Boolean).join(', ');
-    const metricValue = featured.metric || '99.98%';
-    const metricLabel = featured.metricLabel || 'Execution & Reliability Rate';
+    // Never fabricate a number the business didn't supply — only show the
+    // metric callout when a real metric value came through.
+    const metricValue = featured.metric;
+    const metricLabel = featured.metricLabel || 'Reported Impact';
 
     return (
       <section id="testimonials" className={cn(sectionPadding(s), 'bg-muted/20 border-y border-border/60')}>
@@ -282,20 +284,22 @@ export default function Testimonials({
                 </div>
               </figcaption>
 
-              {/* Key Metric Callout */}
-              <div className="flex items-center gap-3.5 px-5 py-3 rounded-2xl bg-card border border-border shadow-xs text-left">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                  <TrendingUp className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xl font-extrabold text-foreground tracking-tight leading-none">
-                    {metricValue}
+              {/* Key Metric Callout — only when a real metric was supplied */}
+              {metricValue && (
+                <div className="flex items-center gap-3.5 px-5 py-3 rounded-2xl bg-card border border-border shadow-xs text-left">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <TrendingUp className="w-5 h-5" />
                   </div>
-                  <div className="text-xs text-muted-foreground font-medium mt-0.5">
-                    {metricLabel}
+                  <div>
+                    <div className="text-xl font-extrabold text-foreground tracking-tight leading-none">
+                      {metricValue}
+                    </div>
+                    <div className="text-xs text-muted-foreground font-medium mt-0.5">
+                      {metricLabel}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </figure>
         </div>

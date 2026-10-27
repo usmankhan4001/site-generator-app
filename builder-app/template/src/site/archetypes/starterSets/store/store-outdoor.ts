@@ -260,7 +260,7 @@ const outdoorProducts: CatalogItem[] = [
 export const storeOutdoor: StarterContentSet = {
   id: 'store-outdoor',
   archetype: 'store',
-  name: 'Alpine Ridge Outdoor Gear',
+  name: 'Alpine',
   description:
     'Expedition-grade camping shelters, alpine technical gear, hydrophobic down sleeping systems, and trail provisions tested in the Colorado Rockies.',
   niche: 'Expedition-grade camping, alpine tech & trail gear',
@@ -275,22 +275,24 @@ export const storeOutdoor: StarterContentSet = {
     'dtc-store',
   ],
   needsPersonalization: false,
-  themeId: 'aurora-emerald',
+  themeId: 'backcountry-olive',
+  accent: '#a3e635',
   business: {
-    name: 'Alpine Ridge Outdoor Equipment Co.',
-    shortName: 'Alpine Ridge',
+    name: 'Alpine',
+    legalName: 'Alpine Ridge Outdoor Equipment Co.',
+    shortName: 'Alpine',
     registrationNumber: 'CO-20231948210',
     jurisdiction: 'Colorado, United States (Colorado Secretary of State)',
     governingLaw: 'the laws of the State of Colorado and the United States',
     registeredAddress: '1420 Alpine Vista Drive, Boulder, CO 80302, United States',
-    email: 'support@alpineridgegear.example',
+    email: 'support@alpinegear.example',
     phone: '+1 303 555 0184',
-    website: 'alpineridgegear.example',
+    website: 'alpinegear.example',
     supportHours: 'Monday – Friday, 08:00 – 18:00 (MST)',
   },
-  brand: { logoText: 'Alpine Ridge' },
+  brand: { logoText: 'Alpine' },
   meta: {
-    title: 'Alpine Ridge — Expedition-Grade Camping, Alpine Tech & Trail Gear',
+    title: 'Alpine — Expedition-Grade Camping, Alpine Tech & Trail Gear',
     description:
       'Ultralight 4-season shelters, hydrophobic down sleeping bags, titanium camp stoves, and rugged mountain trail tech engineered for extreme wilderness expeditions.',
   },
@@ -301,7 +303,7 @@ export const storeOutdoor: StarterContentSet = {
         headline: 'Expedition-grade gear engineered for the',
         accentText: 'most demanding wilderness',
         subtitle:
-          'From sub-zero ridge bivouacs to multi-week thru-hikes, Alpine Ridge designs ultralight technical shelters, titanium stoves, and certified cold-weather sleep systems built to withstand the harshest alpine elements.',
+          'From sub-zero ridge bivouacs to multi-week thru-hikes, Alpine designs ultralight technical shelters, titanium stoves, and certified cold-weather sleep systems built to withstand the harshest alpine elements.',
         primaryCta: { label: 'Explore Expedition Gear', href: '/catalog' },
         secondaryCta: { label: 'Field Testing Journal', href: '/about' },
         trustBadges: ['Tested in Sub-Zero Alpine Conditions', '100% Titanium & Ripstop Cordura', 'Lifetime Trail Warranty'],
@@ -318,7 +320,7 @@ export const storeOutdoor: StarterContentSet = {
       },
       catalogue: {
         eyebrow: 'Backcountry Essentials',
-        title: 'The Alpine Ridge Field Capsule',
+        title: 'The Alpine Field Capsule',
         description:
           'Ultralight shelters, precision camp stoves, and technical layers tested across the highest peaks in North America.',
         currency: 'USD',
@@ -466,7 +468,7 @@ export const storeOutdoor: StarterContentSet = {
       story: {
         eyebrow: 'Our Origins',
         title: 'Rejecting heavy gear and fragile shortcuts',
-        description: 'Alpine Ridge was founded by backcountry search & rescue veterans who demanded gear that would never fail when conditions turn perilous.',
+        description: 'Alpine was founded by backcountry search & rescue veterans who demanded gear that would never fail when conditions turn perilous.',
         blocks: [
           {
             heading: 'High-Altitude Field Testing',

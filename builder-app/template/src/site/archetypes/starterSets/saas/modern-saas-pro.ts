@@ -1,5 +1,5 @@
 /**
- * Starter content set — `modern_saas_pro`: Apex Cloud Orchestration.
+ * Starter content set — `modern_saas_pro`: Apex — cloud orchestration.
  * Authentic copy for multi-cloud Kubernetes fleet control, eBPF telemetry mesh,
  * autonomous FinOps bin-packing, and zero-trust policy-as-code enforcement.
  */
@@ -9,7 +9,7 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const modernSaasPro: StarterContentSet = {
   id: 'modern_saas_pro',
   archetype: 'saas',
-  name: 'Apex Cloud Orchestration',
+  name: 'Apex',
   description:
     'Declarative multi-cloud control plane unifying AWS, GCP, Azure, and bare-metal edge clusters with zero-latency eBPF telemetry, autonomous bin-packing, and zero-drift security.',
   niche: 'Autonomous Kubernetes & Multi-Cloud Fleet Control',
@@ -28,8 +28,9 @@ export const modernSaasPro: StarterContentSet = {
   accent: '#6366f1',
   layoutSystem: 'signal',
   business: {
-    name: 'Apex Cloud Technologies, Inc.',
-    shortName: 'Apex Cloud',
+    name: 'Apex',
+    legalName: 'Apex Cloud Technologies, Inc.',
+    shortName: 'Apex',
     registrationNumber: 'DE-7182904',
     jurisdiction: 'Delaware, USA (SOC 2 Type II & ISO 27001 Certified)',
     governingLaw: 'the laws of the State of California',
@@ -41,7 +42,7 @@ export const modernSaasPro: StarterContentSet = {
     supportHours: '24/7/365 Global Enterprise Operations · 15-Minute Critical SLA',
   },
   brand: {
-    logoText: 'Apex Cloud',
+    logoText: 'Apex',
   },
   header: {
     variant: 'floating_glass_pill',
@@ -57,7 +58,7 @@ export const modernSaasPro: StarterContentSet = {
     href: '/pricing',
   },
   meta: {
-    title: 'Apex Cloud Orchestration — Declarative Multi-Cloud Kubernetes Control Plane',
+    title: 'Apex — Declarative Multi-Cloud Kubernetes Control Plane',
     description:
       'Unify AWS, GCP, Azure, and edge clusters into one resilient control plane. Automate FinOps cost savings by 42% and achieve 99.999% availability.',
     ogImage: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
@@ -65,7 +66,7 @@ export const modernSaasPro: StarterContentSet = {
   footer: {
     variant: 'columns',
     tagline:
-      'Apex Cloud Technologies, Inc. — 500 Howard Street, Suite 400, San Francisco, CA 94105. Registered in Delaware (DE-7182904). Delivering autonomous, resilient cloud orchestration for Global 2000 engineering teams.',
+      'Apex — 500 Howard Street, Suite 400, San Francisco, CA 94105. Registered in Delaware (DE-7182904). Delivering autonomous, resilient cloud orchestration for Global 2000 engineering teams.',
     secondaryLegalText:
       'SOC 2 Type II Certified. ISO/IEC 27001:2022 Certified. Cloud Native Computing Foundation (CNCF) Certified Kubernetes Distribution. HIPAA & FedRAMP Ready.',
     badgeText: 'SOC 2 Type II · ISO 27001:2022 · CNCF Certified · 99.999% SLA',
@@ -93,7 +94,7 @@ export const modernSaasPro: StarterContentSet = {
       {
         title: 'Company & Compliance',
         links: [
-          { label: 'About Apex Cloud', href: '/about' },
+          { label: 'About Apex', href: '/about' },
           { label: 'Customer Case Studies', href: '/about' },
           { label: 'Enterprise Pricing & SLAs', href: '/pricing' },
           { label: 'Contact Solution Architects', href: '/contact' },
@@ -311,7 +312,7 @@ export const modernSaasPro: StarterContentSet = {
     },
     about: {
       header: {
-        eyebrow: 'About Apex Cloud',
+        eyebrow: 'About Apex',
         headline: 'Building the autonomous nervous system for planetary computing',
         subtitle:
           'Founded by former cloud infrastructure architects from AWS, Google Cloud, and HashiCorp to eliminate cloud complexity.',

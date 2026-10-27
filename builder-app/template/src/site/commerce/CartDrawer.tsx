@@ -461,7 +461,7 @@ export function CartDrawer({
             <div className="pt-2 border-t border-border/80 space-y-2">
               <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground font-medium">
                 <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                <span>Airwallex Verified Merchant &middot; PCI-DSS Level 1</span>
+                <span>Secure checkout &middot; 256-bit SSL encrypted</span>
               </div>
 
               <div className="flex flex-wrap items-center justify-center gap-1.5 text-[10px] font-bold text-foreground">

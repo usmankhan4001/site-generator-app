@@ -10,17 +10,21 @@ import {
   Globe,
   Clock,
   ArrowRight,
+  Github,
 } from 'lucide-react';
 import { useStudio } from '@/store/studio';
-import { auditAirwallexReadiness } from '@/site/compliance/airwallex';
+import { auditAirwallexReadiness, type ComplianceCheck } from '@/site/compliance/airwallex';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 /**
- * Compact publish card rendered inside the right panel when the user
- * clicks the toolbar's Publish button. Acts as a clean popover — one
- * card, essential actions, no sprawling settings.
+ * Publish & Deploy panel rendered inside the right inspector under the Deploy tab.
+ * Supports:
+ * - Live Airwallex compliance readiness audit with click-to-fix navigation
+ * - Managed Hosting deployment (/api/projects/[id]/deploy) + custom domain
+ * - One-click Free GitHub Pages deployment (/api/projects/[id]/github-pages)
+ * - Standalone source (.zip) export
  */
 export function PublishPopover() {
   const meta = useStudio((s) => s.meta);
@@ -29,18 +33,20 @@ export function PublishPopover() {
   const requestPublish = useStudio((s) => s.requestPublish);
   const cancelPublishRequest = useStudio((s) => s.cancelPublishRequest);
   const setAirwallexCheckoutUrl = useStudio((s) => s.setAirwallexCheckoutUrl);
+  const setStep = useStudio((s) => s.setStep);
+  const setActivePage = useStudio((s) => s.setActivePage);
 
   const [domainInput, setDomainInput] = useState(
     meta?.customDomain ?? meta?.domain ?? '',
   );
   const [publishing, setPublishing] = useState(false);
+  const [deployingGhPages, setDeployingGhPages] = useState(false);
   const [deployResult, setDeployResult] = useState<{
     success?: boolean;
     liveUrl?: string;
     message?: string;
     error?: string;
   } | null>(null);
-  const [savingDomain, setSavingDomain] = useState(false);
   const [exporting, setExporting] = useState(false);
 
   // Checkout URL for demo-mode callout
@@ -69,7 +75,10 @@ export function PublishPopover() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Export failed', err);
-      alert(err instanceof Error ? err.message : 'Export failed');
+      setDeployResult({
+        success: false,
+        error: err instanceof Error ? err.message : 'Export failed',
+      });
     } finally {
       setExporting(false);
     }
@@ -94,7 +103,6 @@ export function PublishPopover() {
     setPublishing(true);
     setDeployResult(null);
     try {
-      // Optionally save domain first
       if (domainInput.trim() !== (meta.customDomain ?? '')) {
         await setCustomDomain(domainInput.trim() || null);
       }
@@ -114,7 +122,6 @@ export function PublishPopover() {
           liveUrl: data.liveUrl,
           message: data.message || 'Deployment triggered.',
         });
-        // If queued for operator (no credentials), request review
         if (data.mode === 'queued_for_operator') {
           await requestPublish();
         }
@@ -131,6 +138,41 @@ export function PublishPopover() {
       });
     } finally {
       setPublishing(false);
+    }
+  };
+
+  const handleDeployGithubPages = async () => {
+    if (!meta.id) return;
+    setDeployingGhPages(true);
+    setDeployResult(null);
+    try {
+      const res = await fetch(`/api/projects/${meta.id}/github-pages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customDomain: domainInput.trim() || currentDomain || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setDeployResult({
+          success: true,
+          liveUrl: data.liveUrl,
+          message: data.message || 'Deployed to GitHub Pages.',
+        });
+      } else {
+        setDeployResult({
+          success: false,
+          error: data.error || 'GitHub Pages deployment failed.',
+        });
+      }
+    } catch (err: unknown) {
+      setDeployResult({
+        success: false,
+        error: err instanceof Error ? err.message : 'GitHub Pages request failed.',
+      });
+    } finally {
+      setDeployingGhPages(false);
     }
   };
 
@@ -184,10 +226,26 @@ export function PublishPopover() {
     }
   };
 
+  const handleQuickFix = (check: ComplianceCheck) => {
+    if (check.id.startsWith('business.') || check.id === 'policy.governingLaw') {
+      setStep('company');
+    } else if (check.id === 'pages.about') {
+      setActivePage('/about');
+      setStep('sections');
+    } else if (check.id === 'pages.contact') {
+      setActivePage('/contact');
+      setStep('sections');
+    } else if (check.id.startsWith('policy./policies/')) {
+      setStep('pages');
+    } else if (check.id === 'checkout.pricing') {
+      setActivePage('/');
+      setStep('sections');
+    }
+  };
+
   /* ── live URL for display ──────────────────────────────────────────── */
 
-  const displayUrl =
-    deployResult?.liveUrl || meta.liveUrl || null;
+  const displayUrl = deployResult?.liveUrl || meta.liveUrl || null;
 
   /* ── render ────────────────────────────────────────────────────────── */
 
@@ -250,23 +308,34 @@ export function PublishPopover() {
               ? 'Airwallex onboarding checklist — ready'
               : `Airwallex onboarding checklist — ${airwallexAudit.failCount} issue${airwallexAudit.failCount > 1 ? 's' : ''} blocking publish`}
           </p>
-          <ul className="space-y-1">
+          <ul className="space-y-1.5">
             {airwallexAudit.checks.map((c) => (
-              <li key={c.id} className="flex items-start gap-1.5">
-                <span
-                  className={cn(
-                    'mt-[3px] h-1.5 w-1.5 shrink-0 rounded-full',
-                    c.status === 'pass' && 'bg-emerald-400',
-                    c.status === 'warn' && 'bg-amber-400',
-                    c.status === 'fail' && 'bg-destructive',
-                  )}
-                />
-                <span className="text-muted-foreground leading-snug">
-                  {c.label}
-                  {c.status !== 'pass' && c.fix && (
-                    <span className="block text-muted-foreground/70">{c.fix}</span>
-                  )}
-                </span>
+              <li key={c.id} className="flex items-start justify-between gap-2">
+                <div className="flex items-start gap-1.5 min-w-0">
+                  <span
+                    className={cn(
+                      'mt-[4px] h-1.5 w-1.5 shrink-0 rounded-full',
+                      c.status === 'pass' && 'bg-emerald-400',
+                      c.status === 'warn' && 'bg-amber-400',
+                      c.status === 'fail' && 'bg-destructive',
+                    )}
+                  />
+                  <span className="text-muted-foreground leading-snug">
+                    {c.label}
+                    {c.status !== 'pass' && c.fix && (
+                      <span className="block text-muted-foreground/70">{c.fix}</span>
+                    )}
+                  </span>
+                </div>
+                {c.status === 'fail' && c.id !== 'checkout.liveUrl' && (
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFix(c)}
+                    className="shrink-0 rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-semibold text-primary hover:bg-background border border-border/60"
+                  >
+                    Fix →
+                  </button>
+                )}
               </li>
             ))}
           </ul>
@@ -359,13 +428,12 @@ export function PublishPopover() {
               Ready to publish?
             </div>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Deploy your site to managed hosting. Optionally attach a
-              custom domain.
+              Deploy your site to managed cloud hosting or push a static build to GitHub Pages.
             </p>
 
             <div className="space-y-2">
               <div className="relative">
-                <Globe className="absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
+                <Globe className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   value={domainInput}
                   onChange={(e) => setDomainInput(e.target.value)}
@@ -376,7 +444,7 @@ export function PublishPopover() {
 
               <Button
                 className="w-full"
-                disabled={publishing || (airwallexAudit ? !airwallexAudit.ready : false)}
+                disabled={publishing || deployingGhPages || (airwallexAudit ? !airwallexAudit.ready : false)}
                 onClick={handlePublish}
               >
                 {publishing ? (
@@ -387,7 +455,26 @@ export function PublishPopover() {
                 ) : (
                   <>
                     <Rocket className="mr-2 h-4 w-4" />
-                    Publish
+                    Publish to Managed Hosting
+                  </>
+                )}
+              </Button>
+
+              <Button
+                variant="outline"
+                className="w-full text-xs"
+                disabled={publishing || deployingGhPages}
+                onClick={handleDeployGithubPages}
+              >
+                {deployingGhPages ? (
+                  <>
+                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                    Deploying to GitHub Pages…
+                  </>
+                ) : (
+                  <>
+                    <Github className="mr-2 h-3.5 w-3.5" />
+                    Deploy to Free GitHub Pages
                   </>
                 )}
               </Button>
@@ -441,10 +528,7 @@ export function PublishPopover() {
                   size="sm"
                   variant="outline"
                   className="w-full text-xs"
-                  onClick={() => {
-                    setDeployResult(null);
-                    // Reset to the publish form
-                  }}
+                  onClick={() => setDeployResult(null)}
                 >
                   Try again
                 </Button>
@@ -461,14 +545,14 @@ export function PublishPopover() {
         type="button"
         onClick={handleExport}
         disabled={exporting}
-        className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-xs text-muted-foreground shadow-sm transition-colors hover:bg-muted/50 hover:text-foreground disabled:opacity-50"
+        className="flex w-full items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-xs text-muted-foreground shadow-sm transition-colors hover:bg-muted/50 hover:text-foreground disabled:opacity-50"
       >
         {exporting ? (
           <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
         ) : (
           <Download className="h-3.5 w-3.5 shrink-0" />
         )}
-        {exporting ? 'Exporting source...' : 'Export source (.zip)'}
+        {exporting ? 'Exporting source...' : 'Export standalone source (.zip)'}
       </button>
 
       {/* Need more options? → guides */}

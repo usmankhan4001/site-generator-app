@@ -15,8 +15,10 @@
  * ========================================================================== */
 
 export interface BusinessInfo {
-  /** Full legal entity name, e.g. "Vantage Cloud Technologies Limited". */
+  /** Short primary brand name shown to users, e.g. "Vantage". */
   name: string;
+  /** Full statutory legal entity name, e.g. "Vantage Cloud Technologies Limited". */
+  legalName?: string;
   /** Short brand name for the logo + copy, e.g. "Vantage". */
   shortName: string;
   /** Statutory company/registration number as issued by the registry. */
@@ -558,11 +560,18 @@ export interface TestimonialsProps extends SectionHeading {
 
 /* ------------------------------------------------------------------- Faq -- */
 
+/** Multi-layout architecture variant: accordion, two_column, grid_cards. */
+export type FaqVariant = 'accordion' | 'two_column' | 'grid_cards';
+
 export interface FaqProps extends SectionHeading {
   items: Faq[];
+  variant?: FaqVariant;
 }
 
 /* ------------------------------------------------------------- CtaBanner -- */
+
+/** Multi-layout architecture variant: centered, split_visual, gradient_banner. */
+export type CtaBannerVariant = 'centered' | 'split_visual' | 'gradient_banner';
 
 export interface CtaBannerProps {
   headline: string;
@@ -570,6 +579,9 @@ export interface CtaBannerProps {
   primaryCta?: CtaLink;
   secondaryCta?: CtaLink;
   guarantee?: string;
+  variant?: CtaBannerVariant;
+  /** Picker-assigned visual for `split_visual` — never AI-written. */
+  image?: string;
 }
 
 /* ------------------------------------------------------------ PageHeader -- */

@@ -917,10 +917,52 @@ export const IMAGE_POOL: PoolImage[] = [
     "orientation": "landscape"
   },
   {
-    "url": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80",
+    "url": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=1600&q=80",
     "category": "datacenter",
     "tags": [
+      "hosting",
+      "servers",
+      "cloud"
+    ],
+    "orientation": "landscape"
+  },
+  {
+    "url": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1600&q=80",
+    "category": "datacenter",
+    "tags": [
+      "infrastructure",
+      "datacenter",
+      "networking"
+    ],
+    "orientation": "landscape"
+  },
+  {
+    "url": "https://images.unsplash.com/photo-1597852074816-d933c4d2b988?auto=format&fit=crop&w=1600&q=80",
+    "category": "datacenter",
+    "tags": [
+      "datacenter",
+      "hardware",
       "hosting"
+    ],
+    "orientation": "landscape"
+  },
+  {
+    "url": "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?auto=format&fit=crop&w=1600&q=80",
+    "category": "datacenter",
+    "tags": [
+      "enterprise",
+      "servers",
+      "computing"
+    ],
+    "orientation": "landscape"
+  },
+  {
+    "url": "https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=1600&q=80",
+    "category": "datacenter",
+    "tags": [
+      "datacenter",
+      "storage",
+      "cloud"
     ],
     "orientation": "landscape"
   }

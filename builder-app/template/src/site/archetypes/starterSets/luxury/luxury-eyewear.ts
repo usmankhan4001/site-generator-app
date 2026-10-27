@@ -8,16 +8,18 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const luxuryEyewear: StarterContentSet = {
   id: 'luxury-eyewear',
   archetype: 'luxury',
-  name: 'Bespoke Luxury Eyewear',
+  name: 'Kroma',
   description:
     'Artisanal spectacles and sunglasses crafted from Japanese beta-titanium, cured Mazzucchelli acetate, and hand-beveled mineral glass.',
   niche: 'Bespoke titanium & acetate eyewear',
   tags: ['luxury-eyewear', 'optical', 'sunglasses', 'titanium', 'bespoke', 'acetate', 'craftsmanship'],
   needsPersonalization: false,
-  themeId: 'espresso-amber',
+  themeId: 'bronze-atelier',
+  accent: '#92603d',
   business: {
-    name: 'Kroma Bespoke Optical Ltd',
-    shortName: 'Kroma Atelier',
+    name: 'Kroma',
+    legalName: 'Kroma Bespoke Optical Ltd',
+    shortName: 'Kroma',
     registrationNumber: '14209532',
     jurisdiction: 'England & Wales (UK Companies House)',
     governingLaw: 'the laws of England and Wales',
@@ -27,9 +29,9 @@ export const luxuryEyewear: StarterContentSet = {
     website: 'kromaatelier.example',
     supportHours: 'Tuesday – Saturday, 10:00 – 18:30 (GMT)',
   },
-  brand: { logoText: 'Kroma Atelier' },
+  brand: { logoText: 'Kroma' },
   meta: {
-    title: 'Kroma Atelier — Handcrafted Titanium & Acetate Bespoke Eyewear',
+    title: 'Kroma — Handcrafted Titanium & Acetate Bespoke Eyewear',
     description:
       'Individually sculpted optical frames and sunglasses crafted in Sabae, Japan and finished in Marylebone, London.',
   },

@@ -263,7 +263,7 @@ const coffeeProducts: CatalogItem[] = [
 export const storeCoffee: StarterContentSet = {
   id: 'store-coffee',
   archetype: 'store',
-  name: 'Artisan Roast & Precision Brew Lab',
+  name: 'Ember',
   description:
     'Direct-trade single-origin coffees, precision stepless burr grinders, temperature-controlled kettles, and manual espresso tools crafted in Melbourne.',
   niche: 'Specialty coffee beans & precision brewing instruments',
@@ -280,20 +280,21 @@ export const storeCoffee: StarterContentSet = {
   needsPersonalization: false,
   themeId: 'espresso-amber',
   business: {
-    name: 'Artisan Roast & Brew Lab Ltd',
-    shortName: 'Artisan Roast Lab',
+    name: 'Ember',
+    legalName: 'Artisan Roast & Brew Lab Ltd',
+    shortName: 'Ember',
     registrationNumber: 'ACN 618 920 411',
     jurisdiction: 'Melbourne, Victoria, Australia (ASIC)',
     governingLaw: 'the laws of Victoria and the Commonwealth of Australia',
     registeredAddress: '142 Flinders Lane, Melbourne, VIC 3000, Australia',
-    email: 'hello@artisanroastlab.example',
+    email: 'hello@embercoffee.example',
     phone: '+61 3 9654 8120',
-    website: 'artisanroastlab.example',
+    website: 'embercoffee.example',
     supportHours: 'Monday – Saturday, 07:00 – 16:00 (AEST)',
   },
-  brand: { logoText: 'Artisan Roast Lab' },
+  brand: { logoText: 'Ember' },
   meta: {
-    title: 'Artisan Roast Lab — Specialty Coffee Beans & Precision Brewing Instruments',
+    title: 'Ember — Specialty Coffee Beans & Precision Brewing Instruments',
     description:
       'Direct-trade micro-lots, precision stepless grinders, digital scales, and manual lever espresso machines roasted and calibrated in Melbourne.',
   },
@@ -304,7 +305,7 @@ export const storeCoffee: StarterContentSet = {
         headline: 'Precision instruments for the pursuit of the',
         accentText: 'perfect morning extraction',
         subtitle:
-          'From high-altitude Ethiopian and Colombian Gesha micro-lots to 64mm flat burr grinders and PID temperature kettles, Artisan Roast Lab elevates coffee brewing into an exact science.',
+          'From high-altitude Ethiopian and Colombian Gesha micro-lots to 64mm flat burr grinders and PID temperature kettles, Ember elevates coffee brewing into an exact science.',
         primaryCta: { label: 'Explore The Roastery', href: '/catalog' },
         secondaryCta: { label: 'Brewing Ratio Guides', href: '/about' },
         trustBadges: ['Roasted Within 48 Hours of Dispatch', '100% Direct-Trade Farm Partnerships', 'Precision Barista Calibration'],
@@ -467,7 +468,7 @@ export const storeCoffee: StarterContentSet = {
       story: {
         eyebrow: 'Our Philosophy',
         title: 'From farm soil to the final 30-second pour',
-        description: 'Artisan Roast Lab bridges the gap between dedicated coffee farmers and discerning home brewers who care deeply about taste clarity.',
+        description: 'Ember bridges the gap between dedicated coffee farmers and discerning home brewers who care deeply about taste clarity.',
         blocks: [
           {
             heading: 'Direct-Trade Relationships',

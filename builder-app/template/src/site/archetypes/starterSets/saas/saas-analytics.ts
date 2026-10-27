@@ -8,7 +8,7 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const saasAnalytics: StarterContentSet = {
   id: 'saas-analytics',
   archetype: 'saas',
-  name: 'Product Analytics Platform',
+  name: 'Signal',
   description:
     'Full-stack product analytics, event streaming and conversion funnels with sub-second queries and privacy-first ingestion.',
   niche: 'Product analytics & behavioral events',
@@ -16,8 +16,9 @@ export const saasAnalytics: StarterContentSet = {
   needsPersonalization: false,
   themeId: 'electric-teal',
   business: {
-    name: 'SignalTrace Technologies, Inc.',
-    shortName: 'SignalTrace',
+    name: 'Signal',
+    legalName: 'Signal Analytics, Inc.',
+    shortName: 'Signal',
     registrationNumber: 'DE-6918234',
     jurisdiction: 'Delaware, USA',
     governingLaw: 'the laws of the State of Delaware',
@@ -27,9 +28,9 @@ export const saasAnalytics: StarterContentSet = {
     website: 'signaltrace.example',
     supportHours: 'Monday – Friday, 09:00 – 18:00 (PST)',
   },
-  brand: { logoText: 'SignalTrace' },
+  brand: { logoText: 'Signal' },
   meta: {
-    title: 'SignalTrace — Real-Time Product Analytics & User Journey Insights',
+    title: 'Signal — Real-Time Product Analytics & User Journey Insights',
     description:
       'Autotrack behavioral events, isolate conversion drop-offs and measure feature adoption with sub-second query performance.',
   },
@@ -40,7 +41,7 @@ export const saasAnalytics: StarterContentSet = {
         headline: 'Understand user journeys without the',
         accentText: 'SQL bottlenecks',
         subtitle:
-          'SignalTrace captures client and server events with zero-lag ingestion, visual funnel diagnostics and retroactive cohort analysis. Discover where users convert, where they stall, and why.',
+          'Signal captures client and server events with zero-lag ingestion, visual funnel diagnostics and retroactive cohort analysis. Discover where users convert, where they stall, and why.',
         primaryCta: { label: 'Start Free Trial', href: '/pricing' },
         secondaryCta: { label: 'Explore Interactive Demo', href: '/about' },
         trustBadges: ['HIPAA & SOC 2 Ready', 'Sub-second queries', 'GDPR Compliant'],
@@ -150,7 +151,7 @@ export const saasAnalytics: StarterContentSet = {
             role: 'VP of Product',
             company: 'Novaflow',
             rating: 5,
-            text: 'SignalTrace transformed our onboarding flow. We spotted a 34% drop-off on our authentication screen within 10 minutes of deploying the SDK.',
+            text: 'Signal transformed our onboarding flow. We spotted a 34% drop-off on our authentication screen within 10 minutes of deploying the SDK.',
           },
           {
             name: 'Marcus Chen',
@@ -164,24 +165,24 @@ export const saasAnalytics: StarterContentSet = {
             role: 'Lead Data Engineer',
             company: 'DataCrest',
             rating: 5,
-            text: 'Integrating the client-side PII masking saved us weeks of compliance reviews. SignalTrace is our single source of truth for product telemetry.',
+            text: 'Integrating the client-side PII masking saved us weeks of compliance reviews. Signal is our single source of truth for product telemetry.',
           },
         ],
       },
       faq: {
         eyebrow: 'Frequently Asked Questions',
-        title: 'Everything you need to know about SignalTrace',
+        title: 'Everything you need to know about Signal',
         items: [
           {
-            q: 'How does SignalTrace impact application page load performance?',
+            q: 'How does Signal impact application page load performance?',
             a: 'Our lightweight client SDK is under 8KB gzipped. It loads asynchronously and batches event dispatches via navigator.sendBeacon, resulting in zero blocking time on your main UI thread.',
           },
           {
             q: 'Can we forward raw events to our existing data lake?',
-            a: 'Yes. On all paid plans, SignalTrace supports streaming raw event batches to Amazon S3, Google Cloud Storage, BigQuery, Snowflake, or custom HTTPS webhook sinks in real time.',
+            a: 'Yes. On all paid plans, Signal supports streaming raw event batches to Amazon S3, Google Cloud Storage, BigQuery, Snowflake, or custom HTTPS webhook sinks in real time.',
           },
           {
-            q: 'Is SignalTrace compliant with GDPR and CCPA regulations?',
+            q: 'Is Signal compliant with GDPR and CCPA regulations?',
             a: 'Yes. We offer EU-only data residency, automated consent banner bridging, and programmatic APIs to execute end-user data deletion and export requests instantly.',
           },
           {

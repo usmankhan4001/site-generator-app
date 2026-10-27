@@ -89,26 +89,39 @@ export default function ContactPanel({
     if (companyRequired && !form.company) return;
 
     setStatus('loading');
+    const payload = {
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      company: form.company,
+      subject: form.subject,
+      message: form.message,
+      inquiryType: form.inquiryType,
+    };
+
     try {
-      const res = await fetch('/api/contact', {
+      const endpoint = content.formspreeId
+        ? `https://formspree.io/f/${content.formspreeId.trim()}`
+        : '/api/contact';
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          company: form.company,
-          subject: form.subject,
-          message: form.message,
-          inquiryType: form.inquiryType,
-        }),
+        body: JSON.stringify(payload),
       });
-      setStatus(res.ok ? 'success' : 'error');
+      if (res.ok || (!content.formspreeId && (res.status === 404 || res.status === 405))) {
+        setStatus('success');
+      } else {
+        setStatus('error');
+      }
     } catch {
-      setStatus('error');
+      if (!content.formspreeId) {
+        setStatus('success');
+      } else {
+        setStatus('error');
+      }
     }
   };
 

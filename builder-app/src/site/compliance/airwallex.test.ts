@@ -3,13 +3,11 @@
  * Run: npx tsx src/site/compliance/airwallex.test.ts
  */
 import { auditAirwallexReadiness } from './airwallex';
-import { NORMALIZED_TEMPLATES } from '@/lib/normalizeTemplates';
+import { createSiteContentFromArchetype } from '@/site/archetypes/compose';
 import type { SiteContent } from '@/site/schema';
 
 function makeContent(overrides: Partial<SiteContent> = {}): SiteContent {
-  const base = JSON.parse(
-    JSON.stringify(NORMALIZED_TEMPLATES[0]),
-  ) as SiteContent;
+  const base = createSiteContentFromArchetype('saas', 'saas-devops');
   return { ...base, ...overrides };
 }
 
@@ -77,8 +75,8 @@ expect(gmailAudit.checks.some((c) => c.id === 'business.emailDomain' && c.status
 // 7. Governing-law mismatch should fail: change jurisdiction so the terms
 //    body (which names the original jurisdiction) no longer matches.
 const mismatch = makeContent();
-mismatch.business.jurisdiction = 'Singapore';
-mismatch.business.governingLaw = 'the laws of Singapore';
+mismatch.business.jurisdiction = 'Germany';
+mismatch.business.governingLaw = 'the laws of Germany';
 const mismatchAudit = auditAirwallexReadiness(mismatch);
 console.log('\n[7] Governing-law / jurisdiction mismatch');
 expect(

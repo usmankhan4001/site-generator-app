@@ -11,6 +11,7 @@ import type { ArchetypeId } from '@/site/archetypes/types';
 import { ARCHETYPES, STARTER_SETS } from '@/site/archetypes';
 import { createSiteContentFromArchetype } from '@/site/archetypes/compose';
 import { buildPolicyPage } from '@/site/archetypes/policies';
+import { THEMES_LIST } from '@/site/themes';
 import { getNormalizedTemplate, NORMALIZED_TEMPLATES } from '@/lib/normalizeTemplates';
 
 export interface ProjectSummary {
@@ -325,6 +326,10 @@ export async function createProjectFromArchetype(
   starterSetId: string | null | undefined,
   name: string | undefined,
   actor: Actor,
+  options?: {
+    themeId?: string;
+    business?: Partial<BusinessInfo>;
+  },
 ): Promise<ProjectDetail> {
   const arch = ARCHETYPES[archetypeId];
   if (!arch) throw new Error(`Unknown archetype: ${archetypeId}`);
@@ -349,11 +354,31 @@ export async function createProjectFromArchetype(
     content.brand = { ...content.brand, logoUrl: user.logoUrl };
   }
 
+  if (options?.themeId && THEMES_LIST.some((t) => t.id === options.themeId)) {
+    const matchedTheme = THEMES_LIST.find((t) => t.id === options.themeId)!;
+    content.themeId = matchedTheme.id;
+    content.accent = matchedTheme.preview.accent;
+  }
+
+  let updatedBusiness = false;
+  if (name?.trim()) {
+    const cleanName = name.trim();
+    const shortName = cleanName.split(/\s+/)[0] || cleanName;
+    content.business = {
+      ...content.business,
+      name: cleanName,
+      shortName,
+      legalName: cleanName,
+    };
+    content.brand = { logoText: shortName, ...(user?.logoUrl ? { logoUrl: user.logoUrl } : {}) };
+    content.meta = { ...content.meta, title: cleanName };
+    updatedBusiness = true;
+  }
+
   if (legalSetting?.value) {
     try {
       const legal = JSON.parse(legalSetting.value);
       if (legal && typeof legal === 'object') {
-        let updatedBusiness = false;
         const patch: Partial<BusinessInfo> = {};
         if (legal.entityName && typeof legal.entityName === 'string' && legal.entityName.trim()) {
           patch.name = legal.entityName.trim();
@@ -383,21 +408,43 @@ export async function createProjectFromArchetype(
           patch.phone = legal.contactPhone.trim();
           updatedBusiness = true;
         }
-
-        if (updatedBusiness) {
-          content.business = { ...content.business, ...patch };
-          if (arch.composition?.policies) {
-            for (const slug of arch.composition.policies) {
-              const idx = content.pages.findIndex((p) => p.key === `policy:${slug}`);
-              if (idx !== -1) {
-                content.pages[idx] = buildPolicyPage(slug, content.business);
-              }
-            }
-          }
-        }
+        content.business = { ...content.business, ...patch };
       }
     } catch {
       // Ignore JSON parse error on setting
+    }
+  }
+
+  if (options?.business) {
+    const bd = options.business;
+    const overlay: Partial<BusinessInfo> = {};
+    if (bd.legalName?.trim()) overlay.legalName = bd.legalName.trim();
+    if (bd.registrationNumber?.trim()) overlay.registrationNumber = bd.registrationNumber.trim();
+    if (bd.jurisdiction?.trim()) {
+      overlay.jurisdiction = bd.jurisdiction.trim();
+      overlay.governingLaw = bd.governingLaw?.trim() || `the laws of ${bd.jurisdiction.trim()}`;
+    } else if (bd.governingLaw?.trim()) {
+      overlay.governingLaw = bd.governingLaw.trim();
+    }
+    if (bd.registeredAddress?.trim()) overlay.registeredAddress = bd.registeredAddress.trim();
+    if (bd.email?.trim()) overlay.email = bd.email.trim();
+    if (bd.phone?.trim()) overlay.phone = bd.phone.trim();
+    if (bd.website?.trim()) overlay.website = bd.website.trim();
+    if (bd.taxId?.trim()) overlay.taxId = bd.taxId.trim();
+    if (bd.asNumber?.trim()) overlay.asNumber = bd.asNumber.trim();
+    if (bd.supportHours?.trim()) overlay.supportHours = bd.supportHours.trim();
+    if (Object.keys(overlay).length > 0) {
+      content.business = { ...content.business, ...overlay };
+      updatedBusiness = true;
+    }
+  }
+
+  if (updatedBusiness && arch.composition?.policies) {
+    for (const slug of arch.composition.policies) {
+      const idx = content.pages.findIndex((p) => p.key === `policy:${slug}`);
+      if (idx !== -1) {
+        content.pages[idx] = buildPolicyPage(slug, content.business);
+      }
     }
   }
 

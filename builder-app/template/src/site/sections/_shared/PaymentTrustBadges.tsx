@@ -21,7 +21,7 @@ export function PaymentTrustBadges({
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
           <span className="font-medium text-foreground">
-            Airwallex Verified Merchant &middot; PCI-DSS Level 1 Compliant
+            Payments secured with 256-bit SSL encryption
           </span>
         </div>
       )}

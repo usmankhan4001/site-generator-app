@@ -1,11 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import {
   Lock,
   ShieldCheck,
-  ArrowRight,
   CreditCard,
   Truck,
   CheckCircle2,
@@ -49,13 +47,11 @@ export default function Checkout({
     inStock: true,
   };
 
-  const { items: cartItems, clearCart, currency: cartCurrency } = useCart();
+  const { items: cartItems, currency: cartCurrency } = useCart();
   const [selectedItem] = useState<CatalogItem>(defaultItem);
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'airwallex'>('card');
-  const [orderPlaced, setOrderPlaced] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   // Form states
   const [email, setEmail] = useState('');
@@ -79,58 +75,14 @@ export default function Checkout({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Live mode only: send the customer to the client's Airwallex hosted
+    // checkout. Demo mode (no URL) never collects card data and never
+    // simulates a successful charge — a fake checkout is an instant
+    // Airwallex rejection.
     if (content.airwallexCheckoutUrl) {
       window.location.href = content.airwallexCheckoutUrl;
-      return;
     }
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setOrderPlaced(true);
-      clearCart();
-    }, 1200);
   };
-
-  if (orderPlaced) {
-    return (
-      <section className="py-20 md:py-28">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 mx-auto flex items-center justify-center">
-            <CheckCircle2 className="h-9 w-9" />
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Thank you for your order!
-          </h1>
-          <p className="text-muted-foreground leading-relaxed">
-            Your order confirmation has been sent to{' '}
-            <span className="font-semibold text-foreground">{email || 'your email address'}</span>.
-            We are preparing your shipment with tracked delivery.
-          </p>
-          <div className="rounded-xl border border-border bg-card p-6 text-left space-y-3 max-w-md mx-auto">
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Order Number:</span>
-              <span className="font-mono font-semibold text-foreground">
-                ORD-{Math.floor(100000 + Math.random() * 900000)}
-              </span>
-            </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Merchant:</span>
-              <span className="font-semibold text-foreground">{b.name}</span>
-            </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Total Paid:</span>
-              <span className="font-bold text-foreground">{formatPrice(total, currency)}</span>
-            </div>
-          </div>
-          <div className="pt-4">
-            <Button asChild size="lg" className="h-11 px-8 font-semibold">
-              <Link href="/">Return to Store</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="py-12 md:py-20 bg-muted/10 border-b border-border">
@@ -151,6 +103,13 @@ export default function Checkout({
             <span className="font-bold text-foreground">{b.name}</span>
           </div>
         </div>
+
+        {!content.airwallexCheckoutUrl && (
+          <div className="mb-6 p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2.5">
+            <HelpCircle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <span>Online payments are not enabled yet. Checkout stays in a contact-only mode until the site owner connects an Airwallex hosted payment page — no card details are collected.</span>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
           {/* Left Column — Customer & Payment Form */}
@@ -256,7 +215,7 @@ export default function Checkout({
                 <h2 className="text-base font-bold text-foreground">3. Payment Method</h2>
                 <div className="flex items-center gap-1.5 text-xs text-primary font-semibold">
                   <ShieldCheck className="h-4 w-4" />
-                  <span>PCI-DSS Level 1</span>
+                  <span>SSL Encrypted</span>
                 </div>
               </div>
 
@@ -288,7 +247,7 @@ export default function Checkout({
                 </button>
               </div>
 
-              {paymentMethod === 'card' ? (
+              {content.airwallexCheckoutUrl && paymentMethod === 'card' ? (
                 <div className="space-y-3.5 pt-1">
                   <div>
                     <label className="text-xs font-semibold text-foreground mb-1 block">Card Number</label>
@@ -326,7 +285,9 @@ export default function Checkout({
               ) : (
                 <div className="p-4 rounded-xl bg-muted/40 border border-border text-center space-y-2">
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    You will be securely redirected to complete checkout with Airwallex One-Click Checkout, Apple Pay, or Google Pay.
+                    {content.airwallexCheckoutUrl
+                      ? 'You will be securely redirected to complete checkout with Airwallex One-Click Checkout, Apple Pay, or Google Pay.'
+                      : 'Online payments are not enabled yet. Please contact us to complete your order, or check back soon.'}
                   </p>
                 </div>
               )}
@@ -339,21 +300,28 @@ export default function Checkout({
 
             {/* Submit Action */}
             <div className="space-y-3">
-              <Button
-                type="submit"
-                size="lg"
-                disabled={loading}
-                className="w-full h-12 text-base font-bold shadow-md hover:shadow-lg transition-all"
-              >
-                {loading ? (
-                  <span>Processing Secure Payment...</span>
-                ) : (
+              {content.airwallexCheckoutUrl ? (
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full h-12 text-base font-bold shadow-md hover:shadow-lg transition-all"
+                >
                   <span className="flex items-center justify-center gap-2">
                     <Lock className="h-4 w-4" />
                     Pay {formatPrice(total, currency)} &middot; Place Order
                   </span>
-                )}
-              </Button>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="lg"
+                  disabled
+                  className="w-full h-12 text-base font-bold"
+                >
+                  <Lock className="h-4 w-4" />
+                  Online checkout coming soon
+                </Button>
+              )}
               <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
                 By placing your order, you agree to {b.name}&apos;s Terms of Service and Refund Policy. All payments are encrypted and processed through Airwallex infrastructure.
               </p>
@@ -521,7 +489,7 @@ export default function Checkout({
                 </div>
                 <div className="flex items-center gap-2 font-medium text-foreground">
                   <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
-                  <span>Airwallex Verified Merchant &amp; PCI-DSS Level 1</span>
+                  <span>Secure checkout &middot; 256-bit SSL encryption</span>
                 </div>
                 <div className="flex items-center gap-2 font-medium text-foreground">
                   <Truck className="h-4 w-4 text-primary shrink-0" />

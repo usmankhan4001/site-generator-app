@@ -1,30 +1,57 @@
 import type { Metadata } from "next";
+import "./globals.css";
 import { SITE } from "@/content/site";
 import { getTheme } from "@/site/themes";
 
 const theme = getTheme(SITE.themeId);
 
 function googleFontsHref(families: string[]) {
-  const q = families.map(f => `family=${encodeURIComponent(f)}:wght@400;500;600;700`).join("&");
+  const q = families
+    .map((f) => `family=${encodeURIComponent(f)}:wght@400;500;600;700`)
+    .join("&");
   return `https://fonts.googleapis.com/css2?${q}&display=swap`;
 }
 
 export function generateMetadata(): Metadata {
   return {
-    title: { default: SITE.meta.title, template: `%s · ${SITE.business.shortName}` },
+    title: {
+      default: SITE.meta.title,
+      template: `%s · ${SITE.business.shortName}`,
+    },
     description: SITE.meta.description,
+    authors: [{ name: SITE.business.name }],
+    openGraph: {
+      title: SITE.meta.title,
+      description: SITE.meta.description,
+      type: "website",
+      ...(SITE.meta.ogImage ? { images: [SITE.meta.ogImage] } : {}),
+    },
   };
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={theme.isDark ? "dark" : undefined}>
+    <html
+      lang="en"
+      className={theme.isDark ? "dark" : undefined}
+      suppressHydrationWarning
+    >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link rel="stylesheet" href={googleFontsHref(theme.googleFonts)} />
       </head>
-      <body className="min-h-dvh bg-background text-foreground">{children}</body>
+      <body className="min-h-dvh bg-background text-foreground antialiased">
+        {children}
+      </body>
     </html>
   );
 }

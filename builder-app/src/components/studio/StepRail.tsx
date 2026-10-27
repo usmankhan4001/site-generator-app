@@ -8,10 +8,12 @@ import {
   Palette,
   Building2,
   Rocket,
+  Plus,
   type LucideIcon,
 } from 'lucide-react';
-import { useStudio, useActivePage, type StudioStep } from '@/store/studio';
+import { useStudio, type StudioStep } from '@/store/studio';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface StepItem {
@@ -57,20 +59,27 @@ export const STUDIO_STEP_ITEMS: StepItem[] = [
 interface StepRailProps {
   open?: boolean;
   onClose?: () => void;
-  onOpenProperties?: () => void;
+  propertiesOpen?: boolean;
+  onSelectStep?: (step: StudioStep) => void;
 }
 
-export function StepRail({ open, onClose, onOpenProperties }: StepRailProps) {
+export function StepRail({
+  open,
+  onClose,
+  propertiesOpen = false,
+  onSelectStep,
+}: StepRailProps) {
   const content = useStudio((s) => s.content);
   const activePagePath = useStudio((s) => s.activePagePath);
   const setActivePage = useStudio((s) => s.setActivePage);
   const step = useStudio((s) => s.step);
   const setStep = useStudio((s) => s.setStep);
+  const selectedSectionId = useStudio((s) => s.selectedSectionId);
   const selectSection = useStudio((s) => s.selectSection);
-  const activePage = useActivePage();
+  const viewMode = useStudio((s) => s.viewMode);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Close on Escape
+  // Close Pages drawer on Escape
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -80,7 +89,7 @@ export function StepRail({ open, onClose, onOpenProperties }: StepRailProps) {
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  // Close on click outside
+  // Close Pages drawer on click outside
   useEffect(() => {
     if (!open) return;
     const onClick = (e: MouseEvent) => {
@@ -93,59 +102,62 @@ export function StepRail({ open, onClose, onOpenProperties }: StepRailProps) {
   }, [open, onClose]);
 
   const handleStepClick = (stepId: StudioStep) => {
+    if (onSelectStep) {
+      onSelectStep(stepId);
+      return;
+    }
     selectSection(null);
     setStep(stepId);
-    if (stepId === 'pages' && onClose && !open) {
-      // Toggle or keep pages drawer
-    }
   };
 
   const pages = content?.pages ?? [];
 
   return (
     <>
-      {/* Standalone / Docked Studio Left Rail */}
-      <aside
-        aria-label="Studio step rail"
-        className="pointer-events-auto absolute left-3 top-1/2 z-20 -translate-y-1/2 hidden md:flex flex-col items-center rounded-2xl border border-border/80 bg-card/95 p-1.5 shadow-xl backdrop-blur-md transition-all"
-      >
-        <nav aria-label="Studio navigation" className="flex flex-col items-center gap-1.5">
-          {STUDIO_STEP_ITEMS.map((item) => {
-            const active = step === item.id;
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => handleStepClick(item.id)}
-                aria-label={item.label}
-                aria-current={active ? 'step' : undefined}
-                title={`${item.label} — ${item.description}`}
-                className={cn(
-                  'group relative flex h-10 w-10 flex-col items-center justify-center rounded-xl text-xs transition-all',
-                  active
-                    ? 'bg-primary text-primary-foreground shadow-sm font-semibold'
-                    : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-                )}
-              >
-                <Icon className="h-4 w-4 shrink-0 transition-transform group-hover:scale-110" />
-                <span className="sr-only">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </aside>
+      {/* Standalone / Docked Studio Left Rail (visible in Edit mode) */}
+      {viewMode === 'edit' && (
+        <aside
+          aria-label="Studio step rail"
+          className="pointer-events-auto absolute left-3 top-1/2 z-20 -translate-y-1/2 hidden md:flex flex-col items-center rounded-2xl border border-border/80 bg-card/95 p-1.5 shadow-xl backdrop-blur-md transition-all"
+        >
+          <nav aria-label="Studio navigation" className="flex flex-col items-center gap-1">
+            {STUDIO_STEP_ITEMS.map((item) => {
+              const active =
+                propertiesOpen &&
+                (selectedSectionId ? item.id === 'sections' : step === item.id);
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleStepClick(item.id)}
+                  aria-label={item.label}
+                  aria-current={active ? 'step' : undefined}
+                  title={`${item.label} — ${item.description}`}
+                  className={cn(
+                    'group relative flex h-12 w-12 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] transition-all',
+                    active
+                      ? 'bg-primary text-primary-foreground shadow-sm font-semibold'
+                      : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                  )}
+                >
+                  <Icon className="h-4 w-4 shrink-0 transition-transform group-hover:scale-110" />
+                  <span className="leading-none tracking-tight">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </aside>
+      )}
 
-      {/* Pages Drawer (When explicitly opened via topbar or pages drawer trigger) */}
+      {/* Pages Quick-Switcher Drawer (When opened via TopBar page selector) */}
       {open && (
         <>
-          {/* Backdrop */}
           <div
             className="absolute inset-0 z-40 bg-black/20 backdrop-blur-xs transition-opacity"
             onClick={onClose}
           />
 
-          {/* Drawer */}
           <div
             ref={panelRef}
             role="dialog"
@@ -216,6 +228,23 @@ export function StepRail({ open, onClose, onOpenProperties }: StepRailProps) {
                 </ul>
               </nav>
             </ScrollArea>
+
+            {/* Footer action to manage/add pages in inspector */}
+            <div className="border-t border-border p-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full gap-1.5 text-xs"
+                onClick={() => {
+                  if (onClose) onClose();
+                  handleStepClick('pages');
+                }}
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add / Manage Pages
+              </Button>
+            </div>
           </div>
         </>
       )}

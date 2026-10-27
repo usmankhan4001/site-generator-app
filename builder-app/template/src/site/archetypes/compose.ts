@@ -122,8 +122,9 @@ export function createSiteContentFromArchetype(
   starterSetId: string | null,
 ): SiteContent {
   const arch = ARCHETYPES[archetypeId];
+  const effectiveStarterId = starterSetId || arch.starterSetIds?.[0] || null;
   const starterSet: StarterContentSet | undefined =
-    (starterSetId && STARTER_SETS[starterSetId]) || undefined;
+    (effectiveStarterId && STARTER_SETS[effectiveStarterId]) || undefined;
 
   const business: BusinessInfo = { ...PLACEHOLDER_BUSINESS, ...starterSet?.business };
 

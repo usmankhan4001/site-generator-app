@@ -15,8 +15,12 @@ import {
   Layers,
   ArrowRight,
   BookOpen,
+  Loader2,
+  Globe,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useStudio } from '@/store/studio';
 import { cn } from '@/lib/utils';
 
 interface ExportHostModalProps {
@@ -96,10 +100,19 @@ export function ExportHostModal({
   projectId,
   projectName = 'my-site',
 }: ExportHostModalProps) {
+  const meta = useStudio((s) => s.meta);
+  const requestPublish = useStudio((s) => s.requestPublish);
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformOption>(PLATFORMS[0]);
   const [downloading, setDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [customDomain, setCustomDomain] = useState(meta?.customDomain ?? meta?.domain ?? '');
+  const [deploying, setDeploying] = useState<'managed' | 'github' | null>(null);
+  const [deployBanner, setDeployBanner] = useState<{
+    ok: boolean;
+    message: string;
+    liveUrl?: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -140,6 +153,47 @@ export function ExportHostModal({
       setDownloadError(err instanceof Error ? err.message : 'Export failed');
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const handleInstantDeploy = async (mode: 'managed' | 'github') => {
+    setDeploying(mode);
+    setDeployBanner(null);
+    try {
+      const endpoint =
+        mode === 'github'
+          ? `/api/projects/${projectId}/github-pages`
+          : `/api/projects/${projectId}/deploy`;
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customDomain: customDomain.trim() || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        if (data.mode === 'queued_for_operator') {
+          await requestPublish();
+        }
+        setDeployBanner({
+          ok: true,
+          message: data.message || 'Deployment started!',
+          liveUrl: data.liveUrl,
+        });
+      } else {
+        setDeployBanner({
+          ok: false,
+          message: data.error || 'Deployment failed.',
+        });
+      }
+    } catch (err) {
+      setDeployBanner({
+        ok: false,
+        message: err instanceof Error ? err.message : 'Deployment failed.',
+      });
+    } finally {
+      setDeploying(null);
     }
   };
 
@@ -190,9 +244,98 @@ export function ExportHostModal({
         <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
           {/* Left Pane: Visual Platform Cards */}
           <div className="thin-scroll flex-1 overflow-y-auto p-6 space-y-4 border-r border-border">
+            {/* One-Click Cloud Publish Card */}
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <Rocket className="h-3.5 w-3.5 text-primary" />
+                    Instant Cloud Publish
+                  </span>
+                  <p className="text-[11px] text-muted-foreground">
+                    Publish directly to Managed Cloud Hosting or push a free live site to GitHub Pages.
+                  </p>
+                </div>
+                {meta?.liveUrl && (
+                  <a
+                    href={meta.liveUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/15 px-2.5 py-1 text-[11px] font-semibold text-emerald-500 hover:underline"
+                  >
+                    <span>Live Site</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1">
+                  <Globe className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    value={customDomain}
+                    onChange={(e) => setCustomDomain(e.target.value)}
+                    placeholder="Custom domain (optional, e.g. yourcompany.com)"
+                    className="h-9 pl-8 text-xs bg-background"
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => handleInstantDeploy('managed')}
+                  disabled={deploying !== null}
+                  className="h-9 gap-1.5 text-xs font-semibold"
+                >
+                  {deploying === 'managed' ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Rocket className="h-3.5 w-3.5" />
+                  )}
+                  <span>Publish Live</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleInstantDeploy('github')}
+                  disabled={deploying !== null}
+                  className="h-9 gap-1.5 text-xs bg-background"
+                >
+                  {deploying === 'github' ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Github className="h-3.5 w-3.5" />
+                  )}
+                  <span>GitHub Pages</span>
+                </Button>
+              </div>
+
+              {deployBanner && (
+                <div
+                  className={cn(
+                    'flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-xs',
+                    deployBanner.ok
+                      ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                      : 'border-destructive/30 bg-destructive/10 text-destructive',
+                  )}
+                >
+                  <span>{deployBanner.message}</span>
+                  {deployBanner.liveUrl && (
+                    <a
+                      href={deployBanner.liveUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 font-mono font-semibold underline"
+                    >
+                      {deployBanner.liveUrl.replace(/^https?:\/\//, '')}
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                1. Select Target Hosting Platform
+                1. Or Self-Host on Target Platform
               </span>
               <span className="text-[11px] text-muted-foreground">
                 Click a card to download & view guide

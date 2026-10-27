@@ -82,13 +82,21 @@ export const SECTION_FIELDS: Partial<Record<SectionType, FieldSpec[]>> = {
     { kind: 'text', key: 'description' },
     { kind: 'text', key: 'discountBadge' },
     { kind: 'text', key: 'footnote' },
-    { kind: 'objects', key: 'tiers', itemKeys: ['name', 'description', 'badge', 'features'] },
+    {
+      kind: 'objects',
+      key: 'tiers',
+      itemKeys: ['name', 'description', 'badge', 'price', 'priceUnit', 'features'],
+    },
   ],
   productGrid: [
     { kind: 'text', key: 'eyebrow' },
     { kind: 'text', key: 'title' },
     { kind: 'text', key: 'description' },
-    { kind: 'objects', key: 'items', itemKeys: ['name', 'description', 'category', 'features'] },
+    {
+      kind: 'objects',
+      key: 'items',
+      itemKeys: ['name', 'description', 'category', 'badge', 'price', 'priceUnit', 'features'],
+    },
   ],
   testimonials: [
     { kind: 'text', key: 'eyebrow' },
@@ -124,13 +132,13 @@ export const SECTION_FIELDS: Partial<Record<SectionType, FieldSpec[]>> = {
     { kind: 'text', key: 'eyebrow' },
     { kind: 'text', key: 'title' },
     { kind: 'text', key: 'description' },
-    { kind: 'objects', key: 'milestones', itemKeys: ['title', 'description'] },
+    { kind: 'objects', key: 'milestones', itemKeys: ['year', 'title', 'description'] },
   ],
   teamGrid: [
     { kind: 'text', key: 'eyebrow' },
     { kind: 'text', key: 'title' },
     { kind: 'text', key: 'description' },
-    { kind: 'objects', key: 'members', itemKeys: ['name', 'role', 'bio'] },
+    { kind: 'objects', key: 'members', itemKeys: ['name', 'role', 'bio', 'credentials'] },
   ],
   valueGrid: [
     { kind: 'text', key: 'eyebrow' },
@@ -142,7 +150,7 @@ export const SECTION_FIELDS: Partial<Record<SectionType, FieldSpec[]>> = {
     { kind: 'text', key: 'eyebrow' },
     { kind: 'text', key: 'title' },
     { kind: 'text', key: 'description' },
-    { kind: 'objects', key: 'steps', itemKeys: ['title', 'description'] },
+    { kind: 'objects', key: 'steps', itemKeys: ['step', 'title', 'description', 'duration'] },
   ],
   slaTable: [
     { kind: 'text', key: 'eyebrow' },
@@ -301,18 +309,35 @@ function applyAllowList(
     }
 
     // kind === 'objects' — overlay text sub-fields per item, preserving the
-    // original non-text fields (ids, prices, urls, enums).
+    // original non-text fields (ids, prices, urls, enums) and safely cloning
+    // a template item when the AI returns more items than the seed array had.
     if (Array.isArray(aiValue)) {
       const original = Array.isArray(originalProps[spec.key]) ? (originalProps[spec.key] as unknown[]) : [];
+      const fallbackTemplate =
+        original.length > 0 &&
+        original[original.length - 1] &&
+        typeof original[original.length - 1] === 'object' &&
+        !Array.isArray(original[original.length - 1])
+          ? (original[original.length - 1] as Record<string, unknown>)
+          : {};
       const merged = aiValue.map((item, idx) => {
         if (!item || typeof item !== 'object' || Array.isArray(item)) return {};
-        const base = (original[idx] && typeof original[idx] === 'object' && !Array.isArray(original[idx])
-          ? (original[idx] as Record<string, unknown>)
-          : {}) as Record<string, unknown>;
+        const seedItem =
+          original[idx] && typeof original[idx] === 'object' && !Array.isArray(original[idx])
+            ? (original[idx] as Record<string, unknown>)
+            : fallbackTemplate;
+        const base: Record<string, unknown> = { ...seedItem };
+        if (idx >= original.length) {
+          if ('id' in base) base.id = `item-${idx + 1}`;
+          if ('image' in base) delete base.image;
+          if ('popular' in base) base.popular = false;
+        }
         for (const k of spec.itemKeys) {
           const v = (item as Record<string, unknown>)[k];
-          if (typeof v === 'string') base[k] = v.trim();
-          else if (Array.isArray(v) && k.endsWith('s') && v.every((x) => typeof x === 'string')) {
+          if (typeof v === 'string' && v.trim()) base[k] = v.trim();
+          else if (k === 'price' && typeof v === 'number' && Number.isFinite(v) && v >= 0) {
+            base[k] = v;
+          } else if (Array.isArray(v) && k.endsWith('s') && v.every((x) => typeof x === 'string')) {
             base[k] = v.map((x) => x.trim()).filter(Boolean);
           }
         }

@@ -7,14 +7,21 @@ import { recommendArchetypes } from '@/lib/studio/recommend';
 import { ProgressBar } from '@/components/onboarding/primitives';
 import { LoadingStep } from '@/components/onboarding/LoadingStep';
 import type { PreferredMode } from '@/components/onboarding/types';
+import type { ArchetypeId } from '@/site/archetypes/types';
 import { BusinessPromptStep } from './BusinessPromptStep';
 import { StylePickerStep } from './StylePickerStep';
-import { BusinessDetailsStep, EMPTY_BUSINESS_DETAILS, type BusinessDetails } from './BusinessDetailsStep';
+import {
+  BusinessDetailsStep,
+  EMPTY_BUSINESS_DETAILS,
+  type BusinessDetails,
+} from './BusinessDetailsStep';
 
 interface CreateData {
   businessName: string;
   prompt: string;
   mode: PreferredMode;
+  archetypeId?: ArchetypeId;
+  starterSetId?: string;
   themeId: string;
   details: BusinessDetails;
 }
@@ -28,18 +35,11 @@ const EMPTY_DATA: CreateData = {
 };
 
 /**
- * Typeform-style one-question-at-a-time site creation flow. Replaces the old
- * manual-variant picker: the business name + prompt drive real AI archetype
- * selection and copywriting (`/api/ai/generate-site`), the style step picks a
- * real theme, and the business details populate contact/legal info
- * throughout the generated site. Everything stays editable in the studio
- * afterwards, and export lives there too.
- *
- * Steps:
- * 0 — Business name, what it's about, services vs ecommerce
+ * Typeform-style one-question-at-a-time site creation flow:
+ * 0 — Business name, what it's about, services vs ecommerce (+ optional starter blueprint)
  * 1 — Pick a look (live theme mockups)
  * 2 — Business details (contact + legal, feeds every page)
- * 3 — Loading / AI generation
+ * 3 — Loading / AI generation (with full fallback preserving theme + business details)
  */
 export function CreateFlow() {
   const router = useRouter();
@@ -117,6 +117,7 @@ export function CreateFlow() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          archetypeId: data.archetypeId,
           brief: {
             name: data.businessName,
             niche: data.prompt,
@@ -139,9 +140,10 @@ export function CreateFlow() {
         }
       }
 
-      // 3. Fallback: AI not configured / failed → best-fit archetype blueprint.
+      // 3. Fallback: AI not configured / failed → best-fit archetype blueprint
+      // WITH the user's chosen theme, business name, and legal/contact details preserved.
       setNotice(
-        "AI isn't configured yet — you have a starting template to customize.",
+        'Building your site from the best-matching industry blueprint with your theme and business details…',
       );
 
       const recommendations = recommendArchetypes({
@@ -150,17 +152,18 @@ export function CreateFlow() {
       });
 
       const topRec = recommendations[0];
-      if (!topRec) {
-        throw new Error('No suitable template found.');
-      }
+      const finalArchetypeId = data.archetypeId ?? topRec?.archetypeId ?? 'saas';
+      const finalStarterSetId = data.starterSetId ?? topRec?.starterSetId ?? null;
 
       const projectRes = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          archetypeId: topRec.archetypeId,
-          starterSetId: topRec.starterSetId ?? null,
+          archetypeId: finalArchetypeId,
+          starterSetId: finalStarterSetId,
           name: data.businessName || data.prompt,
+          themeId: data.themeId || undefined,
+          business: data.details,
         }),
       });
 
@@ -220,9 +223,14 @@ export function CreateFlow() {
               businessName={data.businessName}
               prompt={data.prompt}
               mode={data.mode}
+              archetypeId={data.archetypeId}
+              starterSetId={data.starterSetId}
               onChangeName={(v) => patch({ businessName: v })}
               onChangePrompt={(v) => patch({ prompt: v })}
               onChangeMode={(v) => patch({ mode: v })}
+              onChangeBlueprint={(archId, starterId) =>
+                patch({ archetypeId: archId, starterSetId: starterId })
+              }
               onContinue={() => advance(200)}
             />
           )}

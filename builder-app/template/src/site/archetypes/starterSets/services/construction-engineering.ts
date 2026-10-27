@@ -9,7 +9,7 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const constructionEngineering: StarterContentSet = {
   id: 'construction_engineering',
   archetype: 'services',
-  name: 'Vanguard Heavy Infrastructure',
+  name: 'Vanguard',
   description:
     'Turnkey Engineering, Procurement, and Construction (EPC) leader delivering megaproject civil engineering, maritime deep-water terminals, transit tunnels, and energy grid modernisation.',
   niche: 'Heavy Civil Infrastructure & EPC Engineering',
@@ -23,11 +23,12 @@ export const constructionEngineering: StarterContentSet = {
     'megaprojects',
   ],
   needsPersonalization: false,
-  themeId: 'sunset-amber',
-  accent: '#d97706',
+  themeId: 'highvis-amber',
+  accent: '#f59e0b',
   business: {
-    name: 'Vanguard Heavy Infrastructure & Engineering Corp.',
-    shortName: 'Vanguard Infrastructure',
+    name: 'Vanguard',
+    legalName: 'Vanguard Heavy Infrastructure & Engineering Corp.',
+    shortName: 'Vanguard',
     registrationNumber: 'TX-080392184',
     jurisdiction: 'State of Texas, USA (OSHA VPP Star & ISO 9001/14001/45001 Certified)',
     governingLaw: 'the laws of the State of Texas',
@@ -39,7 +40,7 @@ export const constructionEngineering: StarterContentSet = {
     supportHours: 'Monday – Friday, 07:00 – 18:00 (CST) · 24/7 Incident Dispatch',
   },
   brand: {
-    logoText: 'Vanguard Infrastructure',
+    logoText: 'Vanguard',
   },
   header: {
     variant: 'corporate_utility',
@@ -58,7 +59,7 @@ export const constructionEngineering: StarterContentSet = {
     href: '/contact',
   },
   meta: {
-    title: 'Vanguard Heavy Infrastructure — Turnkey EPC & Civil Megaprojects',
+    title: 'Vanguard — Turnkey EPC & Civil Megaprojects',
     description:
       'Multi-billion dollar heavy civil engineering, maritime ports, rail corridors, and clean energy infrastructure delivered with safety and schedule certainty.',
     ogImage: 'https://images.unsplash.com/photo-1541888946425-d0fbb186156f?auto=format&fit=crop&w=1200&q=80',

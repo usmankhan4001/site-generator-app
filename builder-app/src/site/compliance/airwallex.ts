@@ -159,8 +159,40 @@ export function auditAirwallexReadiness(content: SiteContent): AirwallexAudit {
       p.sections
         .filter((s) => s.enabled)
         .map((s) => {
-          const props = s.props as { body?: string; title?: string; headline?: string };
-          return `${props.title ?? ''} ${props.headline ?? ''} ${props.body ?? ''}`;
+          const props = s.props as {
+            body?: string;
+            title?: string;
+            headline?: string;
+            subtitle?: string;
+            description?: string;
+            blocks?: { heading?: string; body?: string }[];
+            items?: { title?: string; description?: string }[];
+            milestones?: { title?: string; description?: string }[];
+            members?: { name?: string; bio?: string }[];
+          };
+          const blocksText = (props.blocks ?? [])
+            .map((blk) => `${blk.heading ?? ''} ${blk.body ?? ''}`)
+            .join(' ');
+          const itemsText = (props.items ?? [])
+            .map((i) => `${i.title ?? ''} ${i.description ?? ''}`)
+            .join(' ');
+          const milestonesText = (props.milestones ?? [])
+            .map((m) => `${m.title ?? ''} ${m.description ?? ''}`)
+            .join(' ');
+          const membersText = (props.members ?? [])
+            .map((m) => `${m.name ?? ''} ${m.bio ?? ''}`)
+            .join(' ');
+          return [
+            props.title ?? '',
+            props.headline ?? '',
+            props.subtitle ?? '',
+            props.description ?? '',
+            props.body ?? '',
+            blocksText,
+            itemsText,
+            milestonesText,
+            membersText,
+          ].join(' ');
         })
         .join(' '),
     )
@@ -177,12 +209,6 @@ export function auditAirwallexReadiness(content: SiteContent): AirwallexAudit {
   const contactSections = contactPage
     ? contactPage.sections.filter((s) => s.enabled)
     : [];
-  const contactBody = contactSections
-    .map((s) => {
-      const props = s.props as { body?: string; title?: string };
-      return `${props.title ?? ''} ${props.body ?? ''}`;
-    })
-    .join(' ');
   checks.push({
     id: 'pages.contact',
     requirement: 'Business identification details',

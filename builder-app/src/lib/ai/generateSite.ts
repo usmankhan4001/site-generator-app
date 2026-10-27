@@ -116,6 +116,7 @@ const VARIANT_OPTIONS: Partial<Record<SectionType, string[]>> = {
   hero: ['split', 'centered', 'stacked', 'editorial', 'fullbleed_display', 'stats_banner_split', 'asymmetric_bento_collage'],
   featureGrid: ['even', 'asymmetric_bento', 'sticky_scroll', 'tabbed_showcase', 'zigzag_rows'],
   pricingTiers: ['cards', 'glow_card_deck', 'comparison_table', 'custom_quote_service'],
+  productGrid: ['products', 'fashion_minimal', 'mega_catalog', 'single_flagship_bundle'],
   testimonials: ['cards', 'infinite_marquee', 'editorial_pullquote'],
   faq: ['accordion', 'two_column', 'grid_cards'],
   ctaBanner: ['centered', 'split_visual', 'gradient_banner'],
@@ -190,18 +191,35 @@ function applySectionPatch(
       continue;
     }
     // kind === 'objects' — overlay text sub-fields per item, preserving the
-    // original non-text fields (ids, prices, urls, enums).
+    // original non-text fields (ids, prices, urls, enums) and safely cloning
+    // a template item when the AI returns more items than the seed array had.
     if (Array.isArray(v)) {
       const original = Array.isArray(originalProps[spec.key]) ? (originalProps[spec.key] as unknown[]) : [];
+      const fallbackTemplate =
+        original.length > 0 &&
+        original[original.length - 1] &&
+        typeof original[original.length - 1] === 'object' &&
+        !Array.isArray(original[original.length - 1])
+          ? (original[original.length - 1] as Record<string, unknown>)
+          : {};
       filtered[spec.key] = v.map((item, idx) => {
         if (!item || typeof item !== 'object' || Array.isArray(item)) return {};
-        const base = (original[idx] && typeof original[idx] === 'object' && !Array.isArray(original[idx])
-          ? (original[idx] as Record<string, unknown>)
-          : {}) as Record<string, unknown>;
+        const seedItem =
+          original[idx] && typeof original[idx] === 'object' && !Array.isArray(original[idx])
+            ? (original[idx] as Record<string, unknown>)
+            : fallbackTemplate;
+        const base: Record<string, unknown> = { ...seedItem };
+        if (idx >= original.length) {
+          if ('id' in base) base.id = `item-${idx + 1}`;
+          if ('image' in base) delete base.image;
+          if ('popular' in base) base.popular = false;
+        }
         for (const k of spec.itemKeys) {
           const fv = (item as Record<string, unknown>)[k];
-          if (typeof fv === 'string') base[k] = fv.trim();
-          else if (isStringArray(fv) && k.endsWith('s')) {
+          if (typeof fv === 'string' && fv.trim()) base[k] = fv.trim();
+          else if (k === 'price' && typeof fv === 'number' && Number.isFinite(fv) && fv >= 0) {
+            base[k] = fv;
+          } else if (isStringArray(fv) && k.endsWith('s')) {
             base[k] = fv.map((x) => x.trim()).filter(Boolean);
           }
         }
@@ -347,6 +365,7 @@ export async function generateSiteFromBrief({
     `    hero: ${VARIANT_OPTIONS.hero!.join(', ')} — split: classic two-column copy + image, most businesses. centered: copy-only, no strong image. stacked: full-width banner image with copy below, product/place-led businesses. editorial: large display type, upmarket/premium/editorial brands. fullbleed_display: full-bleed video/image opener, businesses with a striking visual or demo. stats_banner_split: headline plus a 4-metric grid, businesses with real quantifiable numbers to lead with. asymmetric_bento_collage: multi-image collage, visual/image-rich products or spaces.`,
     `    featureGrid: ${VARIANT_OPTIONS.featureGrid!.join(', ')} — even: uniform card grid, many roughly-equal features. asymmetric_bento: one large flagship feature plus smaller ones, when one capability leads. sticky_scroll: narrative left panel + detailed right-hand cards, a handful of features that need real explanation. tabbed_showcase: switchable tabs, distinct audiences or use-cases. zigzag_rows: alternating large-image rows, features that each deserve a big illustrative image.`,
     `    pricingTiers: ${VARIANT_OPTIONS.pricingTiers!.join(', ')} — cards: plain tier cards, straightforward fixed pricing. glow_card_deck: highlighted recommended tier with monthly/annual toggle, subscription SaaS. comparison_table: full feature-by-feature matrix, tiers that differ across many concrete features worth comparing side by side. custom_quote_service: bespoke package tiles, B2B/bespoke engagements without fixed public pricing.`,
+    `    productGrid: ${VARIANT_OPTIONS.productGrid!.join(', ')} — products: standard retail product grid. fashion_minimal: tall 4:5 portrait cards with serif typography for apparel/luxury/lifestyle. mega_catalog: square cards with ratings, badges and stock indicators for electronics/catalog stores. single_flagship_bundle: spotlight hero product with bundle options for single-product or flagship-led brands.`,
     `    testimonials: ${VARIANT_OPTIONS.testimonials!.join(', ')} — cards: even grid of quotes, several testimonials of similar weight. infinite_marquee: continuously scrolling dual rows, many short quotes to convey volume of praise. editorial_pullquote: one large featured quote with portrait, a single standout endorsement worth spotlighting (optionally with a real "metric" value if the business actually gave you one — never invent a number here).`,
     `    faq: ${VARIANT_OPTIONS.faq!.join(', ')} — accordion: single collapsible list, a handful of questions. two_column: split into two accordion columns, a longer question list. grid_cards: every question and answer visible at once, a short list where showing everything upfront reads as confident and transparent.`,
     `    ctaBanner: ${VARIANT_OPTIONS.ctaBanner!.join(', ')} — centered: plain centred closer, most businesses. split_visual: copy left with a supporting image right, visual/image-led businesses (an image is only shown if one is available — fine to pick regardless). gradient_banner: bold full-bleed colour band, a punchier high-energy closer.`,
@@ -445,7 +464,6 @@ export async function generateSiteFromBrief({
 
   content.themeId = theme.themeId;
   if (theme.accent) content.accent = theme.accent;
-  content.brand = { ...content.brand, logoUrl: logo.logoUrl };
 
   const { brand, legalName } = deriveBrand(brief.name, arch.name);
   content.business = {
@@ -454,7 +472,7 @@ export async function generateSiteFromBrief({
     shortName: brand,
     legalName,
   };
-  content.brand = { ...content.brand, logoText: brand };
+  content.brand = { logoText: brand };
   content.meta = { ...content.meta, title: brand };
 
   // Overlay the business/legal details collected on the details step. Only

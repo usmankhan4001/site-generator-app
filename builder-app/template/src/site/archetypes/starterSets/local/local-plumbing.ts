@@ -8,16 +8,18 @@ import type { StarterContentSet } from '@/site/archetypes/types';
 export const localPlumbing: StarterContentSet = {
   id: 'local-plumbing',
   archetype: 'local',
-  name: 'Emergency Plumbing & Heating',
+  name: 'Crown',
   description:
     'Licensed emergency plumbing, Gas Safe boiler diagnostics, central heating powerflushing, and pipe restoration with rapid 60-minute dispatch.',
   niche: 'Emergency plumbing & heating contractors',
   tags: ['plumbing', 'heating', 'gas-safe', 'emergency-repairs', 'boiler-service', 'local-contractor', 'trade'],
   needsPersonalization: false,
-  themeId: 'deep-ocean-blue',
+  themeId: 'trade-slate',
+  accent: '#ea580c',
   business: {
-    name: 'Crown & Flow Plumbing Services Ltd',
-    shortName: 'Crown & Flow',
+    name: 'Crown',
+    legalName: 'Crown & Flow Plumbing Services Ltd',
+    shortName: 'Crown',
     registrationNumber: '11029841',
     jurisdiction: 'England & Wales (UK Companies House)',
     governingLaw: 'the laws of England and Wales',
@@ -27,9 +29,9 @@ export const localPlumbing: StarterContentSet = {
     website: 'crownandflow.example',
     supportHours: '24/7 Emergency Dispatch • Office: Mon–Sat 07:30–18:00',
   },
-  brand: { logoText: 'Crown & Flow' },
+  brand: { logoText: 'Crown' },
   meta: {
-    title: 'Crown & Flow — 24/7 Emergency Plumbing & Heating Engineers in London',
+    title: 'Crown — 24/7 Emergency Plumbing & Heating Engineers in London',
     description:
       'Gas Safe certified plumbing and heating contractors with a guaranteed 60-minute emergency response across Greater London. Fixed transparent pricing.',
   },
@@ -132,14 +134,14 @@ export const localPlumbing: StarterContentSet = {
             role: 'Homeowner',
             location: 'Greenwich, London',
             rating: 5,
-            text: 'Had a burst pipe under our kitchen floorboards at 11 PM on a Sunday. Crown & Flow had an engineer on site in 40 minutes. He was calm, polite, had the exact compression fittings in his van, and fixed it without tearing up the tiles.',
+            text: 'Had a burst pipe under our kitchen floorboards at 11 PM on a Sunday. Crown had an engineer on site in 40 minutes. He was calm, polite, had the exact compression fittings in his van, and fixed it without tearing up the tiles.',
           },
           {
             name: 'Sarah Jenkins',
             role: 'Landlord & Property Manager',
             location: 'Canary Wharf',
             rating: 5,
-            text: 'I manage sixteen rental flats and Crown & Flow is my exclusive contractor. They handle annual CP12 gas safety checks and emergency tenant calls promptly with zero fuss.',
+            text: 'I manage sixteen rental flats and Crown is my exclusive contractor. They handle annual CP12 gas safety checks and emergency tenant calls promptly with zero fuss.',
           },
           {
             name: 'Nigel Campbell',
@@ -221,7 +223,7 @@ export const localPlumbing: StarterContentSet = {
       },
       contact: {
         eyebrow: 'Emergency Dispatch',
-        title: 'Contact Crown & Flow Plumbing',
+        title: 'Contact Crown Plumbing',
         description: 'Call our emergency hotline or submit an online booking request for fast response.',
         formVariant: 'standard',
         showDetails: true,
