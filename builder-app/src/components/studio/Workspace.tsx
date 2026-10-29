@@ -10,9 +10,11 @@ import { TopBar } from './TopBar';
 import { StepRail } from './StepRail';
 import { AddSectionDrawer } from './AddSectionDrawer';
 import { BusinessProfileModal } from './BusinessProfileModal';
+import { AirwallexComplianceModal } from './AirwallexComplianceModal';
 import { ExportHostModal } from './ExportHostModal';
 import { RightPanel } from './RightPanel';
 import { PreviewPane } from './PreviewPane';
+import { MobileThumbDock } from './MobileThumbDock';
 
 export function Workspace({ projectId }: { projectId: string }) {
   const meta = useStudio((s) => s.meta);
@@ -33,6 +35,7 @@ export function Workspace({ projectId }: { projectId: string }) {
   const [addSectionOpen, setAddSectionOpen] = useState(false);
   const [insertIndex, setInsertIndex] = useState<number | undefined>(undefined);
   const [businessProfileOpen, setBusinessProfileOpen] = useState(false);
+  const [airwallexComplianceOpen, setAirwallexComplianceOpen] = useState(false);
   const [exportHostOpen, setExportHostOpen] = useState(false);
   const [propertiesOpen, setPropertiesOpen] = useState(true);
 
@@ -200,6 +203,12 @@ export function Workspace({ projectId }: { projectId: string }) {
           onClose={() => setBusinessProfileOpen(false)}
         />
 
+        {/* Airwallex Merchant Compliance Shield Modal */}
+        <AirwallexComplianceModal
+          open={airwallexComplianceOpen}
+          onClose={() => setAirwallexComplianceOpen(false)}
+        />
+
         {/* Visual Export & Hosting Hub Modal */}
         <ExportHostModal
           open={exportHostOpen}
@@ -225,6 +234,7 @@ export function Workspace({ projectId }: { projectId: string }) {
             onTogglePages={togglePages}
             onOpenAddSection={() => openAddSection()}
             onOpenBusinessProfile={() => setBusinessProfileOpen(true)}
+            onOpenAirwallexCompliance={() => setAirwallexComplianceOpen(true)}
             onOpenExportHost={() => setExportHostOpen(true)}
             onToggleProperties={toggleProperties}
           />
@@ -234,6 +244,15 @@ export function Workspace({ projectId }: { projectId: string }) {
             dw={dw}
             projectId={projectId}
             onOpenAddSectionAt={(idx) => openAddSection(idx)}
+          />
+
+          {/* Mobile Bottom Thumb Dock (< 768px) */}
+          <MobileThumbDock
+            onTogglePages={togglePages}
+            onOpenAddSection={() => openAddSection()}
+            onToggleProperties={toggleProperties}
+            propertiesOpen={propertiesOpen && viewMode === 'edit'}
+            pagesOpen={pagesOpen}
           />
         </div>
 

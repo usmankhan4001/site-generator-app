@@ -36,12 +36,25 @@ export function RightPanel({ open, onClose }: PropertiesDrawerProps) {
   if (!open) return null;
 
   return (
-    <aside
-      aria-label="Studio Inspector & Properties"
-      className="relative z-30 flex h-full w-full flex-col border-l border-border bg-card shadow-xl transition-all max-md:fixed max-md:inset-y-0 max-md:right-0 max-md:z-50 md:w-[390px] xl:w-[420px] shrink-0"
-    >
-      {/* Top Step Navigation Tab Bar Header */}
-      <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-3 gap-2 bg-muted/30">
+    <>
+      {/* Mobile backdrop for bottom-sheet mode */}
+      <div
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs md:hidden animate-in fade-in"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      <aside
+        aria-label="Studio Inspector & Properties"
+        className="relative z-50 flex h-full w-full flex-col border-l border-border bg-card shadow-xl transition-all max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:h-[84vh] max-md:rounded-t-3xl max-md:border-t max-md:border-l-0 max-md:shadow-2xl md:w-[390px] xl:w-[420px] shrink-0 animate-in slide-in-from-bottom-6 duration-200"
+      >
+        {/* Mobile drag handle */}
+        <div className="flex items-center justify-center pt-2 pb-1 md:hidden">
+          <div className="h-1 w-12 rounded-full bg-muted-foreground/30" />
+        </div>
+
+        {/* Top Step Navigation Tab Bar Header */}
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-3 gap-2 bg-muted/30">
         {selectedSectionId ? (
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
             <button
@@ -106,5 +119,6 @@ export function RightPanel({ open, onClose }: PropertiesDrawerProps) {
         <RightPanelContent />
       </ScrollArea>
     </aside>
+  </>
   );
 }

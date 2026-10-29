@@ -5,6 +5,7 @@ import { Pencil } from 'lucide-react';
 import { useStudio, useActivePage } from '@/store/studio';
 import type { SiteContent, SitePage } from '@/site/schema';
 import { CanvasToolbar, type SectionRect } from '@/components/studio/CanvasToolbar';
+import { CanvasAiCopilot } from '@/components/studio/CanvasAiCopilot';
 
 const EMPTY: SitePage[] = [];
 
@@ -343,6 +344,7 @@ export function PreviewPane({ dw, projectId, onOpenAddSectionAt }: PreviewPanePr
           </div>
         )}
       </div>
+      <CanvasAiCopilot />
     </div>
   );
 }

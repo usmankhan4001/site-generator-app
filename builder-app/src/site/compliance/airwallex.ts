@@ -87,6 +87,8 @@ function pageBody(content: SiteContent, path: string): string {
     .join(' ');
 }
 
+export const auditSiteForAirwallex = auditAirwallexReadiness;
+
 export function auditAirwallexReadiness(content: SiteContent): AirwallexAudit {
   const checks: ComplianceCheck[] = [];
   const b = content.business;

@@ -14,6 +14,7 @@ import Header from '@/site/sections/Header';
 import Footer from '@/site/sections/Footer';
 import { getSectionComponent } from '@/site/sections/registry';
 import { CartDrawer } from '@/site/commerce/CartDrawer';
+import { MobileStickyBar } from '@/site/sections/_shared/MobileStickyBar';
 
 export interface SiteRendererProps {
   content: SiteContent;
@@ -71,6 +72,7 @@ export function SiteRenderer({ content, page, preview = false }: SiteRendererPro
       >
         <Footer content={content} />
       </div>
+      <MobileStickyBar content={content} currentPagePath={resolved.path} />
       <CartDrawer
         merchantName={content.business?.name}
         checkoutUrl={content.airwallexCheckoutUrl || '/checkout'}

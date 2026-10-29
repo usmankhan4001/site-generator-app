@@ -27,9 +27,12 @@ import {
   Eye,
   Edit3,
   ArrowLeft,
+  ShieldCheck,
+  ShieldAlert,
   type LucideIcon,
 } from 'lucide-react';
 import { useStudio, useActivePage, DEVICE_WIDTH, type PreviewDevice } from '@/store/studio';
+import { auditSiteForAirwallex } from '@/site/compliance/airwallex';
 import { Button } from '@/components/ui/button';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
@@ -57,6 +60,7 @@ interface FloatingToolbarProps {
   onTogglePages: () => void;
   onOpenAddSection: () => void;
   onOpenBusinessProfile: () => void;
+  onOpenAirwallexCompliance: () => void;
   onOpenExportHost: () => void;
   onToggleProperties: () => void;
 }
@@ -67,12 +71,15 @@ export function TopBar({
   onTogglePages,
   onOpenAddSection,
   onOpenBusinessProfile,
+  onOpenAirwallexCompliance,
   onOpenExportHost,
   onToggleProperties,
 }: FloatingToolbarProps) {
   const router = useRouter();
   const name = useStudio((s) => s.meta?.name ?? '');
+  const content = useStudio((s) => s.content);
   const activePage = useActivePage();
+  const audit = content ? auditSiteForAirwallex(content) : null;
   const saving = useStudio((s) => s.saving);
   const dirty = useStudio((s) => s.dirty);
   const lastSavedAt = useStudio((s) => s.lastSavedAt);
@@ -158,7 +165,7 @@ export function TopBar({
         <button
           type="button"
           onClick={onOpenAddSection}
-          className="inline-flex h-8 items-center gap-1.5 rounded-xl bg-primary/10 px-2.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+          className="hidden md:inline-flex h-8 items-center gap-1.5 rounded-xl bg-primary/10 px-2.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
           title="Add a new section to this page"
         >
           <Plus className="h-3.5 w-3.5" />
@@ -169,12 +176,35 @@ export function TopBar({
         <button
           type="button"
           onClick={onOpenBusinessProfile}
-          className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-border/60 bg-background/50 px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
+          className="hidden md:inline-flex h-8 items-center gap-1.5 rounded-xl border border-border/60 bg-background/50 px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
           title="Centralized business profile, legal details & AI copy engine"
         >
           <Building2 className="h-3.5 w-3.5 text-primary" />
           <span>Business Hub</span>
         </button>
+
+        {/* Airwallex Merchant Compliance Pill */}
+        {audit && (
+          <button
+            type="button"
+            onClick={onOpenAirwallexCompliance}
+            className={cn(
+              'inline-flex h-8 items-center gap-1.5 rounded-xl px-2.5 text-xs font-semibold transition-all active:scale-95',
+              audit.ready
+                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20'
+                : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20',
+            )}
+            title="Airwallex & Card Scheme Onboarding Compliance Status"
+          >
+            {audit.ready ? (
+              <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+            ) : (
+              <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
+            )}
+            <span className="hidden sm:inline">Airwallex:</span>
+            <span>{audit.ready ? 'Ready' : `${audit.failCount} issue${audit.failCount === 1 ? '' : 's'}`}</span>
+          </button>
+        )}
 
         {/* Separator */}
         <div className="h-4 w-px bg-border" />
@@ -204,89 +234,92 @@ export function TopBar({
           </button>
         )}
 
-        {/* Separator */}
-        <div className="h-4 w-px bg-border" />
+        {/* Desktop Controls (Device, Browse/Edit, Undo/Redo) */}
+        <div className="hidden lg:flex items-center gap-1.5">
+          {/* Separator */}
+          <div className="h-4 w-px bg-border" />
 
-        {/* Device toggle */}
-        <div className="flex shrink-0 rounded-lg bg-muted/60 p-0.5">
-          {DEVICES.map((d) => (
+          {/* Device toggle */}
+          <div className="flex shrink-0 rounded-lg bg-muted/60 p-0.5">
+            {DEVICES.map((d) => (
+              <button
+                key={d.id}
+                type="button"
+                onClick={() => setDevice(d.id)}
+                title={`${d.label} · ${DEVICE_WIDTH[d.id]}px`}
+                aria-label={d.label}
+                aria-pressed={device === d.id}
+                className={cn(
+                  'inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors',
+                  device === d.id
+                    ? 'bg-background text-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                <d.icon className="h-3.5 w-3.5" />
+              </button>
+            ))}
+          </div>
+
+          {/* Browse ⇄ Edit Odoo Mode Switch */}
+          <div className="flex rounded-lg bg-muted/60 p-0.5" role="group" aria-label="View mode">
             <button
-              key={d.id}
               type="button"
-              onClick={() => setDevice(d.id)}
-              title={`${d.label} · ${DEVICE_WIDTH[d.id]}px`}
-              aria-label={d.label}
-              aria-pressed={device === d.id}
+              onClick={() => setViewMode('edit')}
+              aria-pressed={isEditMode}
               className={cn(
-                'inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors',
-                device === d.id
-                  ? 'bg-background text-foreground shadow-xs'
+                'inline-flex items-center gap-1.5 justify-center rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+                isEditMode
+                  ? 'bg-primary text-primary-foreground shadow-xs font-semibold'
                   : 'text-muted-foreground hover:text-foreground',
               )}
+              title="Edit mode: modify blocks, copy, and layout"
             >
-              <d.icon className="h-3.5 w-3.5" />
+              <Edit3 className="h-3 w-3" />
+              <span>Edit</span>
             </button>
-          ))}
-        </div>
+            <button
+              type="button"
+              onClick={() => setViewMode('preview')}
+              aria-pressed={!isEditMode}
+              className={cn(
+                'inline-flex items-center gap-1.5 justify-center rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+                !isEditMode
+                  ? 'bg-background text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+              title="Browse mode: test live navigation and buttons"
+            >
+              <Eye className="h-3 w-3" />
+              <span>Browse</span>
+            </button>
+          </div>
 
-        {/* Browse ⇄ Edit Odoo Mode Switch */}
-        <div className="flex rounded-lg bg-muted/60 p-0.5" role="group" aria-label="View mode">
-          <button
-            type="button"
-            onClick={() => setViewMode('edit')}
-            aria-pressed={isEditMode}
-            className={cn(
-              'inline-flex items-center gap-1.5 justify-center rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
-              isEditMode
-                ? 'bg-primary text-primary-foreground shadow-xs font-semibold'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-            title="Edit mode: modify blocks, copy, and layout"
-          >
-            <Edit3 className="h-3 w-3" />
-            <span>Edit</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('preview')}
-            aria-pressed={!isEditMode}
-            className={cn(
-              'inline-flex items-center gap-1.5 justify-center rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
-              !isEditMode
-                ? 'bg-background text-foreground shadow-xs font-semibold'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-            title="Browse mode: test live navigation and buttons"
-          >
-            <Eye className="h-3 w-3" />
-            <span>Browse</span>
-          </button>
-        </div>
-
-        {/* Undo / Redo */}
-        <div className="flex items-center gap-0.5">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 shrink-0 text-muted-foreground"
-            onClick={undo}
-            disabled={!canUndo}
-            aria-label="Undo"
-            title="Undo (Ctrl+Z)"
-          >
-            <Undo2 className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 shrink-0 text-muted-foreground"
-            onClick={redo}
-            disabled={!canRedo}
-            aria-label="Redo"
-            title="Redo (Ctrl+Shift+Z)"
-          >
-            <Redo2 className="h-3.5 w-3.5" />
-          </Button>
+          {/* Undo / Redo */}
+          <div className="flex items-center gap-0.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 shrink-0 text-muted-foreground"
+              onClick={undo}
+              disabled={!canUndo}
+              aria-label="Undo"
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo2 className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 shrink-0 text-muted-foreground"
+              onClick={redo}
+              disabled={!canRedo}
+              aria-label="Redo"
+              title="Redo (Ctrl+Shift+Z)"
+            >
+              <Redo2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
 
         {/* Separator */}
