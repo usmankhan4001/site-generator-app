@@ -76,6 +76,7 @@ interface StudioState {
 
   // --- lifecycle
   hydrate: (id: string) => Promise<void>;
+  hydrateContent: (meta: ProjectMeta, content: SiteContent) => void;
   reset: () => void;
   saveNow: () => Promise<void>;
 
@@ -187,6 +188,17 @@ export const useStudio = create<StudioState>((set, get) => ({
     } catch (e) {
       set({ loading: false, error: e instanceof Error ? e.message : 'Load failed' });
     }
+  },
+
+  hydrateContent: (meta, content) => {
+    set({
+      meta,
+      content,
+      activePagePath: content.pages[0]?.path ?? '/',
+      loading: false,
+      dirty: false,
+      selectedSectionId: null,
+    });
   },
 
   reset: () => {

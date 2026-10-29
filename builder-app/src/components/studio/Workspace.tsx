@@ -15,6 +15,7 @@ import { ExportHostModal } from './ExportHostModal';
 import { RightPanel } from './RightPanel';
 import { PreviewPane } from './PreviewPane';
 import { MobileThumbDock } from './MobileThumbDock';
+import { createDemoShowcaseContent } from '@/lib/studio/demoShowcase';
 
 export function Workspace({ projectId }: { projectId: string }) {
   const meta = useStudio((s) => s.meta);
@@ -106,7 +107,27 @@ export function Workspace({ projectId }: { projectId: string }) {
 
   // Hydrate project on mount
   useEffect(() => {
-    useStudio.getState().hydrate(projectId);
+    if (projectId === 'demo') {
+      const demoContent = createDemoShowcaseContent();
+      useStudio.getState().hydrateContent(
+        {
+          id: 'demo',
+          name: 'Aether Cloud Global (Demo Showcase)',
+          status: 'draft',
+          domain: 'aethercloud.pages.dev',
+          customDomain: null,
+          domainStatus: null,
+          hostingStatus: 'none',
+          publishRequestedAt: null,
+          repoUrl: null,
+          liveUrl: 'https://aethercloud.pages.dev',
+          templateId: 'demo-showcase',
+        },
+        demoContent,
+      );
+    } else {
+      useStudio.getState().hydrate(projectId);
+    }
     return () => useStudio.getState().reset();
   }, [projectId]);
 
