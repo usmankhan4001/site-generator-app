@@ -21,6 +21,7 @@ export function LivePreviewContainer({
   page: string;
 }) {
   const [content, setContent] = useState<SiteContent>(initialContent);
+  const [device, setDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
@@ -36,21 +37,30 @@ export function LivePreviewContainer({
       if (d.type === 'content:update' && d.content) {
         setContent(d.content);
       }
+      if (d.type === 'device:update' && d.device) {
+        setDevice(d.device);
+      }
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
   }, []);
 
   const theme = getTheme(content.themeId);
-  const style = themeToStyleObject(theme, content.accent);
+  const effectiveSurface = content.surfaceStyle ?? theme.surfaceStyle;
+  const style = themeToStyleObject(theme, content.accent, effectiveSurface);
 
   return (
     <>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link rel="stylesheet" href={googleFontsHref(theme.googleFonts)} />
-      <div className={theme.isDark ? 'dark' : undefined} style={style} data-preview-root>
-        <SiteRenderer content={content} page={page} preview />
+      <div
+        className={theme.isDark ? 'dark' : undefined}
+        style={style}
+        data-preview-root
+        data-surface-style={effectiveSurface}
+      >
+        <SiteRenderer content={content} page={page} preview device={device} />
       </div>
       <PreviewBridge />
     </>

@@ -10,6 +10,8 @@
  * Nothing in this file imports React or Node. Keep it pure types + small consts.
  */
 
+import type { SurfaceStyle } from './themes';
+
 /* ============================================================================
  * Business / legal entity
  * ========================================================================== */
@@ -238,7 +240,19 @@ export type SectionType =
   | 'corporateRegistration'
   | 'contactPanel'
   | 'policyDocument'
-  | 'checkout';
+  | 'checkout'
+  | 'bentoGrid'
+  | 'comparisonMatrix'
+  | 'logoMarquee'
+  | 'roiCalculator'
+  | 'videoShowcase'
+  | 'leadMagnet'
+  | 'caseStudyCarousel'
+  | 'socialProofToast'
+  | 'interactiveTabShowcase'
+  | 'stepWizardProcess'
+  | 'deviceMockupHero'
+  | 'announcementBar';
 
 export const SECTION_TYPES: SectionType[] = [
   'hero',
@@ -262,6 +276,18 @@ export const SECTION_TYPES: SectionType[] = [
   'contactPanel',
   'policyDocument',
   'checkout',
+  'bentoGrid',
+  'comparisonMatrix',
+  'logoMarquee',
+  'roiCalculator',
+  'videoShowcase',
+  'leadMagnet',
+  'caseStudyCarousel',
+  'socialProofToast',
+  'interactiveTabShowcase',
+  'stepWizardProcess',
+  'deviceMockupHero',
+  'announcementBar',
 ];
 
 /**
@@ -290,6 +316,18 @@ export const SECTION_TYPES: SectionType[] = [
  *  contactPanel          -> ContactPanel.tsx
  *  policyDocument        -> PolicyDocument.tsx
  *  checkout              -> Checkout.tsx
+ *  bentoGrid             -> BentoGrid.tsx
+ *  comparisonMatrix      -> ComparisonMatrix.tsx
+ *  logoMarquee           -> LogoMarquee.tsx
+ *  roiCalculator         -> RoiCalculator.tsx
+ *  videoShowcase         -> VideoShowcase.tsx
+ *  leadMagnet            -> LeadMagnet.tsx
+ *  caseStudyCarousel     -> CaseStudyCarousel.tsx
+ *  socialProofToast      -> SocialProofToast.tsx
+ *  interactiveTabShowcase-> InteractiveTabShowcase.tsx
+ *  stepWizardProcess     -> StepWizardProcess.tsx
+ *  deviceMockupHero      -> DeviceMockupHero.tsx
+ *  announcementBar       -> AnnouncementBar.tsx
  */
 export const SECTION_FILE: Record<SectionType, string> = {
   hero: 'Hero',
@@ -313,6 +351,18 @@ export const SECTION_FILE: Record<SectionType, string> = {
   contactPanel: 'ContactPanel',
   policyDocument: 'PolicyDocument',
   checkout: 'Checkout',
+  bentoGrid: 'BentoGrid',
+  comparisonMatrix: 'ComparisonMatrix',
+  logoMarquee: 'LogoMarquee',
+  roiCalculator: 'RoiCalculator',
+  videoShowcase: 'VideoShowcase',
+  leadMagnet: 'LeadMagnet',
+  caseStudyCarousel: 'CaseStudyCarousel',
+  socialProofToast: 'SocialProofToast',
+  interactiveTabShowcase: 'InteractiveTabShowcase',
+  stepWizardProcess: 'StepWizardProcess',
+  deviceMockupHero: 'DeviceMockupHero',
+  announcementBar: 'AnnouncementBar',
 };
 
 /** Common heading fields most sections accept. */
@@ -704,153 +754,407 @@ export interface CheckoutProps extends SectionHeading {
   note?: string;
 }
 
+/* ------------------------------------------------------------- BentoGrid -- */
+
+export type BentoGridVariant = 'modern' | 'minimal' | 'glass' | 'luxury';
+
+export interface BentoTile {
+  id?: string;
+  title: string;
+  description?: string;
+  badge?: string;
+  tag?: string;
+  icon?: string;
+  image?: string;
+  metric?: string;
+  metricLabel?: string;
+  href?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  size?: 'large' | 'medium' | 'badge';
+  colSpan?: number;
+  rowSpan?: number;
+}
+
+export interface BentoGridProps extends SectionHeading {
+  variant?: BentoGridVariant;
+  items?: BentoTile[];
+  spotlightCard?: BentoTile;
+  featureCards?: BentoTile[];
+  metricBadges?: BentoTile[];
+}
+
+/* ------------------------------------------------------ ComparisonMatrix -- */
+
+export interface ComparisonCompetitor {
+  id: string;
+  name: string;
+  isOurProduct?: boolean;
+  badge?: string;
+  cta?: { label: string; href: string };
+}
+
+export interface ComparisonRow {
+  id?: string;
+  feature: string;
+  category?: string;
+  tooltip?: string;
+  values: Record<string, boolean | string>;
+}
+
+export interface ComparisonMatrixProps extends SectionHeading {
+  competitors?: ComparisonCompetitor[];
+  categories?: { name: string; rows: ComparisonRow[] }[];
+  rows?: ComparisonRow[];
+  footnote?: string;
+}
+
+/* ----------------------------------------------------------- LogoMarquee -- */
+
+export interface MarqueeItem {
+  name: string;
+  logo?: string;
+  subtext?: string;
+  href?: string;
+  badge?: string;
+}
+
+export interface LogoMarqueeProps extends SectionHeading {
+  items?: (string | MarqueeItem)[];
+  speed?: 'slow' | 'normal' | 'fast';
+  direction?: 'left' | 'right';
+  pauseOnHover?: boolean;
+  variant?: 'default' | 'cards' | 'minimal' | 'glass';
+}
+
+/* --------------------------------------------------------- RoiCalculator -- */
+
+export interface RoiCalculatorProps extends SectionHeading {
+  minVolume?: number;
+  maxVolume?: number;
+  step?: number;
+  defaultVolume?: number;
+  currency?: string;
+  traditionalFeePercent?: number;
+  traditionalFixedFee?: number;
+  ourFeePercent?: number;
+  ourFixedFee?: number;
+  primaryCta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string };
+  metricHighlights?: { label: string; value: string; subtext?: string }[];
+  disclaimer?: string;
+}
+
+/* --------------------------------------------------------- VideoShowcase -- */
+
+export interface VideoShowcaseProps extends SectionHeading {
+  videoUrl?: string;
+  videoType?: 'youtube' | 'vimeo' | 'mp4';
+  posterImage?: string;
+  badge?: string;
+  duration?: string;
+  accentGlow?: boolean;
+  autoplayInModal?: boolean;
+  featurePills?: string[];
+  cta?: { label: string; href: string };
+}
+
+/* ------------------------------------------------------------ LeadMagnet -- */
+
+export interface LeadMagnetProps extends SectionHeading {
+  badge?: string;
+  guideTitle?: string;
+  guideSubtitle?: string;
+  coverImage?: string;
+  bulletPoints?: string[];
+  buttonLabel?: string;
+  successMessage?: string;
+  privacyNotice?: string;
+  downloadUrl?: string;
+  socialProofText?: string;
+}
+
+/* ----------------------------------------------------- CaseStudyCarousel -- */
+
+export interface CaseStudyItem {
+  id?: string;
+  company: string;
+  logo?: string;
+  heroMetric: string;
+  heroMetricLabel: string;
+  quote: string;
+  authorName: string;
+  authorRole: string;
+  authorAvatar?: string;
+  tags?: string[];
+  href?: string;
+  image?: string;
+}
+
+export interface CaseStudyCarouselProps extends SectionHeading {
+  items?: CaseStudyItem[];
+  autoPlayInterval?: number;
+}
+
+/* ------------------------------------------------------ SocialProofToast -- */
+
+export interface ToastNotification {
+  id?: string;
+  title: string;
+  description: string;
+  timestamp?: string;
+  avatar?: string;
+  icon?: string;
+  verifiedBadge?: boolean;
+  href?: string;
+}
+
+export interface SocialProofToastProps {
+  position?: 'bottom-left' | 'bottom-right' | 'top-right' | 'top-left';
+  notifications?: ToastNotification[];
+  cycleIntervalSeconds?: number;
+  dismissible?: boolean;
+}
+
+/* ------------------------------------------------ InteractiveTabShowcase -- */
+
+export interface ShowcaseTab {
+  id: string;
+  label: string;
+  icon?: string;
+  badge?: string;
+  headline: string;
+  description: string;
+  image?: string;
+  bulletPoints?: string[];
+  metrics?: { label: string; value: string }[];
+  cta?: { label: string; href: string };
+}
+
+export interface InteractiveTabShowcaseProps extends SectionHeading {
+  tabs?: ShowcaseTab[];
+  variant?: 'pills' | 'cards' | 'underline';
+}
+
+/* ---------------------------------------------------- StepWizardProcess -- */
+
+export interface StepWizardItem {
+  stepNumber?: number | string;
+  title: string;
+  description: string;
+  badge?: string;
+  icon?: string;
+  timeEstimate?: string;
+  codeSnippet?: string;
+}
+
+export interface StepWizardProcessProps extends SectionHeading {
+  steps?: StepWizardItem[];
+  layout?: 'horizontal' | 'vertical';
+  showProgressLine?: boolean;
+  cta?: { label: string; href: string };
+}
+
+/* ------------------------------------------------------ DeviceMockupHero -- */
+
+export interface DeviceMockupHeroProps extends SectionHeading {
+  deviceType?: 'macbook' | 'iphone' | 'both';
+  screenshotUrl?: string;
+  mobileScreenshotUrl?: string;
+  interactivePreviewUrl?: string;
+  primaryCta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string };
+  tiltAngle?: 'none' | 'subtle' | 'dramatic';
+  badge?: string;
+  trustLogos?: string[];
+  floatingMetrics?: { label: string; value: string; position?: 'left' | 'right' }[];
+}
+
+/* ------------------------------------------------------- AnnouncementBar -- */
+
+export interface AnnouncementBarProps {
+  message: string;
+  badge?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  dismissible?: boolean;
+  variant?: 'banner' | 'pill' | 'glow' | 'accent';
+  sticky?: boolean;
+}
+
 /* ------------------------------------------------- Section Discriminated Unions -- */
 
-export interface HeroSection {
+export type BreakpointVisibility = 'all' | 'desktop-only' | 'mobile-only';
+
+export interface BaseSection {
   id: string;
   enabled: boolean;
+  breakpointVisibility?: BreakpointVisibility;
+}
+
+export interface HeroSection extends BaseSection {
   type: 'hero';
   props: HeroProps;
 }
 
-export interface StatsBarSection {
-  id: string;
-  enabled: boolean;
+export interface StatsBarSection extends BaseSection {
   type: 'statsBar';
   props: StatsBarProps;
 }
 
-export interface TrustBarSection {
-  id: string;
-  enabled: boolean;
+export interface TrustBarSection extends BaseSection {
   type: 'trustBar';
   props: TrustBarProps;
 }
 
-export interface FeatureGridSection {
-  id: string;
-  enabled: boolean;
+export interface FeatureGridSection extends BaseSection {
   type: 'featureGrid';
   props: FeatureGridProps;
 }
 
-export interface PricingTiersSection {
-  id: string;
-  enabled: boolean;
+export interface PricingTiersSection extends BaseSection {
   type: 'pricingTiers';
   props: PricingTiersProps;
 }
 
-export interface ProductGridSection {
-  id: string;
-  enabled: boolean;
+export interface ProductGridSection extends BaseSection {
   type: 'productGrid';
   props: ProductGridProps;
 }
 
-export interface TestimonialsSection {
-  id: string;
-  enabled: boolean;
+export interface TestimonialsSection extends BaseSection {
   type: 'testimonials';
   props: TestimonialsProps;
 }
 
-export interface FaqSection {
-  id: string;
-  enabled: boolean;
+export interface FaqSection extends BaseSection {
   type: 'faq';
   props: FaqProps;
 }
 
-export interface CtaBannerSection {
-  id: string;
-  enabled: boolean;
+export interface CtaBannerSection extends BaseSection {
   type: 'ctaBanner';
   props: CtaBannerProps;
 }
 
-export interface PageHeaderSection {
-  id: string;
-  enabled: boolean;
+export interface PageHeaderSection extends BaseSection {
   type: 'pageHeader';
   props: PageHeaderProps;
 }
 
-export interface ProseSection {
-  id: string;
-  enabled: boolean;
+export interface ProseSection extends BaseSection {
   type: 'prose';
   props: ProseProps;
 }
 
-export interface TimelineSection {
-  id: string;
-  enabled: boolean;
+export interface TimelineSection extends BaseSection {
   type: 'timeline';
   props: TimelineProps;
 }
 
-export interface TeamGridSection {
-  id: string;
-  enabled: boolean;
+export interface TeamGridSection extends BaseSection {
   type: 'teamGrid';
   props: TeamGridProps;
 }
 
-export interface ValueGridSection {
-  id: string;
-  enabled: boolean;
+export interface ValueGridSection extends BaseSection {
   type: 'valueGrid';
   props: ValueGridProps;
 }
 
-export interface ProcessStepsSection {
-  id: string;
-  enabled: boolean;
+export interface ProcessStepsSection extends BaseSection {
   type: 'processSteps';
   props: ProcessStepsProps;
 }
 
-export interface SlaTableSection {
-  id: string;
-  enabled: boolean;
+export interface SlaTableSection extends BaseSection {
   type: 'slaTable';
   props: SlaTableProps;
 }
 
-export interface LocationListSection {
-  id: string;
-  enabled: boolean;
+export interface LocationListSection extends BaseSection {
   type: 'locationList';
   props: LocationListProps;
 }
 
-export interface CorporateRegistrationSection {
-  id: string;
-  enabled: boolean;
+export interface CorporateRegistrationSection extends BaseSection {
   type: 'corporateRegistration';
   props: CorporateRegistrationProps;
 }
 
-export interface ContactPanelSection {
-  id: string;
-  enabled: boolean;
+export interface ContactPanelSection extends BaseSection {
   type: 'contactPanel';
   props: ContactPanelProps;
 }
 
-export interface PolicyDocumentSection {
-  id: string;
-  enabled: boolean;
+export interface PolicyDocumentSection extends BaseSection {
   type: 'policyDocument';
   props: PolicyDocumentProps;
 }
 
-export interface CheckoutSection {
-  id: string;
-  enabled: boolean;
+export interface CheckoutSection extends BaseSection {
   type: 'checkout';
   props: CheckoutProps;
+}
+
+export interface BentoGridSection extends BaseSection {
+  type: 'bentoGrid';
+  props: BentoGridProps;
+}
+
+export interface ComparisonMatrixSection extends BaseSection {
+  type: 'comparisonMatrix';
+  props: ComparisonMatrixProps;
+}
+
+export interface LogoMarqueeSection extends BaseSection {
+  type: 'logoMarquee';
+  props: LogoMarqueeProps;
+}
+
+export interface RoiCalculatorSection extends BaseSection {
+  type: 'roiCalculator';
+  props: RoiCalculatorProps;
+}
+
+export interface VideoShowcaseSection extends BaseSection {
+  type: 'videoShowcase';
+  props: VideoShowcaseProps;
+}
+
+export interface LeadMagnetSection extends BaseSection {
+  type: 'leadMagnet';
+  props: LeadMagnetProps;
+}
+
+export interface CaseStudyCarouselSection extends BaseSection {
+  type: 'caseStudyCarousel';
+  props: CaseStudyCarouselProps;
+}
+
+export interface SocialProofToastSection extends BaseSection {
+  type: 'socialProofToast';
+  props: SocialProofToastProps;
+}
+
+export interface InteractiveTabShowcaseSection extends BaseSection {
+  type: 'interactiveTabShowcase';
+  props: InteractiveTabShowcaseProps;
+}
+
+export interface StepWizardProcessSection extends BaseSection {
+  type: 'stepWizardProcess';
+  props: StepWizardProcessProps;
+}
+
+export interface DeviceMockupHeroSection extends BaseSection {
+  type: 'deviceMockupHero';
+  props: DeviceMockupHeroProps;
+}
+
+export interface AnnouncementBarSection extends BaseSection {
+  type: 'announcementBar';
+  props: AnnouncementBarProps;
 }
 
 export type SectionProps =
@@ -874,7 +1178,19 @@ export type SectionProps =
   | { type: 'corporateRegistration'; props: CorporateRegistrationProps }
   | { type: 'contactPanel'; props: ContactPanelProps }
   | { type: 'policyDocument'; props: PolicyDocumentProps }
-  | { type: 'checkout'; props: CheckoutProps };
+  | { type: 'checkout'; props: CheckoutProps }
+  | { type: 'bentoGrid'; props: BentoGridProps }
+  | { type: 'comparisonMatrix'; props: ComparisonMatrixProps }
+  | { type: 'logoMarquee'; props: LogoMarqueeProps }
+  | { type: 'roiCalculator'; props: RoiCalculatorProps }
+  | { type: 'videoShowcase'; props: VideoShowcaseProps }
+  | { type: 'leadMagnet'; props: LeadMagnetProps }
+  | { type: 'caseStudyCarousel'; props: CaseStudyCarouselProps }
+  | { type: 'socialProofToast'; props: SocialProofToastProps }
+  | { type: 'interactiveTabShowcase'; props: InteractiveTabShowcaseProps }
+  | { type: 'stepWizardProcess'; props: StepWizardProcessProps }
+  | { type: 'deviceMockupHero'; props: DeviceMockupHeroProps }
+  | { type: 'announcementBar'; props: AnnouncementBarProps };
 
 /** A section instance on a page. */
 export type Section =
@@ -898,7 +1214,19 @@ export type Section =
   | CorporateRegistrationSection
   | ContactPanelSection
   | PolicyDocumentSection
-  | CheckoutSection;
+  | CheckoutSection
+  | BentoGridSection
+  | ComparisonMatrixSection
+  | LogoMarqueeSection
+  | RoiCalculatorSection
+  | VideoShowcaseSection
+  | LeadMagnetSection
+  | CaseStudyCarouselSection
+  | SocialProofToastSection
+  | InteractiveTabShowcaseSection
+  | StepWizardProcessSection
+  | DeviceMockupHeroSection
+  | AnnouncementBarSection;
 
 export type AnySectionProps =
   | HeroProps
@@ -921,7 +1249,19 @@ export type AnySectionProps =
   | CorporateRegistrationProps
   | ContactPanelProps
   | PolicyDocumentProps
-  | CheckoutProps;
+  | CheckoutProps
+  | BentoGridProps
+  | ComparisonMatrixProps
+  | LogoMarqueeProps
+  | RoiCalculatorProps
+  | VideoShowcaseProps
+  | LeadMagnetProps
+  | CaseStudyCarouselProps
+  | SocialProofToastProps
+  | InteractiveTabShowcaseProps
+  | StepWizardProcessProps
+  | DeviceMockupHeroProps
+  | AnnouncementBarProps;
 
 /* ============================================================================
  * Header + Footer Chrome Configurations
@@ -1061,6 +1401,8 @@ export interface SiteContent {
   themeId: string;
   /** Optional primary-colour override (hex or oklch(...)). */
   accent?: string;
+  /** Optional surface styling treatment override (defaults to theme's surfaceStyle). */
+  surfaceStyle?: SurfaceStyle;
   /** Structural design language override. Defaults from `source.sector` / `mode` — see `resolveLayoutSystem()`. */
   layoutSystem?: LayoutSystem;
   /**

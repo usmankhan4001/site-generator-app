@@ -15,6 +15,7 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
 import type { SiteContent, Section, SectionType, NavItem } from '@/site/schema';
+import type { SurfaceStyle } from '@/site/themes';
 import { SECTION_TYPES } from '@/site/schema';
 import { defaultPropsFor } from '@/site/sections/defaults';
 import { buildPolicyPage } from '@/site/archetypes/policies';
@@ -28,6 +29,8 @@ export const DEVICE_WIDTH: Record<PreviewDevice, number> = {
   tablet: 768,
   mobile: 375,
 };
+
+export type ZoomLevel = 'fit' | 0.5 | 0.75 | 1 | 1.25;
 
 export interface ProjectMeta {
   id: string;
@@ -55,6 +58,7 @@ interface StudioState {
   activePagePath: string;
   selectedSectionId: string | null;
   device: PreviewDevice;
+  zoom: ZoomLevel;
   /** Odoo-style edit ⇄ preview. In preview the workspace shows only the site. */
   viewMode: 'edit' | 'preview';
 
@@ -80,6 +84,7 @@ interface StudioState {
   setActivePage: (path: string) => void;
   selectSection: (id: string | null) => void;
   setDevice: (d: PreviewDevice) => void;
+  setZoom: (z: ZoomLevel) => void;
   setViewMode: (v: 'edit' | 'preview') => void;
   undo: () => void;
   redo: () => void;
@@ -93,6 +98,7 @@ interface StudioState {
   rename: (name: string) => void;
   setTheme: (themeId: string) => void;
   setAccent: (accent: string | undefined) => void;
+  setSurfaceStyle: (surfaceStyle: SurfaceStyle | undefined) => void;
   setMode: (mode: SiteContent['mode']) => void;
   setLayoutSystem: (layoutSystem: SiteContent['layoutSystem']) => void;
   updateBusiness: (patch: Partial<SiteContent['business']>) => void;
@@ -141,6 +147,7 @@ export const useStudio = create<StudioState>((set, get) => ({
   activePagePath: '/',
   selectedSectionId: null,
   device: 'desktop',
+  zoom: 'fit',
   viewMode: 'edit',
   undoStack: [],
   redoStack: [],
@@ -188,7 +195,7 @@ export const useStudio = create<StudioState>((set, get) => ({
     set({
       meta: null, content: null, step: 'company', visitedSteps: ['template', 'company'],
       activePagePath: '/',
-      selectedSectionId: null, device: 'desktop', viewMode: 'edit',
+      selectedSectionId: null, device: 'desktop', zoom: 'fit', viewMode: 'edit',
       undoStack: [], redoStack: [],
       loading: false, dirty: false,
       saving: false, lastSavedAt: null, error: null, previewNonce: 0,
@@ -230,6 +237,7 @@ export const useStudio = create<StudioState>((set, get) => ({
   setActivePage: (activePagePath) => set({ activePagePath, selectedSectionId: null }),
   selectSection: (selectedSectionId) => set({ selectedSectionId }),
   setDevice: (device) => set({ device }),
+  setZoom: (zoom) => set({ zoom }),
   setViewMode: (viewMode) => set({ viewMode }),
 
   undo: () => {
@@ -365,6 +373,7 @@ export const useStudio = create<StudioState>((set, get) => ({
 
   setTheme: (themeId) => get().mutate((d) => { d.themeId = themeId; }),
   setAccent: (accent) => get().mutate((d) => { d.accent = accent || undefined; }),
+  setSurfaceStyle: (surfaceStyle) => get().mutate((d) => { d.surfaceStyle = surfaceStyle || undefined; }),
   setMode: (mode) => get().mutate((d) => { d.mode = mode; }),
   setLayoutSystem: (layoutSystem) => get().mutate((d) => { d.layoutSystem = layoutSystem || undefined; }),
   updateBusiness: (patch) =>

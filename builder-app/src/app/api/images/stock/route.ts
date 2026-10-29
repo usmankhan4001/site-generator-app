@@ -7,9 +7,10 @@ export const dynamic = 'force-dynamic';
 /**
  * GET /api/images/stock?q=term
  *
- * Auth-gated stock photo search proxying Unsplash via `STOCK_IMAGE_API_KEY`.
- * If no key is set in the environment, returns `{ configured: false, results: [] }`
- * so the frontend can honestly convey keyless status.
+ * Auth-gated stock photo search proxying Unsplash via `STOCK_IMAGE_API_KEY`,
+ * with automated zero-slop fallback to our high-resolution curated library.
+ * Even when the key is unset or rate-limited, high quality editorial imagery
+ * is always returned.
  */
 export async function GET(request: Request) {
   const actor = await getActor();
@@ -20,11 +21,6 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('q') || searchParams.get('query') || '';
 
-  if (!query.trim()) {
-    const isConfigured = Boolean(process.env.STOCK_IMAGE_API_KEY);
-    return NextResponse.json({ configured: isConfigured, results: [] });
-  }
-
-  const result = await searchStock(query.trim());
+  const result = await searchStock(query.trim() || 'featured');
   return NextResponse.json(result);
 }

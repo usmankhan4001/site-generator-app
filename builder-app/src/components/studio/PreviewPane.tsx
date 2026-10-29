@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Pencil } from 'lucide-react';
+import { Pencil, ShieldCheck, RotateCw } from 'lucide-react';
 import { useStudio, useActivePage } from '@/store/studio';
 import type { SiteContent, SitePage } from '@/site/schema';
+import { CanvasFloatingHUD } from '@/components/studio/canvas/CanvasFloatingHUD';
 import { CanvasToolbar, type SectionRect } from '@/components/studio/CanvasToolbar';
 import { CanvasAiCopilot } from '@/components/studio/CanvasAiCopilot';
 
@@ -31,6 +32,8 @@ export function PreviewPane({ dw, projectId, onOpenAddSectionAt }: PreviewPanePr
   const reorderSections = useStudio((s) => s.reorderSections);
   const mutate = useStudio((s) => s.mutate);
   const viewMode = useStudio((s) => s.viewMode);
+  const device = useStudio((s) => s.device);
+  const zoom = useStudio((s) => s.zoom);
   const isPreview = viewMode === 'preview';
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -54,14 +57,23 @@ export function PreviewPane({ dw, projectId, onOpenAddSectionAt }: PreviewPanePr
 
   const availW = Math.max(0, box.w - CANVAS_PAD * 2);
   const availH = Math.max(0, box.h - CANVAS_PAD * 2);
-  const scale = availW > 0 ? Math.min(1, availW / dw) : 1;
-  const frameVisualH = Math.max(0, availH - (isPreview ? 0 : CHROME_H));
+  const fitScale = availW > 0 ? Math.min(1, availW / dw) : 1;
+  const scale = zoom === 'fit' ? fitScale : zoom;
+
+  const chromeH = isPreview
+    ? 0
+    : device === 'desktop'
+    ? 38
+    : device === 'tablet'
+    ? 24
+    : 16;
+  const frameVisualH = Math.max(0, availH - chromeH);
   const frameH = scale > 0 ? frameVisualH / scale : frameVisualH;
   const canRender = availW > 0 && availH > 0 && projectId !== '';
 
   const cardW = dw * scale;
   const overlayLeft = CANVAS_PAD + Math.max(0, (availW - cardW) / 2);
-  const overlayTop = CANVAS_PAD + (isPreview ? 0 : CHROME_H);
+  const overlayTop = CANVAS_PAD + chromeH;
 
   // Hover + selection chrome living on the host page (not inside the iframe).
   const [hoverRect, setHoverRect] = useState<SectionRect | null>(null);
@@ -119,6 +131,13 @@ export function PreviewPane({ dw, projectId, onOpenAddSectionAt }: PreviewPanePr
     win.postMessage({ source: 'studio', type: 'content:update', content }, '*');
   }, [content]);
 
+  // Real-time device update to the preview iframe
+  useEffect(() => {
+    const win = iframeRef.current?.contentWindow;
+    if (!win || !readyRef.current) return;
+    win.postMessage({ source: 'studio', type: 'device:update', device }, '*');
+  }, [device]);
+
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       const d = e.data;
@@ -129,6 +148,10 @@ export function PreviewPane({ dw, projectId, onOpenAddSectionAt }: PreviewPanePr
         if (currentContent && iframeRef.current?.contentWindow) {
           iframeRef.current.contentWindow.postMessage(
             { source: 'studio', type: 'content:update', content: currentContent },
+            '*',
+          );
+          iframeRef.current.contentWindow.postMessage(
+            { source: 'studio', type: 'device:update', device: useStudio.getState().device },
             '*',
           );
         }
@@ -258,34 +281,113 @@ export function PreviewPane({ dw, projectId, onOpenAddSectionAt }: PreviewPanePr
     <div className="studio-canvas flex h-full flex-col">
       <div ref={scrollRef} className="relative min-h-0 flex-1 overflow-auto p-6">
         {canRender ? (
-          <div
-            className="mx-auto overflow-hidden rounded-xl border border-border bg-white shadow-2xl transition-all"
-            style={{ width: dw * scale, height: availH }}
-          >
-            {!isPreview && (
+          <div className="flex items-center justify-center min-h-full">
+            {device === 'desktop' && (
               <div
-                className="flex items-center gap-1.5 border-b border-border/60 bg-muted/40 px-3"
-                style={{ height: CHROME_H }}
+                className="relative overflow-hidden rounded-2xl border border-border/80 bg-white shadow-2xl transition-all dark:bg-zinc-950 dark:border-zinc-800"
+                style={{ width: dw * scale, height: availH }}
               >
-                <span className="h-2 w-2 rounded-full bg-muted-foreground/25" />
-                <span className="h-2 w-2 rounded-full bg-muted-foreground/25" />
-                <span className="h-2 w-2 rounded-full bg-muted-foreground/25" />
+                {!isPreview && (
+                  <div
+                    className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-3.5"
+                    style={{ height: 38 }}
+                  >
+                    {/* Traffic Lights */}
+                    <div className="flex items-center gap-1.5">
+                      <span className="h-3 w-3 rounded-full bg-[#FF5F56] border border-[#E0443E]/80 shadow-xs" />
+                      <span className="h-3 w-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]/80 shadow-xs" />
+                      <span className="h-3 w-3 rounded-full bg-[#27C93F] border border-[#1AAB29]/80 shadow-xs" />
+                    </div>
+
+                    {/* Address bar */}
+                    <div className="flex max-w-sm flex-1 items-center justify-center gap-1.5 rounded-lg border border-border/60 bg-background/80 px-3 py-1 text-[11px] font-mono text-muted-foreground shadow-xs truncate mx-4">
+                      <ShieldCheck className="h-3 w-3 shrink-0 text-emerald-500" />
+                      <span className="truncate">
+                        https://{content?.business?.website || 'preview.local'}{activePagePath}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center">
+                      <RotateCw className="h-3 w-3 text-muted-foreground/60" />
+                    </div>
+                  </div>
+                )}
+
+                <iframe
+                  ref={iframeRef}
+                  src={src}
+                  title="Site preview"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                  className="block border-0 bg-white"
+                  style={{
+                    width: dw,
+                    height: frameH,
+                    transform: `scale(${scale})`,
+                    transformOrigin: 'top left',
+                  }}
+                />
               </div>
             )}
 
-            <iframe
-              ref={iframeRef}
-              src={src}
-              title="Site preview"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-              className="block border-0 bg-white"
-              style={{
-                width: dw,
-                height: frameH,
-                transform: `scale(${scale})`,
-                transformOrigin: 'top left',
-              }}
-            />
+            {device === 'tablet' && (
+              <div
+                className="relative flex flex-col rounded-[32px] border-[10px] border-zinc-900 bg-zinc-900 shadow-2xl ring-1 ring-zinc-700/60 transition-all p-1"
+                style={{ width: dw * scale + 20, height: availH }}
+              >
+                {/* iPad camera dot */}
+                <div className="flex justify-center pb-1.5 pt-0.5">
+                  <span className="h-2 w-2 rounded-full bg-zinc-800 ring-1 ring-zinc-700" />
+                </div>
+
+                <div className="relative flex-1 overflow-hidden rounded-[20px] bg-white">
+                  <iframe
+                    ref={iframeRef}
+                    src={src}
+                    title="Site preview"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                    className="block border-0 bg-white"
+                    style={{
+                      width: dw,
+                      height: frameH,
+                      transform: `scale(${scale})`,
+                      transformOrigin: 'top left',
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {device === 'mobile' && (
+              <div
+                className="relative flex flex-col rounded-[48px] border-[10px] border-zinc-950 bg-zinc-950 shadow-2xl ring-1 ring-zinc-700/70 transition-all p-1"
+                style={{ width: dw * scale + 20, height: availH }}
+              >
+                {/* iPhone 16 Pro Dynamic Island */}
+                <div className="absolute top-3.5 left-1/2 -translate-x-1/2 z-30 flex h-6 w-28 items-center justify-between rounded-full bg-black px-3 shadow-md pointer-events-none">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500/30" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-zinc-900 ring-1 ring-zinc-800" />
+                </div>
+
+                <div className="relative flex-1 overflow-hidden rounded-[38px] bg-white">
+                  <iframe
+                    ref={iframeRef}
+                    src={src}
+                    title="Site preview"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                    className="block border-0 bg-white"
+                    style={{
+                      width: dw,
+                      height: frameH,
+                      transform: `scale(${scale})`,
+                      transformOrigin: 'top left',
+                    }}
+                  />
+                </div>
+
+                {/* iPhone 16 Pro Home Bar */}
+                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-30 h-1 w-28 rounded-full bg-zinc-400/80 pointer-events-none" />
+              </div>
+            )}
           </div>
         ) : (
           <div className="mx-auto h-full max-w-4xl animate-pulse rounded-xl border border-border bg-muted/30" />
@@ -325,20 +427,27 @@ export function PreviewPane({ dw, projectId, onOpenAddSectionAt }: PreviewPanePr
               </div>
             )}
 
-            {/* In-canvas section toolbar */}
+            {/* In-canvas floating HUD */}
             {showToolbar && sel && (
-              <CanvasToolbar
+              <CanvasFloatingHUD
                 rect={selRect}
                 scale={scale}
-                section={{ id: sel.id, enabled: sel.enabled }}
+                section={{
+                  id: sel.id,
+                  enabled: sel.enabled,
+                  type: sel.type,
+                  props: sel.props as Record<string, unknown>,
+                }}
                 canMoveUp={canMoveUp}
                 canMoveDown={canMoveDown}
                 onEdit={handleEdit}
                 onDuplicate={handleDuplicate}
                 onMoveUp={() => handleMove(-1)}
                 onMoveDown={() => handleMove(1)}
-                onToggle={handleToggle}
                 onDelete={handleDelete}
+                onChangeVariant={(variantId) => {
+                  useStudio.getState().updateSectionProps(sel.id, { variant: variantId });
+                }}
               />
             )}
           </div>

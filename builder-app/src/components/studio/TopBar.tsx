@@ -29,6 +29,7 @@ import {
   ArrowLeft,
   ShieldCheck,
   ShieldAlert,
+  ZoomIn,
   type LucideIcon,
 } from 'lucide-react';
 import { useStudio, useActivePage, DEVICE_WIDTH, type PreviewDevice } from '@/store/studio';
@@ -90,6 +91,9 @@ export function TopBar({
   const setViewMode = useStudio((s) => s.setViewMode);
   const device = useStudio((s) => s.device);
   const setDevice = useStudio((s) => s.setDevice);
+  const zoom = useStudio((s) => s.zoom);
+  const setZoom = useStudio((s) => s.setZoom);
+  const [zoomOpen, setZoomOpen] = useState(false);
   const canUndo = useStudio((s) => s.undoStack.length > 0);
   const canRedo = useStudio((s) => s.redoStack.length > 0);
   const undo = useStudio((s) => s.undo);
@@ -128,7 +132,7 @@ export function TopBar({
     <header className="pointer-events-none absolute inset-x-0 top-0 z-30 flex justify-center px-4 pt-3">
       <div
         onMouseDown={(e) => e.stopPropagation()}
-        className="pointer-events-auto flex items-center gap-1.5 rounded-2xl border border-border/80 bg-card/95 p-1.5 shadow-xl backdrop-blur-md transition-all"
+        className="pointer-events-auto flex items-center gap-1.5 rounded-2xl border border-border/80 bg-card/95 p-1.5 shadow-xl backdrop-blur-md transition-all dark:bg-zinc-950/95 dark:border-zinc-800/80 dark:ring-1 dark:ring-white/10 dark:shadow-[0_0_30px_rgba(0,0,0,0.8)]"
       >
         {/* Return to Dashboard */}
         <Link
@@ -261,6 +265,52 @@ export function TopBar({
             ))}
           </div>
 
+          {/* Zoom controls */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setZoomOpen((o) => !o)}
+              className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              title="Canvas Zoom Level"
+            >
+              <ZoomIn className="h-3.5 w-3.5" />
+              <span>{zoom === 'fit' ? 'Fit' : `${Math.round(zoom * 100)}%`}</span>
+              <ChevronDown className="h-2.5 w-2.5 opacity-60" />
+            </button>
+            {zoomOpen && (
+              <div
+                onMouseDown={(e) => e.stopPropagation()}
+                className="absolute left-0 top-full mt-1.5 w-32 rounded-xl border border-border bg-card/95 p-1 shadow-xl backdrop-blur-md z-50 dark:bg-zinc-950 dark:border-zinc-800"
+              >
+                {[
+                  { id: 'fit', label: 'Fit to Screen' },
+                  { id: 0.5, label: '50%' },
+                  { id: 0.75, label: '75%' },
+                  { id: 1, label: '100%' },
+                  { id: 1.25, label: '125%' },
+                ].map((opt) => (
+                  <button
+                    key={String(opt.id)}
+                    type="button"
+                    onClick={() => {
+                      setZoom(opt.id as 'fit' | 0.5 | 0.75 | 1 | 1.25);
+                      setZoomOpen(false);
+                    }}
+                    className={cn(
+                      'flex w-full items-center justify-between rounded-lg px-2 py-1 text-xs transition-colors',
+                      zoom === opt.id
+                        ? 'bg-primary/10 text-primary font-semibold'
+                        : 'text-foreground hover:bg-accent',
+                    )}
+                  >
+                    <span>{opt.label}</span>
+                    {zoom === opt.id && <Check className="h-3 w-3" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Browse ⇄ Edit Odoo Mode Switch */}
           <div className="flex rounded-lg bg-muted/60 p-0.5" role="group" aria-label="View mode">
             <button
@@ -335,18 +385,22 @@ export function TopBar({
           onRetry={() => void saveNow()}
         />
 
-        {/* Theme toggle */}
+        {/* Adaptive Studio Theme Toggle: Sleek Dark (Linear-style zinc-900 with subtle 1px border glows) vs Crisp Light */}
         {mounted && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 shrink-0 text-muted-foreground"
+          <button
+            type="button"
             onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-            aria-label={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to sleek Linear dark mode'}
+            title={resolvedTheme === 'dark' ? 'Switch to crisp light mode' : 'Switch to sleek Linear dark mode'}
+            className={cn(
+              'flex h-7 w-7 items-center justify-center rounded-lg transition-all',
+              resolvedTheme === 'dark'
+                ? 'text-amber-400 hover:text-amber-300 hover:bg-zinc-800 ring-1 ring-amber-400/20 shadow-[0_0_12px_rgba(251,191,36,0.15)]'
+                : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100',
+            )}
           >
             {resolvedTheme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
-          </Button>
+          </button>
         )}
 
         {/* Sign out button */}

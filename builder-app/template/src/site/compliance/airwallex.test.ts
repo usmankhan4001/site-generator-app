@@ -84,6 +84,21 @@ expect(
   'policy.governingLaw fails when jurisdiction does not match terms body',
 );
 
+// 8. Mobile readiness checks should be verified
+console.log('\n[8] Mobile readiness checks');
+expect(
+  goodAudit.checks.some((c) => c.id === 'mobile.tapTargets' && c.status === 'pass'),
+  'mobile.tapTargets passes for good site',
+);
+expect(
+  goodAudit.checks.some((c) => c.id === 'mobile.zeroHorizontalOverflow' && c.status === 'pass'),
+  'mobile.zeroHorizontalOverflow passes for good site',
+);
+expect(
+  goodAudit.checks.some((c) => c.id === 'mobile.stickyConversionBar' && c.status === 'pass'),
+  'mobile.stickyConversionBar passes for good site',
+);
+
 console.log(
   failures === 0 ? '\n🎉 AIRWALLEX AUDITOR TEST PASSED' : `\n❌ ${failures} AUDITOR TEST(S) FAILED`,
 );

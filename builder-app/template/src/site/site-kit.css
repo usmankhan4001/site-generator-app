@@ -14,21 +14,68 @@
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-card, 0.75rem);
-  box-shadow:
-    0 1px 3px 0 rgba(0, 0, 0, 0.12),
-    0 1px 2px -1px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--surface-shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 2px -1px rgba(0, 0, 0, 0.12));
+  backdrop-filter: blur(var(--surface-backdrop-blur, 0px));
+  -webkit-backdrop-filter: blur(var(--surface-backdrop-blur, 0px));
   position: relative;
   transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.2s ease,
+    backdrop-filter 0.2s ease;
 }
 
 .card-elevated:hover {
   border-color: color-mix(in oklch, var(--border) 60%, var(--primary) 40%);
-  box-shadow:
-    0 12px 28px -6px rgba(0, 0, 0, 0.22),
-    0 8px 12px -6px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--surface-shadow-hover, 0 12px 28px -6px rgba(0, 0, 0, 0.22), 0 8px 12px -6px rgba(0, 0, 0, 0.16));
   transform: translateY(-2px);
+}
+
+/* Surface style presets */
+[data-surface-style="glassmorphism"] .card-elevated {
+  background: color-mix(in srgb, var(--card) 68%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 55%, rgba(255, 255, 255, 0.2));
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+[data-surface-style="glassmorphism"] .card-elevated:hover {
+  border-color: color-mix(in srgb, var(--primary) 60%, rgba(255, 255, 255, 0.4));
+  box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+}
+
+[data-surface-style="crisp-border"] .card-elevated {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+[data-surface-style="crisp-border"] .card-elevated:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+[data-surface-style="soft-elevated"] .card-elevated {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 10px 30px -5px rgba(0, 0, 0, 0.10),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+[data-surface-style="soft-elevated"] .card-elevated:hover {
+  border-color: color-mix(in oklch, var(--border) 60%, var(--primary) 40%);
+  box-shadow:
+    0 20px 40px -8px rgba(0, 0, 0, 0.18),
+    0 8px 16px -4px rgba(0, 0, 0, 0.08);
+}
+
+[data-surface-style="editorial-luxe"] .card-elevated {
+  background: var(--card);
+  border: 1px solid color-mix(in oklch, var(--border) 80%, var(--primary) 20%);
+  box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.04);
+}
+[data-surface-style="editorial-luxe"] .card-elevated:hover {
+  border-color: var(--primary);
+  box-shadow: 0 6px 20px -3px rgba(0, 0, 0, 0.09);
 }
 
 .dot-pill {

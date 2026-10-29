@@ -289,6 +289,13 @@ export function PreviewBridge() {
         clearHighlights();
         trackedId = null;
       }
+      if (data.type === 'canvas:format') {
+        try {
+          document.execCommand(data.command, false, data.value);
+        } catch {
+          // ignore unsupported commands
+        }
+      }
     };
 
     document.addEventListener('click', onClick, true);

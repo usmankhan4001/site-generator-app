@@ -332,6 +332,444 @@ export function defaultPropsFor(type: SectionType): Record<string, unknown> {
         ],
       };
 
+    case 'bentoGrid':
+      return {
+        eyebrow: 'Platform Architecture',
+        title: 'Engineered for High-Velocity Modern Scale',
+        description: 'Unify payments, treasury, and cards into one resilient operational stack with unmatched clarity.',
+        variant: 'modern',
+        items: [
+          {
+            id: 'spotlight-1',
+            title: 'Global Multi-Currency Core Engine',
+            description: 'Hold, exchange, and settle in 50+ currencies with real-time interbank FX rates, automated hedging, and direct access to local RTGS and ACH clearing rails in 110+ jurisdictions.',
+            badge: 'Enterprise Core',
+            tag: 'Infrastructure',
+            icon: 'Globe',
+            image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
+            metric: '$45B+',
+            metricLabel: 'Annual Processing Volume',
+            ctaLabel: 'Explore Global Accounts',
+            ctaHref: '/capabilities',
+            size: 'large',
+          },
+          {
+            id: 'feature-1',
+            title: 'Instant Virtual & Physical Card Issuance',
+            description: 'Issue multi-currency corporate debit cards in seconds with custom spending rules, approval chains, and direct Apple & Google Pay provisioning.',
+            badge: 'Smart Cards',
+            tag: 'Spend Control',
+            icon: 'CreditCard',
+            size: 'medium',
+          },
+          {
+            id: 'feature-2',
+            title: 'Autonomous Compliance & Risk Screening',
+            description: 'Automated AML, PEP checks, and sanction screening integrated into every transaction pipeline with sub-second decisioning.',
+            badge: 'SOC2 Type II',
+            tag: 'Security',
+            icon: 'ShieldCheck',
+            size: 'medium',
+          },
+          {
+            id: 'badge-1',
+            title: 'Mission Critical SLA',
+            description: 'Round-the-clock enterprise infrastructure guaranteed with automated multi-region failover.',
+            metric: '99.999%',
+            metricLabel: 'Uptime Reliability',
+            icon: 'Activity',
+            size: 'badge',
+          },
+          {
+            id: 'badge-2',
+            title: 'Ultra-Low Latency',
+            description: 'Sub-second domestic clearing and direct payment gateway orchestration.',
+            metric: '< 150ms',
+            metricLabel: 'Settlement Speed',
+            icon: 'Zap',
+            size: 'badge',
+          },
+        ],
+      };
+
+    case 'comparisonMatrix':
+      return {
+        eyebrow: 'Why Choose Us',
+        title: 'Engineered Beyond Traditional Gateways',
+        description: 'See how our unified architecture compares against legacy banking infrastructure and standard merchant processors.',
+        competitors: [
+          {
+            id: 'our-product',
+            name: 'Our Platform',
+            isOurProduct: true,
+            badge: 'Recommended Choice',
+            cta: { label: 'Get Started Today', href: '/checkout' },
+          },
+          {
+            id: 'legacy-banks',
+            name: 'Traditional Banks',
+            isOurProduct: false,
+          },
+          {
+            id: 'standard-processors',
+            name: 'Legacy Processors',
+            isOurProduct: false,
+          },
+        ],
+        categories: [
+          {
+            name: 'Core Processing & Pricing',
+            rows: [
+              {
+                feature: 'Blended Card Processing Fee',
+                tooltip: 'Actual average processing rate across domestic debit & credit cards.',
+                values: { 'our-product': '1.2% + 10¢', 'legacy-banks': '3.2% + 40¢', 'standard-processors': '2.9% + 30¢' },
+              },
+              {
+                feature: 'Zero Hidden Account Fees',
+                tooltip: 'No monthly account keeping or statement maintenance fees.',
+                values: { 'our-product': true, 'legacy-banks': false, 'standard-processors': false },
+              },
+              {
+                feature: 'Instant Same-Day Payouts (T+0)',
+                tooltip: 'Direct settlement to your operating cash account without weekend holds.',
+                values: { 'our-product': true, 'legacy-banks': false, 'standard-processors': false },
+              },
+            ],
+          },
+          {
+            name: 'Global Treasury & FX',
+            rows: [
+              {
+                feature: 'Multi-Currency Local Accounts (50+)',
+                tooltip: 'Named bank details in USD, EUR, GBP, AUD, JPY, and SGD without foreign entities.',
+                values: { 'our-product': true, 'legacy-banks': false, 'standard-processors': false },
+              },
+              {
+                feature: 'Interbank FX Spreads from 0.2%',
+                tooltip: 'Wholesale interbank foreign exchange rates with transparent margin.',
+                values: { 'our-product': true, 'legacy-banks': false, 'standard-processors': false },
+              },
+              {
+                feature: 'Autonomous Hedging & Rate Locks',
+                tooltip: 'Lock in currency rates up to 12 months with flexible drawdowns.',
+                values: { 'our-product': true, 'legacy-banks': false, 'standard-processors': false },
+              },
+            ],
+          },
+          {
+            name: 'Security & Developer Experience',
+            rows: [
+              {
+                feature: 'Restful API & Webhooks (<100ms)',
+                tooltip: 'Production-ready REST and GraphQL endpoints with 99.999% SLA.',
+                values: { 'our-product': true, 'legacy-banks': false, 'standard-processors': true },
+              },
+              {
+                feature: 'Unlimited Virtual Corporate Cards',
+                tooltip: 'Issue cards programmatically with merchant locks and budget limits.',
+                values: { 'our-product': true, 'legacy-banks': false, 'standard-processors': false },
+              },
+              {
+                feature: 'Dedicated Tier-1 Solutions Engineer',
+                tooltip: 'Direct Slack / Teams access to dedicated infrastructure architects.',
+                values: { 'our-product': true, 'legacy-banks': false, 'standard-processors': false },
+              },
+            ],
+          },
+        ],
+        footnote: 'Based on published enterprise tier documentation and publicly available benchmark reports.',
+      };
+
+    case 'logoMarquee':
+      return {
+        eyebrow: 'Global Trust',
+        title: 'Powering Tier-1 Global Operators & Innovators',
+        speed: 'normal',
+        direction: 'left',
+        pauseOnHover: true,
+        variant: 'cards',
+        items: [
+          { name: 'Acme Global Holdings', subtext: 'Global Treasury', badge: 'Enterprise' },
+          { name: 'HyperScale Cloud', subtext: 'Infrastructure', badge: 'Scale' },
+          { name: 'Vanguard Dynamics', subtext: 'Fintech Core', badge: 'Tier 1' },
+          { name: 'OmniCommerce Labs', subtext: 'Cross-Border DTC', badge: 'Verified' },
+          { name: 'Kinetics Global', subtext: 'Payments Routing', badge: 'Fast Track' },
+          { name: 'Apex Logistics Corp', subtext: 'Fleet Treasury', badge: 'High Volume' },
+          { name: 'Vertex Systems', subtext: 'B2B SaaS', badge: 'Enterprise' },
+        ],
+      };
+
+    case 'roiCalculator':
+      return {
+        eyebrow: 'Savings Estimator',
+        title: 'Calculate Your Annual Fee Savings',
+        description: 'Slide your monthly transaction volume to see the dramatic savings our automated interchange-plus routing delivers compared to flat 2.9% + 30¢ processors.',
+        minVolume: 10000,
+        maxVolume: 1000000,
+        step: 10000,
+        defaultVolume: 150000,
+        currency: '$',
+        traditionalFeePercent: 2.9,
+        traditionalFixedFee: 0.30,
+        ourFeePercent: 1.2,
+        ourFixedFee: 0.10,
+        primaryCta: { label: 'Start Saving Now', href: '/contact' },
+        secondaryCta: { label: 'Schedule Pricing Review', href: '/about' },
+        metricHighlights: [
+          { label: 'Average Savings', value: '58%', subtext: 'Lower processing overhead' },
+          { label: 'Zero Hidden Fees', value: '$0', subtext: 'No monthly account keeping fees' },
+          { label: 'Payout Speed', value: 'T+0', subtext: 'Instant treasury settlement' },
+        ],
+        disclaimer: 'Estimates based on blended interchange-plus rates vs standard 2.9% + 30¢ flat card processing.',
+      };
+
+    case 'videoShowcase':
+      return {
+        eyebrow: 'Product Tour',
+        title: 'See the Platform in Action',
+        description: 'Experience how our modern financial operations suite automates accounts payable, treasury management, and corporate spend in a 2-minute overview.',
+        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+        videoType: 'youtube',
+        posterImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80',
+        badge: '2-Minute Walkthrough',
+        duration: '2:15',
+        accentGlow: true,
+        autoplayInModal: true,
+        featurePills: ['Automated Ledger', 'Live FX Converter', 'Virtual Card Creation', 'Custom Approvals'],
+        cta: { label: 'Request Full Demo', href: '/contact' },
+      };
+
+    case 'leadMagnet':
+      return {
+        eyebrow: 'Executive Report',
+        title: 'The 2026 Global Treasury & Cross-Border Optimization Guide',
+        description: 'A definitive 42-page blueprint for CFOs and finance leaders navigating FX volatility, interchange fees, and multi-entity regulatory frameworks.',
+        badge: 'Free 42-Page PDF',
+        guideTitle: 'The 2026 Global Treasury & Cross-Border Optimization Guide',
+        guideSubtitle: 'Strategies for minimizing transaction drag, streamlining multi-currency cash pools, and automating compliance.',
+        coverImage: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80',
+        bulletPoints: [
+          'Actionable blueprints to cut FX spreads from 3.0% to 0.4%',
+          'Multi-entity banking structure design for UK, US, EU, and APAC',
+          'Automated reconciliation checklists compatible with NetSuite & Xero',
+          'Corporate card spend controls that prevent budget overruns',
+        ],
+        buttonLabel: 'Download Instant PDF',
+        successMessage: 'Success! Your guide has been sent to your inbox. Check your email for instant access.',
+        privacyNotice: 'Zero spam guarantee. Unsubscribe at any time with a single click.',
+        socialProofText: 'Downloaded by 4,200+ finance directors & CFOs worldwide.',
+      };
+
+    case 'caseStudyCarousel':
+      return {
+        eyebrow: 'Customer Success',
+        title: 'Proven Results at Enterprise Scale',
+        description: 'Discover how category-leading companies transform their international finance operations with our platform.',
+        autoPlayInterval: 6000,
+        items: [
+          {
+            company: 'OmniTrade Global',
+            logo: 'OmniTrade',
+            heroMetric: '+380%',
+            heroMetricLabel: 'Annual MRR Growth',
+            quote: 'Switching to this unified platform allowed us to expand into 14 countries in 60 days. Our cross-border transaction fees dropped by 64%, and automated reconciliation saved our finance team 30 hours per week.',
+            authorName: 'Elena Rostova',
+            authorRole: 'Chief Financial Officer',
+            authorAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&h=200&q=80',
+            tags: ['E-Commerce', 'Treasury', '14 Countries'],
+            href: '/case-studies/omnitrade',
+          },
+          {
+            company: 'NovaLogix Systems',
+            logo: 'NovaLogix',
+            heroMetric: '< 15min',
+            heroMetricLabel: 'Daily Close Time',
+            quote: 'We replaced four fragmented payment vendors and two legacy bank portals. Our finance team now operates in real time with absolute confidence in every international transfer.',
+            authorName: 'Marcus Vance',
+            authorRole: 'VP of Finance & Operations',
+            authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&h=200&q=80',
+            tags: ['SaaS', 'Multi-Currency', 'Automated Ledgers'],
+            href: '/case-studies/novalogix',
+          },
+          {
+            company: 'Aether Capital Partners',
+            logo: 'Aether Capital',
+            heroMetric: '$1.4M',
+            heroMetricLabel: 'Annual FX Overhead Saved',
+            quote: 'The interbank FX spreads and local clearing routes saved our portfolio companies seven figures in the first nine months alone.',
+            authorName: 'Sophia Chen',
+            authorRole: 'Managing Director',
+            authorAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&h=200&q=80',
+            tags: ['Venture & PE', 'Global Cash Pools', 'Zero Slippage'],
+            href: '/case-studies/aether-capital',
+          },
+        ],
+      };
+
+    case 'socialProofToast':
+      return {
+        position: 'bottom-left',
+        cycleIntervalSeconds: 5,
+        dismissible: true,
+        notifications: [
+          {
+            title: 'Enterprise Merchant Verified',
+            description: 'Aura Logistics (London, UK) activated Global Treasury Account.',
+            timestamp: '2 minutes ago',
+            verifiedBadge: true,
+            icon: 'ShieldCheck',
+          },
+          {
+            title: 'Transaction Processed',
+            description: '€48,500 settled via SEPA Instant rail with 0.1% interchange.',
+            timestamp: '4 minutes ago',
+            verifiedBadge: true,
+            icon: 'Zap',
+          },
+          {
+            title: 'New Card Issued',
+            description: 'Apex Studios provisioned 15 corporate debit cards with spend limits.',
+            timestamp: '7 minutes ago',
+            verifiedBadge: true,
+            icon: 'CreditCard',
+          },
+        ],
+      };
+
+    case 'interactiveTabShowcase':
+      return {
+        eyebrow: 'Interactive Tour',
+        title: 'Engineered for Complete Financial Control',
+        description: 'Explore each core capability designed to streamline multi-currency workflows from collection to reconciliation.',
+        variant: 'pills',
+        tabs: [
+          {
+            id: 'global-accounts',
+            label: 'Global Accounts',
+            icon: 'Globe',
+            badge: '50+ Currencies',
+            headline: 'Collect and Hold Funds Like a Local Entity',
+            description: 'Open domestic account details in USD, EUR, GBP, AUD, JPY, and SGD without setting up local foreign subsidiaries. Settle transactions through local clearing networks with zero incoming wire fees.',
+            bulletPoints: [
+              'Named local bank account details (routing, sort code, IBAN)',
+              'Instant conversion between major and emerging currency pairs',
+              'Direct integration with high-speed RTGS and automated clearing houses',
+            ],
+            metrics: [
+              { label: 'Supported Currencies', value: '50+' },
+              { label: 'Local Clearing Rails', value: '110+' },
+            ],
+            image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
+            cta: { label: 'Open Global Account', href: '/checkout' },
+          },
+          {
+            id: 'corporate-cards',
+            label: 'Corporate Cards',
+            icon: 'CreditCard',
+            badge: 'Zero FX Fees',
+            headline: 'Automated Corporate Spend with Real-Time Guardrails',
+            description: 'Issue unlimited physical and virtual payment cards for your entire team. Set granular spending limits, merchant category restrictions, and auto-freeze rules directly from the dashboard.',
+            bulletPoints: [
+              'Unlimited virtual cards generated in seconds via dashboard or API',
+              'Auto-match card receipts with ERP expense categories',
+              'Real-time transaction alerts delivered straight to Slack and mobile',
+            ],
+            metrics: [
+              { label: 'Card Creation Time', value: '< 2s' },
+              { label: 'FX Markup', value: '0%' },
+            ],
+            image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=80',
+            cta: { label: 'Explore Card Program', href: '/checkout' },
+          },
+          {
+            id: 'fx-risk',
+            label: 'FX & Hedging',
+            icon: 'TrendingUp',
+            badge: 'Real-Time Spreads',
+            headline: 'Interbank FX Rates with Automated Hedging Tools',
+            description: 'Lock in competitive forward contracts and automate spot exchange executions when rates meet your target thresholds. Protect your operating margins against sudden currency fluctuations.',
+            bulletPoints: [
+              'Direct access to wholesale interbank liquidity pools',
+              'Lock in rates for up to 12 months with flexible drawdown forwards',
+              'Automated trigger orders based on pre-set FX thresholds',
+            ],
+            metrics: [
+              { label: 'Typical Spread', value: '0.2%' },
+              { label: 'Forward Lock Window', value: '12 Mo' },
+            ],
+            image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
+            cta: { label: 'View FX Rates', href: '/contact' },
+          },
+        ],
+      };
+
+    case 'stepWizardProcess':
+      return {
+        eyebrow: 'Fast Onboarding',
+        title: 'Up and Running in 3 Seamless Steps',
+        description: 'From initial registration to live cross-border payouts in under 24 hours with zero technical roadblocks.',
+        layout: 'horizontal',
+        showProgressLine: true,
+        steps: [
+          {
+            stepNumber: 1,
+            title: 'Verify Your Organization',
+            description: 'Submit basic business entity documentation through our secure encrypted digital portal. Instant compliance verification in under 15 minutes.',
+            badge: '15 Minutes',
+            icon: 'Building2',
+            timeEstimate: '15 min',
+          },
+          {
+            stepNumber: 2,
+            title: 'Generate Local Account Details',
+            description: 'Spin up unique domestic account numbers in USD, EUR, GBP, AUD, and SGD immediately. Connect to your existing accounting system.',
+            badge: 'Instant',
+            icon: 'WalletCards',
+            timeEstimate: 'Instant',
+          },
+          {
+            stepNumber: 3,
+            title: 'Execute & Automate Payouts',
+            description: 'Begin sending, receiving, and settling funds globally via local clearing rails with real-time tracking and automated ledger sync.',
+            badge: 'Live',
+            icon: 'Rocket',
+            timeEstimate: 'Same Day',
+          },
+        ],
+        cta: { label: 'Start Free Onboarding', href: '/contact' },
+      };
+
+    case 'deviceMockupHero':
+      return {
+        eyebrow: 'Next-Gen Financial Console',
+        title: 'The Single Command Center for Modern Global Commerce',
+        description: 'Monitor multi-currency cash flows, approve corporate expenditures, and execute high-speed settlements with unmatched speed and enterprise security.',
+        deviceType: 'both',
+        screenshotUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80',
+        mobileScreenshotUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80',
+        tiltAngle: 'subtle',
+        badge: 'v4.2 Cloud Release',
+        primaryCta: { label: 'Launch Console', href: '/checkout' },
+        secondaryCta: { label: 'Book Live Demo', href: '/contact' },
+        trustLogos: ['Acme Global', 'Stripe Capital', 'Vercel Labs', 'Linear Tech'],
+        floatingMetrics: [
+          { label: 'Settlement Speed', value: '99.98% Same Day', position: 'left' },
+          { label: 'Monthly Volume', value: '$84.2M+', position: 'right' },
+        ],
+      };
+
+    case 'announcementBar':
+      return {
+        message: '🚀 New: Automated multi-currency payout routing now live with 0% FX markup for early adopters.',
+        badge: 'Update',
+        ctaLabel: 'Learn More',
+        ctaHref: '/capabilities',
+        dismissible: true,
+        variant: 'glow',
+        sticky: true,
+      };
+
     default:
       return {};
   }

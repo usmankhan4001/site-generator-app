@@ -29,6 +29,18 @@ export const SECTION_LABELS: Record<SectionType | 'header' | 'footer', string> =
   contactPanel: 'Contact Panel',
   policyDocument: 'Policy Document',
   checkout: 'Checkout',
+  bentoGrid: 'Bento Grid',
+  comparisonMatrix: 'Comparison Matrix',
+  logoMarquee: 'Logo Marquee',
+  roiCalculator: 'ROI Calculator',
+  videoShowcase: 'Video Showcase',
+  leadMagnet: 'Lead Magnet',
+  caseStudyCarousel: 'Case Study Carousel',
+  socialProofToast: 'Social Proof Toast',
+  interactiveTabShowcase: 'Interactive Tab Showcase',
+  stepWizardProcess: 'Step Wizard Process',
+  deviceMockupHero: 'Device Mockup Hero',
+  announcementBar: 'Announcement Bar',
 };
 
 export const SECTION_DESCRIPTIONS: Record<SectionType | 'header' | 'footer', string> = {
@@ -55,6 +67,18 @@ export const SECTION_DESCRIPTIONS: Record<SectionType | 'header' | 'footer', str
   contactPanel: 'Contact form with a company-details column.',
   policyDocument: 'Long-form legal or policy document.',
   checkout: 'Payment hand-off to the merchant\'s Airwallex checkout.',
+  bentoGrid: 'Asymmetric spotlight bento grid with glowing tilt cards.',
+  comparisonMatrix: 'Feature-by-feature competitor comparison matrix.',
+  logoMarquee: 'Infinite smooth ticker for logos, press mentions, and badges.',
+  roiCalculator: 'Interactive dynamic volume slider and annual savings calculator.',
+  videoShowcase: 'Product video spotlight card with responsive modal lightbox.',
+  leadMagnet: 'Resource download card with 3D guide preview and email capture.',
+  caseStudyCarousel: 'Deep-dive customer success stories with metrics and quotes.',
+  socialProofToast: 'Corner floating pill for verified merchant activity.',
+  interactiveTabShowcase: 'Tabbed feature switcher with live previews and metrics.',
+  stepWizardProcess: 'Numbered workflow process with progress indicator.',
+  deviceMockupHero: '3D tilted MacBook and iPhone device UI preview.',
+  announcementBar: 'Top notification bar for alerts, updates, and promos.',
 };
 
 export function sectionLabel(type: SectionType): string {

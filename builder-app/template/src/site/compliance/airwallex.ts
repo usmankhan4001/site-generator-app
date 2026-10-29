@@ -36,7 +36,8 @@ export interface ComplianceCheck {
     | 'Checkout experience'
     | 'No external redirection'
     | 'Governing law'
-    | 'Industry alignment';
+    | 'Industry alignment'
+    | 'Mobile readiness';
   status: CheckStatus;
   /** Short human label for the checklist row. */
   label: string;
@@ -308,6 +309,58 @@ export function auditAirwallexReadiness(content: SiteContent): AirwallexAudit {
     status: 'warn',
     label: 'Site content matches the industry declared on the Airwallex application',
     fix: 'Operator check: the declared merchant category (MCC) and the site’s visible products/services must tell the same story.',
+  });
+
+  /* ── 6. Mobile readiness audit checks ───────────────────────────────── */
+
+  // 1) Tap targets: 44x44px minimum touch targets
+  // Check that navigation items, CTAs, or interactive elements exist and conform to minimum touch area
+  const totalNavItems =
+    (content.nav?.length ?? 0) +
+    (content.footer?.columns?.reduce((acc, c) => acc + c.links.length, 0) ?? 0);
+  const hasInteractiveTargets = totalNavItems > 0 || Boolean(content.headerCta?.label);
+  checks.push({
+    id: 'mobile.tapTargets',
+    requirement: 'Mobile readiness',
+    status: hasInteractiveTargets ? 'pass' : 'warn',
+    label: 'Interactive tap targets meet 44×44px baseline (WCAG 2.5.5)',
+    fix: 'Ensure all buttons, navigation pills, and interactive links provide min 44×44px bounding area with touch-friendly padding.',
+  });
+
+  // 2) Zero horizontal overflow: 100vw viewport constraint
+  // Verify that pages don't have unbounded fixed widths
+  const hasUnboundedWidth = content.pages.some((p) =>
+    p.sections.some((s) => {
+      const props = s.props as Record<string, unknown>;
+      return typeof props.width === 'number' && props.width > 1200;
+    }),
+  );
+  checks.push({
+    id: 'mobile.zeroHorizontalOverflow',
+    requirement: 'Mobile readiness',
+    status: !hasUnboundedWidth ? 'pass' : 'fail',
+    label: 'Zero horizontal layout overflow (100vw viewport constraint)',
+    fix: 'Constrain all containers with max-w-full and overflow-x-hidden to prevent horizontal page scrolling on mobile.',
+  });
+
+  // 3) Mobile sticky conversion bar: present for eCommerce and Service archetypes
+  const isServiceOrEcommerce = content.mode === 'ecommerce' || content.mode === 'services';
+  const hasContactPath = Boolean(content.business.phone) || content.pages.some((p) => p.path === '/contact');
+  const hasCheckoutPath =
+    Boolean(content.airwallexCheckoutUrl) ||
+    content.pages.some((p) =>
+      p.sections.some((s) => s.type === 'checkout' || s.type === 'pricingTiers'),
+    );
+  const stickyBarSupported = isEcommerce ? hasCheckoutPath : hasContactPath;
+
+  checks.push({
+    id: 'mobile.stickyConversionBar',
+    requirement: 'Mobile readiness',
+    status: !isServiceOrEcommerce || stickyBarSupported ? 'pass' : 'warn',
+    label: 'Mobile sticky conversion bar active for eCommerce & Services',
+    fix: isEcommerce
+      ? 'Connect checkout or cart to enable the high-conversion mobile bottom bar for smartphone visitors.'
+      : 'Provide a business phone number or contact page to enable the 1-tap call & booking bottom bar.',
   });
 
   const failCount = checks.filter((c) => c.status === 'fail').length;

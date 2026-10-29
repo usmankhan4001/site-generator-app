@@ -28,6 +28,7 @@ import { PanelHeader, IconBtn } from './fields';
 import { SECTION_LABELS, SECTION_DESCRIPTIONS } from './labels';
 import { summarizeSection } from './sectionSummary';
 import { SectionSkeleton } from './SectionSkeleton';
+import { VisualComponentTree } from './VisualComponentTree';
 
 interface SectionMeta {
   type: SectionType;
@@ -163,6 +164,78 @@ const SECTION_METAS: Record<SectionType, SectionMeta> = {
     categoryLabel: 'Content & Legal',
     variants: ['Legal Clauses', 'Terms of Service', 'Privacy Policy'],
   },
+  bentoGrid: {
+    type: 'bentoGrid',
+    category: 'features',
+    categoryLabel: 'Features & Catalog',
+    variants: ['Modern Glow', 'Minimal 1px', 'Glass Blur', 'Luxury Gold'],
+  },
+  comparisonMatrix: {
+    type: 'comparisonMatrix',
+    category: 'conversion',
+    categoryLabel: 'Pricing & Conversion',
+    variants: ['Competitor Matrix', 'Feature Checklist', 'Tier Comparison'],
+  },
+  logoMarquee: {
+    type: 'logoMarquee',
+    category: 'proof',
+    categoryLabel: 'Social Proof',
+    variants: ['Card Strip', 'Minimal Ticker', 'Glass Pill', 'Payment Badges'],
+  },
+  roiCalculator: {
+    type: 'roiCalculator',
+    category: 'conversion',
+    categoryLabel: 'Pricing & Conversion',
+    variants: ['Volume Slider', 'Fee Savings Counter', 'Interchange Plus'],
+  },
+  videoShowcase: {
+    type: 'videoShowcase',
+    category: 'core',
+    categoryLabel: 'Hero & Core',
+    variants: ['Modal Lightbox', 'Glow Poster', 'YouTube/Vimeo Embed'],
+  },
+  leadMagnet: {
+    type: 'leadMagnet',
+    category: 'conversion',
+    categoryLabel: 'Pricing & Conversion',
+    variants: ['3D Guide Preview', 'Email Capture', 'Executive Report'],
+  },
+  caseStudyCarousel: {
+    type: 'caseStudyCarousel',
+    category: 'proof',
+    categoryLabel: 'Social Proof',
+    variants: ['Metric Spotlight', 'Executive Quote', 'Auto-play Slider'],
+  },
+  socialProofToast: {
+    type: 'socialProofToast',
+    category: 'proof',
+    categoryLabel: 'Social Proof',
+    variants: ['Floating Corner Pill', 'Verified Badge', 'Activity Feed'],
+  },
+  interactiveTabShowcase: {
+    type: 'interactiveTabShowcase',
+    category: 'features',
+    categoryLabel: 'Features & Catalog',
+    variants: ['Pill Switcher', 'Card Switcher', 'Browser Preview'],
+  },
+  stepWizardProcess: {
+    type: 'stepWizardProcess',
+    category: 'features',
+    categoryLabel: 'Features & Catalog',
+    variants: ['Horizontal Stepper', 'Vertical Timeline', 'Progress Line'],
+  },
+  deviceMockupHero: {
+    type: 'deviceMockupHero',
+    category: 'core',
+    categoryLabel: 'Hero & Core',
+    variants: ['3D MacBook', 'iPhone Mockup', 'Dual Device Tilt'],
+  },
+  announcementBar: {
+    type: 'announcementBar',
+    category: 'core',
+    categoryLabel: 'Hero & Core',
+    variants: ['Sticky Top Banner', 'Glow Accent', 'Dismissible Pill'],
+  },
 };
 
 const CATEGORIES = [
@@ -189,6 +262,7 @@ export function SectionsPanel() {
 
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [sectionsView, setSectionsView] = useState<'tree' | 'compact'>('tree');
 
   if (!content || !page) return null;
 
@@ -266,12 +340,42 @@ export function SectionsPanel() {
           </Button>
         </div>
 
-        <div className="my-1.5 flex items-center gap-2 px-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-          <Layers className="h-3 w-3" />
-          <span>Page sections ({page.sections.length})</span>
+        <div className="my-1.5 flex items-center justify-between px-1">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+            <Layers className="h-3 w-3" />
+            <span>Page sections ({page.sections.length})</span>
+          </div>
+          <div className="flex rounded-md bg-muted/60 p-0.5">
+            <button
+              type="button"
+              onClick={() => setSectionsView('tree')}
+              className={cn(
+                'px-2 py-0.5 text-[10px] font-medium rounded transition-all',
+                sectionsView === 'tree'
+                  ? 'bg-card text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              Visual Tree
+            </button>
+            <button
+              type="button"
+              onClick={() => setSectionsView('compact')}
+              className={cn(
+                'px-2 py-0.5 text-[10px] font-medium rounded transition-all',
+                sectionsView === 'compact'
+                  ? 'bg-card text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              List
+            </button>
+          </div>
         </div>
 
-        {page.sections.length === 0 ? (
+        {sectionsView === 'tree' ? (
+          <VisualComponentTree />
+        ) : page.sections.length === 0 ? (
           <p className="py-6 text-center text-xs text-muted-foreground">
             No sections on this page yet. Click below to add one.
           </p>

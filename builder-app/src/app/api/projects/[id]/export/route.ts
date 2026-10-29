@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { getProject } from '@/lib/studio/projects';
 import { getActor } from '@/lib/session';
 import { assembleSite } from '@/lib/assemble';
 import { zipDir } from '@/lib/zipDir';
+import {
+  generateDeploySh,
+  generateDeployPs1,
+  generateWranglerToml,
+  generateVercelJson,
+} from '@/lib/export/deploy-scripts';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,8 +36,33 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   try {
     tempDir = await mkdtemp(join(tmpdir(), 'site-export-'));
     await assembleSite(project.content, tempDir);
+
+    const projectNameSlug = slugify(project.content.business?.name ?? project.name);
+
+    // Inject 1-command deployment scripts and cloud platform configs into root
+    await writeFile(
+      join(tempDir, 'deploy.sh'),
+      generateDeploySh(projectNameSlug),
+      { encoding: 'utf8', mode: 0o755 },
+    );
+    await writeFile(
+      join(tempDir, 'deploy.ps1'),
+      generateDeployPs1(projectNameSlug),
+      { encoding: 'utf8' },
+    );
+    await writeFile(
+      join(tempDir, 'wrangler.toml'),
+      generateWranglerToml(projectNameSlug),
+      { encoding: 'utf8' },
+    );
+    await writeFile(
+      join(tempDir, 'vercel.json'),
+      generateVercelJson(projectNameSlug),
+      { encoding: 'utf8' },
+    );
+
     const zip = await zipDir(tempDir);
-    const filename = `${slugify(project.content.business?.name ?? project.name)}-source.zip`;
+    const filename = `${projectNameSlug}-source.zip`;
 
     return new NextResponse(new Uint8Array(zip), {
       status: 200,

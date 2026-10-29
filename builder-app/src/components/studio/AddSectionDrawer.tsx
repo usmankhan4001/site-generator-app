@@ -148,6 +148,78 @@ const SECTION_METAS: Record<SectionType, SectionMeta> = {
     categoryLabel: 'Content & Legal',
     variants: ['Legal Clauses', 'Terms of Service', 'Privacy Policy'],
   },
+  bentoGrid: {
+    type: 'bentoGrid',
+    category: 'features',
+    categoryLabel: 'Features & Catalog',
+    variants: ['Modern Glow', 'Minimal 1px', 'Glass Blur', 'Luxury Gold'],
+  },
+  comparisonMatrix: {
+    type: 'comparisonMatrix',
+    category: 'conversion',
+    categoryLabel: 'Pricing & Conversion',
+    variants: ['Competitor Matrix', 'Feature Checklist', 'Tier Comparison'],
+  },
+  logoMarquee: {
+    type: 'logoMarquee',
+    category: 'proof',
+    categoryLabel: 'Social Proof',
+    variants: ['Card Strip', 'Minimal Ticker', 'Glass Pill', 'Payment Badges'],
+  },
+  roiCalculator: {
+    type: 'roiCalculator',
+    category: 'conversion',
+    categoryLabel: 'Pricing & Conversion',
+    variants: ['Volume Slider', 'Fee Savings Counter', 'Interchange Plus'],
+  },
+  videoShowcase: {
+    type: 'videoShowcase',
+    category: 'core',
+    categoryLabel: 'Hero & Core',
+    variants: ['Modal Lightbox', 'Glow Poster', 'YouTube/Vimeo Embed'],
+  },
+  leadMagnet: {
+    type: 'leadMagnet',
+    category: 'conversion',
+    categoryLabel: 'Pricing & Conversion',
+    variants: ['3D Guide Preview', 'Email Capture', 'Executive Report'],
+  },
+  caseStudyCarousel: {
+    type: 'caseStudyCarousel',
+    category: 'proof',
+    categoryLabel: 'Social Proof',
+    variants: ['Metric Spotlight', 'Executive Quote', 'Auto-play Slider'],
+  },
+  socialProofToast: {
+    type: 'socialProofToast',
+    category: 'proof',
+    categoryLabel: 'Social Proof',
+    variants: ['Floating Corner Pill', 'Verified Badge', 'Activity Feed'],
+  },
+  interactiveTabShowcase: {
+    type: 'interactiveTabShowcase',
+    category: 'features',
+    categoryLabel: 'Features & Catalog',
+    variants: ['Pill Switcher', 'Card Switcher', 'Browser Preview'],
+  },
+  stepWizardProcess: {
+    type: 'stepWizardProcess',
+    category: 'features',
+    categoryLabel: 'Features & Catalog',
+    variants: ['Horizontal Stepper', 'Vertical Timeline', 'Progress Line'],
+  },
+  deviceMockupHero: {
+    type: 'deviceMockupHero',
+    category: 'core',
+    categoryLabel: 'Hero & Core',
+    variants: ['3D MacBook', 'iPhone Mockup', 'Dual Device Tilt'],
+  },
+  announcementBar: {
+    type: 'announcementBar',
+    category: 'core',
+    categoryLabel: 'Hero & Core',
+    variants: ['Sticky Top Banner', 'Glow Accent', 'Dismissible Pill'],
+  },
 };
 
 const CATEGORIES = [

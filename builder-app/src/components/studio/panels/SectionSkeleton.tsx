@@ -430,6 +430,18 @@ const SKELETONS: Record<SectionType, () => React.JSX.Element> = {
   contactPanel: ContactPanelSkeleton,
   policyDocument: PolicyDocumentSkeleton,
   checkout: CheckoutSkeleton,
+  bentoGrid: FeatureGridSkeleton,
+  comparisonMatrix: SlaTableSkeleton,
+  logoMarquee: TrustBarSkeleton,
+  roiCalculator: PricingTiersSkeleton,
+  videoShowcase: HeroSkeleton,
+  leadMagnet: CtaBannerSkeleton,
+  caseStudyCarousel: TestimonialsSkeleton,
+  socialProofToast: TrustBarSkeleton,
+  interactiveTabShowcase: FeatureGridSkeleton,
+  stepWizardProcess: ProcessStepsSkeleton,
+  deviceMockupHero: HeroSkeleton,
+  announcementBar: StatsBarSkeleton,
 };
 
 export function SectionSkeleton({ type }: { type: SectionType }) {

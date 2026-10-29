@@ -22,9 +22,11 @@ export interface SiteRendererProps {
   page: string;
   /** Studio preview mode — adds data-attributes used for click-to-select. */
   preview?: boolean;
+  /** Active device context for explicit preview filtering */
+  device?: 'desktop' | 'tablet' | 'mobile';
 }
 
-export function SiteRenderer({ content, page, preview = false }: SiteRendererProps) {
+export function SiteRenderer({ content, page, preview = false, device }: SiteRendererProps) {
   const resolved =
     getPage(content, page) ?? content.pages.find((p) => p.key === page);
 
@@ -38,10 +40,36 @@ export function SiteRenderer({ content, page, preview = false }: SiteRendererPro
     );
   }
 
-  const sections = enabledSections(resolved);
+  const sections = enabledSections(resolved).filter((section) => {
+    const vis = section.breakpointVisibility ?? 'all';
+    if (vis === 'all') return true;
+    if (device === 'mobile' && vis === 'desktop-only') return false;
+    if (device === 'desktop' && vis === 'mobile-only') return false;
+    return true;
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/20">
+      {/* Enforce fluid typography clamps on all section titles and subtitles */}
+      <style>{`
+        [data-section-id] h1,
+        [data-section-id] .section-title,
+        [data-edit-prop="title"],
+        [data-edit-prop="headline"] {
+          font-size: clamp(1.85rem, 1.25rem + 2.5vw, 3.5rem) !important;
+          line-height: 1.15 !important;
+        }
+        [data-section-id] h2 {
+          font-size: clamp(1.65rem, 1.15rem + 2vw, 2.75rem) !important;
+          line-height: 1.2 !important;
+        }
+        [data-section-id] .section-subtitle,
+        [data-edit-prop="subtitle"],
+        [data-edit-prop="description"] {
+          font-size: clamp(0.95rem, 0.85rem + 0.5vw, 1.25rem) !important;
+          line-height: 1.55 !important;
+        }
+      `}</style>
       <div
         data-section-id={preview ? 'header' : undefined}
         data-section-type={preview ? 'header' : undefined}
@@ -53,11 +81,19 @@ export function SiteRenderer({ content, page, preview = false }: SiteRendererPro
         {sections.map((section) => {
           const Component = getSectionComponent(section.type);
           if (!Component) return null;
+          const visibilityClass =
+            section.breakpointVisibility === 'desktop-only'
+              ? 'hidden md:block'
+              : section.breakpointVisibility === 'mobile-only'
+              ? 'block md:hidden'
+              : undefined;
+
           return (
             <div
               key={section.id}
               data-section-id={preview ? section.id : undefined}
               data-section-type={preview ? section.type : undefined}
+              className={visibilityClass}
             >
               {/* props shape is guaranteed by the discriminated union on Section */}
               <Component props={section.props as never} content={content} />
