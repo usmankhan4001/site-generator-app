@@ -50,26 +50,6 @@ export function SiteRenderer({ content, page, preview = false, device }: SiteRen
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/20">
-      {/* Enforce fluid typography clamps on all section titles and subtitles */}
-      <style>{`
-        [data-section-id] h1,
-        [data-section-id] .section-title,
-        [data-edit-prop="title"],
-        [data-edit-prop="headline"] {
-          font-size: clamp(1.85rem, 1.25rem + 2.5vw, 3.5rem) !important;
-          line-height: 1.15 !important;
-        }
-        [data-section-id] h2 {
-          font-size: clamp(1.65rem, 1.15rem + 2vw, 2.75rem) !important;
-          line-height: 1.2 !important;
-        }
-        [data-section-id] .section-subtitle,
-        [data-edit-prop="subtitle"],
-        [data-edit-prop="description"] {
-          font-size: clamp(0.95rem, 0.85rem + 0.5vw, 1.25rem) !important;
-          line-height: 1.55 !important;
-        }
-      `}</style>
       <div
         data-section-id={preview ? 'header' : undefined}
         data-section-type={preview ? 'header' : undefined}

@@ -318,7 +318,7 @@ export function PreviewPane({ dw, projectId, onOpenAddSectionAt }: PreviewPanePr
                   src={src}
                   title="Site preview"
                   sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                  className="block border-0 bg-white"
+                  className="block border-0 bg-background"
                   style={{
                     width: dw,
                     height: frameH,
@@ -339,13 +339,13 @@ export function PreviewPane({ dw, projectId, onOpenAddSectionAt }: PreviewPanePr
                   <span className="h-2 w-2 rounded-full bg-zinc-800 ring-1 ring-zinc-700" />
                 </div>
 
-                <div className="relative flex-1 overflow-hidden rounded-[20px] bg-white">
+                <div className="relative flex-1 overflow-hidden rounded-[20px] bg-background">
                   <iframe
                     ref={iframeRef}
                     src={src}
                     title="Site preview"
                     sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                    className="block border-0 bg-white"
+                    className="block border-0 bg-background"
                     style={{
                       width: dw,
                       height: frameH,
@@ -368,13 +368,13 @@ export function PreviewPane({ dw, projectId, onOpenAddSectionAt }: PreviewPanePr
                   <span className="h-2.5 w-2.5 rounded-full bg-zinc-900 ring-1 ring-zinc-800" />
                 </div>
 
-                <div className="relative flex-1 overflow-hidden rounded-[38px] bg-white">
+                <div className="relative flex-1 overflow-hidden rounded-[38px] bg-background">
                   <iframe
                     ref={iframeRef}
                     src={src}
                     title="Site preview"
                     sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                    className="block border-0 bg-white"
+                    className="block border-0 bg-background"
                     style={{
                       width: dw,
                       height: frameH,

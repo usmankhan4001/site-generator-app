@@ -19,7 +19,7 @@ export function createDemoShowcaseContent(): SiteContent {
   return {
     version: 1,
     mode: 'services',
-    themeId: 'obsidian-vault',
+    themeId: 'midnight-obsidian',
     surfaceStyle: 'glassmorphism',
     layoutSystem: 'signal',
     archetype: 'saas',

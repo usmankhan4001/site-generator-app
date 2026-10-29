@@ -10,10 +10,12 @@ import { auth } from '@/lib/auth';
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Never intercept auth API endpoints, Next internals, or static assets
+  // Never intercept auth API endpoints, Next internals, static assets, or demo routes
   if (
     pathname.startsWith('/api/auth') ||
     pathname.startsWith('/_next') ||
+    pathname.startsWith('/demo') ||
+    pathname.startsWith('/preview/project/demo') ||
     pathname.includes('/favicon.') ||
     pathname.includes('/icon.')
   ) {

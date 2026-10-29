@@ -74,7 +74,7 @@ export default function LeadMagnet({
           />
         )}
 
-        <div className="relative rounded-3xl bg-card border border-border/80 shadow-xl overflow-hidden p-8 sm:p-12 lg:p-16">
+        <div className="card-elevated relative rounded-3xl overflow-hidden p-8 sm:p-12 lg:p-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             {/* 3D Guide Cover Preview (Left 5 Cols on desktop) */}
             <div className="lg:col-span-5 flex justify-center">

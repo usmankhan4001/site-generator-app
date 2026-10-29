@@ -182,3 +182,51 @@
   animation-play-state: paused;
 }
 
+/* Executive Zero-Slop Visual Rules */
+[data-preview-root],
+.site-kit-root {
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[data-preview-root] h1,
+[data-preview-root] h2,
+[data-preview-root] h3,
+[data-preview-root] h4,
+[data-preview-root] .font-display,
+.site-kit-root h1,
+.site-kit-root h2,
+.site-kit-root h3,
+.site-kit-root h4 {
+  font-family: var(--font-display, var(--font-sans));
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+[data-preview-root] p,
+.site-kit-root p {
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
+/* Subtle glow badges and hairline borders */
+.glow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-badge, 9999px);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+  border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+  box-shadow: 0 0 16px -2px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+

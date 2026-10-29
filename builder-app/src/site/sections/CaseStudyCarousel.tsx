@@ -64,7 +64,7 @@ export default function CaseStudyCarousel({
           />
         )}
 
-        <div className="relative rounded-3xl bg-card border border-border/80 shadow-xl overflow-hidden p-8 sm:p-12 lg:p-14">
+        <div className="card-elevated relative rounded-3xl overflow-hidden p-8 sm:p-12 lg:p-14">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left Column: Hero Metric & Company Pill (4 cols) */}
             <div className="lg:col-span-4 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-border/70 pb-6 lg:pb-0 lg:pr-8">

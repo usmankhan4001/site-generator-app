@@ -58,7 +58,7 @@ export default function ComparisonMatrix({
           />
         )}
 
-        <div className="relative overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
+        <div className="card-elevated relative overflow-x-auto rounded-2xl">
           <table className="w-full text-left border-collapse min-w-[640px]">
             {/* Sticky Table Header */}
             <thead className="sticky top-0 z-20 bg-card/95 backdrop-blur-md border-b border-border shadow-xs">

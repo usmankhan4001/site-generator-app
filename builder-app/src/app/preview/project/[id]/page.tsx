@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import { getProject } from '@/lib/studio/projects';
 import { getActor } from '@/lib/session';
 import { LivePreviewContainer } from '@/components/preview/LivePreviewContainer';
+import { createDemoShowcaseContent } from '@/lib/studio/demoShowcase';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +21,11 @@ export default async function ProjectPreviewPage({
 }) {
   const { id } = await params;
   const { page = '/' } = await searchParams;
+
+  if (id === 'demo') {
+    const demoContent = createDemoShowcaseContent();
+    return <LivePreviewContainer initialContent={demoContent} page={page} />;
+  }
 
   const actor = await getActor();
   if (!actor) notFound();

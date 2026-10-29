@@ -76,7 +76,7 @@ export default function RoiCalculator({
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Interactive Slider Console */}
-          <div className="lg:col-span-7 bg-card border border-border/80 rounded-3xl p-6 sm:p-10 shadow-lg">
+          <div className="card-elevated lg:col-span-7 rounded-3xl p-6 sm:p-10">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-primary">

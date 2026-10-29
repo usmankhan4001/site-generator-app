@@ -113,7 +113,7 @@ export default function InteractiveTabShowcase({
         </div>
 
         {/* Active Tab Content Panel with Crossfade */}
-        <div className="relative rounded-3xl bg-card border border-border/80 shadow-xl overflow-hidden p-6 sm:p-10 lg:p-14 animate-in fade-in duration-300">
+        <div className="card-elevated relative rounded-3xl overflow-hidden p-6 sm:p-10 lg:p-14 animate-in fade-in duration-300">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             {/* Left Column: Copy, Metrics, Bullet Points & CTA (6 cols) */}
             <div className="lg:col-span-6 flex flex-col justify-center">

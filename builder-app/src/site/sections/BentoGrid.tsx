@@ -20,14 +20,14 @@ function getTileIcon(name?: string) {
 function getVariantCardClass(variant: BentoGridVariant = 'modern'): string {
   switch (variant) {
     case 'minimal':
-      return 'bg-card text-card-foreground border border-border/70 hover:border-foreground/30 transition-all duration-300';
+      return 'card-elevated bg-card text-card-foreground border border-border/70 hover:border-foreground/30 transition-all duration-300';
     case 'glass':
-      return 'bg-card/60 backdrop-blur-xl text-card-foreground border border-white/20 dark:border-white/10 shadow-lg hover:shadow-xl hover:bg-card/75 transition-all duration-300';
+      return 'card-elevated bg-card/60 backdrop-blur-xl text-card-foreground border border-white/20 dark:border-white/10 shadow-lg hover:shadow-xl hover:bg-card/75 transition-all duration-300';
     case 'luxury':
-      return 'bg-gradient-to-b from-amber-500/[0.05] via-card to-card text-card-foreground border border-amber-500/30 hover:border-amber-500/70 shadow-md shadow-amber-500/5 hover:shadow-amber-500/10 transition-all duration-300';
+      return 'card-elevated bg-gradient-to-b from-amber-500/[0.05] via-card to-card text-card-foreground border border-amber-500/30 hover:border-amber-500/70 shadow-md shadow-amber-500/5 hover:shadow-amber-500/10 transition-all duration-300';
     case 'modern':
     default:
-      return 'bg-card text-card-foreground border border-border/80 hover:border-primary/50 shadow-sm hover:shadow-xl hover:shadow-primary/10 transition-all duration-300';
+      return 'card-elevated bg-card/80 backdrop-blur-md text-card-foreground border border-border/80 hover:border-primary/50 shadow-sm hover:shadow-xl hover:shadow-primary/10 transition-all duration-300';
   }
 }
 

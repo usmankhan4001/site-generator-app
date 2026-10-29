@@ -1317,10 +1317,11 @@ export const THEMES: Record<string, SiteTheme> = Object.fromEntries(
 
 export const THEMES_LIST: SiteTheme[] = Object.values(THEMES);
 
-export const DEFAULT_THEME_ID = 'indigo-enterprise';
+export const DEFAULT_THEME_ID = 'midnight-obsidian';
 
 export function getTheme(themeId: string | undefined): SiteTheme {
-  return (themeId && THEMES[themeId]) || THEMES[DEFAULT_THEME_ID];
+  if (themeId === 'obsidian-vault') return THEMES['midnight-obsidian'];
+  return (themeId && THEMES[themeId]) || THEMES['midnight-obsidian'] || THEMES[DEFAULT_THEME_ID];
 }
 
 /* ---------------------------------------------------------------------------
@@ -1550,5 +1551,6 @@ export function themeToStyleObject(
   for (const [k, v] of themeVarPairs(theme, accent, surfaceOverride)) style[k] = v;
   style.background = 'var(--background)';
   style.color = 'var(--foreground)';
+  style.fontFamily = 'var(--font-sans)';
   return style as CSSProperties;
 }
