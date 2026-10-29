@@ -99,10 +99,11 @@ export function BusinessProfileModal({ open, onClose }: BusinessProfileModalProp
     setAiMsg(null);
     setAiResult('');
     try {
+      const prompt = content.source?.prompt || content.source?.niche || content.business?.description;
       const res = await fetch('/api/ai/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId }),
+        body: JSON.stringify({ projectId, prompt }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.success) {

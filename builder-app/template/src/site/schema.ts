@@ -21,6 +21,8 @@ export interface BusinessInfo {
   legalName?: string;
   /** Short brand name for the logo + copy, e.g. "Vantage". */
   shortName: string;
+  /** Free-text description / initial prompt explaining what the business does. */
+  description?: string;
   /** Statutory company/registration number as issued by the registry. */
   registrationNumber: string;
   /** Where the entity is registered, e.g. "Singapore", "Delaware, USA". */
@@ -1121,6 +1123,8 @@ export interface SiteContent {
     needsPersonalization: boolean;
     /** Free-text niche label, e.g. "dental clinic", "boutique roastery". */
     niche?: string;
+    /** Original user prompt / brief describing the business and offerings. */
+    prompt?: string;
     /** Discovery / filter tags. */
     tags?: string[];
   };

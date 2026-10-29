@@ -59,6 +59,7 @@ export const SECTION_FIELDS: Partial<Record<SectionType, FieldSpec[]>> = {
     { kind: 'text', key: 'accentText' },
     { kind: 'text', key: 'subtitle' },
     { kind: 'strings', key: 'bulletPoints' },
+    { kind: 'strings', key: 'features' },
     { kind: 'strings', key: 'trustBadges' },
   ],
   statsBar: [{ kind: 'objects', key: 'items', itemKeys: ['value', 'label', 'subtext'] }],
@@ -178,11 +179,19 @@ export const SECTION_FIELDS: Partial<Record<SectionType, FieldSpec[]>> = {
  * Prompt builder + call
  * ========================================================================== */
 
-function makeContext(content: SiteContent): string {
+function makeContext(content: SiteContent, userPrompt?: string): string {
   const b = content.business;
+  const prompt =
+    userPrompt?.trim() ||
+    content.source?.prompt?.trim() ||
+    content.source?.niche?.trim() ||
+    b.description?.trim() ||
+    '';
+
   const lines: string[] = [
     `Business name: ${b.name || 'unspecified'}`,
     `Short name: ${b.shortName || b.name}`,
+    `Primary prompt & business description: ${prompt || 'unspecified'}`,
     `Industry / archetype: ${content.source?.niche || content.archetype || content.mode}`,
     `Sector: ${content.source?.sector || 'n/a'}`,
     `What the business does (tags): ${(content.source?.tags ?? []).join(', ') || 'n/a'}`,
@@ -355,6 +364,7 @@ export interface RewriteSectionInput {
   sectionType: SectionType;
   props: Record<string, unknown>;
   content: SiteContent;
+  userPrompt?: string;
   model?: string;
 }
 
@@ -367,6 +377,7 @@ export async function rewriteSectionWithAI({
   sectionType,
   props,
   content,
+  userPrompt,
   model,
 }: RewriteSectionInput): Promise<Record<string, unknown>> {
   const specs = SECTION_FIELDS[sectionType];
@@ -374,7 +385,7 @@ export async function rewriteSectionWithAI({
     throw new Error(`AI copy is not supported for this section type (${sectionType}).`);
   }
 
-  const context = makeContext(content);
+  const context = makeContext(content, userPrompt);
   const fieldList = specs
     .map((s) => {
       if (s.kind === 'text') return `- "${s.key}": a short piece of text`;
@@ -384,7 +395,9 @@ export async function rewriteSectionWithAI({
     .join('\n');
 
   const system = [
-    "You are an expert B2B website copywriter. Rewrite the copy for a single section of a business website.",
+    "You are an expert website copywriter. Rewrite the copy for a single section of a business website.",
+    "CRITICAL REQUIREMENT: Rewrite and alter the text fields (headlines, subtitles, badges, feature items, bullet points, descriptions) so they are specifically tailored to the business description and prompt provided.",
+    "Do NOT leave generic placeholder or template copy.",
     "Keep the tone professional, specific and confident — never generic or buzzwordy.",
     "Ground every claim in the business context provided; never invent hard numbers (prices, percentages, SLA values) unless the user already supplied them.",
     "Keep legal/brand nouns (exact business name, registration details) untouched.",
@@ -394,12 +407,13 @@ export async function rewriteSectionWithAI({
   ].join('\n');
 
   const user = [
-    `Here is the business context:\n${context}`,
+    `Here is the business context & prompt:\n${context}`,
+    userPrompt?.trim() ? `Specific user instruction/prompt: ${userPrompt.trim()}` : '',
     ``,
-    `Here is the current section JSON (for style/length reference only — only rewrite text, keep structure):`,
+    `Here is the current section JSON (for style/length reference only — rewrite all text fields to fit the business prompt):`,
     `\`\`\`json\n${JSON.stringify(props, null, 2)}\n\`\`\``,
     `Return a JSON object of the rewritten text fields per the schema.`,
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 
   const raw = await chatCompletion({ apiKey, system, user, model });
   const parsed = extractJson(raw);
@@ -414,6 +428,7 @@ export async function rewriteSectionForUser(opts: {
   sectionType: SectionType;
   props: Record<string, unknown>;
   content: SiteContent;
+  userPrompt?: string;
 }): Promise<Record<string, unknown>> {
   const apiKey = await getOpenRouterKey();
   if (!isConfiguredKey(apiKey)) {
@@ -423,7 +438,13 @@ export async function rewriteSectionForUser(opts: {
     err.code = 'AI_NOT_CONFIGURED';
     throw err;
   }
-  return rewriteSectionWithAI({ apiKey, sectionType: opts.sectionType, props: opts.props, content: opts.content });
+  return rewriteSectionWithAI({
+    apiKey,
+    sectionType: opts.sectionType,
+    props: opts.props,
+    content: opts.content,
+    userPrompt: opts.userPrompt,
+  });
 }
 
 /* ============================================================================

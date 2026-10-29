@@ -30,6 +30,7 @@ export async function POST(req: Request) {
     themeId?: string;
     business?: Partial<BusinessInfo>;
     content?: SiteContent;
+    prompt?: string;
   };
   try {
     body = await req.json();
@@ -59,6 +60,7 @@ export async function POST(req: Request) {
         {
           themeId: body.themeId,
           business: body.business,
+          prompt: body.prompt,
         },
       );
       return NextResponse.json({ project }, { status: 201 });

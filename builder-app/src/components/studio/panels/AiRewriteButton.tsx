@@ -14,6 +14,7 @@ import type { SectionType } from '@/site/schema';
  */
 export function AiRewriteButton({ sectionType, sectionId }: { sectionType: SectionType; sectionId?: string }) {
   const projectId = useStudio((s) => s.meta?.id);
+  const prompt = useStudio((s) => s.content?.source?.prompt || s.content?.source?.niche || s.content?.business?.description);
   const updateSectionProps = useStudio((s) => s.updateSectionProps);
 
   const [state, setState] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
@@ -30,7 +31,7 @@ export function AiRewriteButton({ sectionType, sectionId }: { sectionType: Secti
       const res = await fetch('/api/ai/rewrite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId, sectionId }),
+        body: JSON.stringify({ projectId, sectionId, prompt }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.success) {

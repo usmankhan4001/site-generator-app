@@ -516,14 +516,19 @@ export async function generateSiteFromBrief({
     content.footer = { ...content.footer, tagline: footerPlan.tagline.trim() };
   }
 
+  const promptVal = brief.brief?.trim() || brief.niche?.trim() || undefined;
   content.source = {
     templateId: content.source?.templateId ?? `archetype:${resolvedArchetypeId}`,
     sector: content.source?.sector ?? 'tech',
     archetype: content.source?.archetype ?? resolvedArchetypeId,
     needsPersonalization: false,
     niche: brief.niche.trim() || undefined,
+    prompt: promptVal,
     tags: deriveTags(brief.niche),
   };
+  if (promptVal) {
+    content.business.description = promptVal;
+  }
 
   // 8. Assign the picker-chosen images, then diversify avatars + fill gaps.
 

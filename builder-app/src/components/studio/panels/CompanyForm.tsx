@@ -35,6 +35,7 @@ export function CompanyForm() {
   const [policyState, setPolicyState] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
   const [policyMsg, setPolicyMsg] = useState<string | null>(null);
   const [policyResult, setPolicyResult] = useState<string>('');
+  const [prompt, setPrompt] = useState(() => content?.source?.prompt || content?.source?.niche || content?.business?.description || '');
 
   if (!content) return null;
   const b = content.business;
@@ -49,7 +50,7 @@ export function CompanyForm() {
       const res = await fetch('/api/ai/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId }),
+        body: JSON.stringify({ projectId, prompt }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.success) {
@@ -142,12 +143,32 @@ export function CompanyForm() {
       <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />
-          <p className="text-sm font-medium text-foreground">Generate copy with AI</p>
+          <p className="text-sm font-medium text-foreground">Alter all blocks with AI</p>
         </div>
         <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-          Rewrites every text section across your whole site from these business details. Prices,
-          images and structural data are preserved.
+          Rewrites and tailors headlines, descriptions, features, and copy across every section of your site to match your prompt.
         </p>
+        <div className="mt-2.5 space-y-1">
+          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+            Business Prompt / Niche Description
+          </label>
+          <textarea
+            rows={3}
+            value={prompt}
+            onChange={(e) => {
+              const val = e.target.value;
+              setPrompt(val);
+              mutate((d) => {
+                if (!d.source) d.source = { templateId: '', sector: 'tech', needsPersonalization: false };
+                d.source.prompt = val;
+                d.source.niche = val;
+                d.business.description = val;
+              });
+            }}
+            placeholder="Describe what your business does, key offerings, target audience, locations..."
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+        </div>
         <Button
           type="button"
           variant="outline"
@@ -159,17 +180,17 @@ export function CompanyForm() {
           {aiState === 'running' ? (
             <>
               <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-              Generating copy…
+              Generating & altering blocks…
             </>
           ) : aiState === 'done' ? (
             <>
               <Check className="mr-1.5 h-3.5 w-3.5 text-emerald-500" />
-              {aiResult || 'Done'}
+              {aiResult || 'Blocks updated!'}
             </>
           ) : (
             <>
               <Sparkles className="mr-1.5 h-3.5 w-3.5 text-primary" />
-              Generate my site copy
+              Alter all blocks from prompt
             </>
           )}
         </Button>

@@ -164,6 +164,7 @@ export function CreateFlow() {
           name: data.businessName || data.prompt,
           themeId: data.themeId || undefined,
           business: data.details,
+          prompt: data.prompt,
         }),
       });
 

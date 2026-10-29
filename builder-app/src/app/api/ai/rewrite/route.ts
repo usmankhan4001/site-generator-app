@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   const actor = await getActor();
   if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  let body: { projectId?: string; sectionId?: string };
+  let body: { projectId?: string; sectionId?: string; prompt?: string };
   try {
     body = await req.json();
   } catch {
@@ -47,6 +47,7 @@ export async function POST(req: Request) {
       sectionType: target.type,
       props: target.props,
       content: project.content,
+      userPrompt: body.prompt,
     });
     return NextResponse.json({
       success: true,

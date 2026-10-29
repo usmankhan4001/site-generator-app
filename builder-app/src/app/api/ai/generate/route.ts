@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getActor } from '@/lib/session';
-import { getProject } from '@/lib/studio/projects';
+import { getProject, updateProject } from '@/lib/studio/projects';
 import { rewriteSectionForUser } from '@/lib/openrouter';
 import type { Section } from '@/site/schema';
 
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   const actor = await getActor();
   if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  let body: { projectId?: string };
+  let body: { projectId?: string; prompt?: string };
   try {
     body = await req.json();
   } catch {
@@ -33,6 +33,21 @@ export async function POST(req: Request) {
 
   const project = await getProject(body.projectId, actor);
   if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  const prompt = body.prompt?.trim();
+  if (prompt) {
+    if (!project.content.source) {
+      project.content.source = {
+        templateId: project.templateId || 'archetype:saas',
+        sector: project.content.mode === 'ecommerce' ? 'retail' : 'tech',
+        needsPersonalization: false,
+      };
+    }
+    project.content.source.prompt = prompt;
+    project.content.source.niche = prompt;
+    project.content.business.description = prompt;
+    await updateProject(project.id, { content: project.content }, actor);
+  }
 
   const sections = collectSections(project.content);
   const patches: Record<string, Record<string, unknown>> = {};
@@ -48,6 +63,7 @@ export async function POST(req: Request) {
         sectionType: sec.type,
         props: sec.props,
         content: project.content,
+        userPrompt: prompt,
       });
       // applyAllowList already returns {} when the section type has no fields —
       // skip those so we don't report no-op rewrites as successes.

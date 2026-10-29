@@ -321,6 +321,68 @@ export async function createProjectFromContent(
   return { ...toSummary(p), content: cleanContent };
 }
 
+function adaptContentToPrompt(content: SiteContent, prompt: string, bizName: string) {
+  const cleanPrompt = prompt.trim();
+  if (!cleanPrompt) return;
+
+  const firstSentence = cleanPrompt.split(/[.?!]/)[0].trim() || cleanPrompt;
+
+  for (const page of content.pages) {
+    for (const section of page.sections) {
+      const p = (section as unknown as { props: Record<string, unknown> }).props;
+      switch (section.type) {
+        case 'hero':
+          if (typeof p.subtitle === 'string') {
+            p.subtitle = cleanPrompt;
+          }
+          if (typeof p.headline === 'string') {
+            p.headline = `${bizName}`;
+            p.accentText = firstSentence.length > 60 ? firstSentence.slice(0, 60) + '…' : firstSentence;
+          }
+          if (typeof p.badge === 'string') {
+            p.badge = `${bizName} • Official`;
+          }
+          break;
+        case 'ctaBanner':
+          if (typeof p.headline === 'string') {
+            p.headline = `Ready to work with ${bizName}?`;
+          }
+          if (typeof p.subtitle === 'string') {
+            p.subtitle = `Get in touch with us today to discuss how we can help with ${firstSentence.toLowerCase()}.`;
+          }
+          break;
+        case 'pageHeader':
+          if (page.key === 'about' && typeof p.headline === 'string') {
+            p.headline = `About ${bizName}`;
+            p.subtitle = cleanPrompt;
+          } else if (page.key === 'contact' && typeof p.headline === 'string') {
+            p.headline = `Contact ${bizName}`;
+          }
+          break;
+        case 'prose':
+          if (page.key === 'about') {
+            if (typeof p.title === 'string') p.title = `Who We Are`;
+            if (typeof p.description === 'string') p.description = cleanPrompt;
+            if (Array.isArray(p.blocks) && p.blocks.length > 0 && typeof p.blocks[0] === 'object') {
+              (p.blocks[0] as Record<string, unknown>).body = cleanPrompt;
+            }
+          }
+          break;
+        case 'contactPanel':
+          if (typeof p.title === 'string') {
+            p.title = `Get in touch with ${bizName}`;
+          }
+          if (typeof p.description === 'string') {
+            p.description = `Reach out to our team regarding ${firstSentence.toLowerCase()}. We respond promptly.`;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+  }
+}
+
 export async function createProjectFromArchetype(
   archetypeId: ArchetypeId,
   starterSetId: string | null | undefined,
@@ -329,6 +391,7 @@ export async function createProjectFromArchetype(
   options?: {
     themeId?: string;
     business?: Partial<BusinessInfo>;
+    prompt?: string;
   },
 ): Promise<ProjectDetail> {
   const arch = ARCHETYPES[archetypeId];
@@ -437,6 +500,21 @@ export async function createProjectFromArchetype(
       content.business = { ...content.business, ...overlay };
       updatedBusiness = true;
     }
+  }
+
+  if (options?.prompt?.trim()) {
+    const prompt = options.prompt.trim();
+    if (!content.source) {
+      content.source = {
+        templateId: `archetype:${archetypeId}`,
+        sector: content.mode === 'ecommerce' ? 'retail' : 'tech',
+        needsPersonalization: false,
+      };
+    }
+    content.source.prompt = prompt;
+    content.source.niche = prompt;
+    content.business.description = prompt;
+    adaptContentToPrompt(content, prompt, content.business.name || name || 'Our Business');
   }
 
   if (updatedBusiness && arch.composition?.policies) {
