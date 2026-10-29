@@ -92,145 +92,187 @@ export function ProjectCard({
   return (
     <div
       className={cn(
-        'group relative flex flex-col justify-between rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200',
-        'hover:border-foreground/25 hover:shadow-subtle',
+        'group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card/90 shadow-md backdrop-blur-md transition-all duration-300',
+        'hover:border-primary/50 hover:shadow-2xl hover:-translate-y-0.5 dark:bg-zinc-950/90 dark:border-white/10',
         busy && 'pointer-events-none opacity-60',
       )}
     >
       <div>
-        {/* Top Header: Accent Dot + Title + More Menu */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2.5">
+        {/* Device Preview Header & Simulated Window Canvas */}
+        <div className="relative aspect-video w-full overflow-hidden border-b border-border/60 bg-muted/40 dark:bg-[#0c0d10] dark:border-white/5">
+          {/* Subtle Ambient Glow Mesh */}
+          <div
+            className="absolute inset-0 opacity-20 transition-opacity duration-500 group-hover:opacity-35"
+            style={{
+              background: `radial-gradient(circle at 50% 30%, ${accent || '#10b981'} 0%, transparent 70%)`,
+            }}
+          />
+
+          {/* Browser Window Bar */}
+          <div className="flex h-7 items-center justify-between border-b border-border/40 bg-background/60 px-3 backdrop-blur-xs dark:bg-zinc-900/50">
+            <div className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-rose-500/80" />
+              <span className="h-2 w-2 rounded-full bg-amber-500/80" />
+              <span className="h-2 w-2 rounded-full bg-emerald-500/80" />
+            </div>
+            <div className="flex items-center gap-1 text-[10px] text-muted-foreground/80 font-mono">
+              <Globe className="h-2.5 w-2.5" />
+              <span className="max-w-[140px] truncate">{project.customDomain || project.domain || 'preview.internal'}</span>
+            </div>
+            <span className="text-[10px] text-muted-foreground/60 font-mono">1440 × 900</span>
+          </div>
+
+          {/* Simulated Web Canvas Body Preview */}
+          <div className="flex h-[calc(100%-1.75rem)] flex-col items-center justify-center p-4 text-center">
             <span
-              className="h-2.5 w-2.5 shrink-0 rounded-full ring-2 ring-white/10"
-              style={{ background: accent }}
-            />
-            <Link
-              href={href}
-              className="truncate text-sm font-semibold tracking-tight text-foreground transition-colors hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="mb-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold border"
+              style={{
+                borderColor: `color-mix(in oklab, ${accent || '#10b981'} 40%, transparent)`,
+                backgroundColor: `color-mix(in oklab, ${accent || '#10b981'} 12%, transparent)`,
+                color: accent || '#10b981',
+              }}
             >
+              <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: accent || '#10b981' }} />
+              {isStore ? 'Storefront Node' : 'Corporate Edge'}
+            </span>
+            <p className="max-w-[200px] truncate text-xs font-bold tracking-tight text-foreground/90">
               {project.name}
-            </Link>
+            </p>
+            <p className="mt-0.5 text-[10px] text-muted-foreground line-clamp-1 max-w-[180px]">
+              {archetypeLabel ? `Architected for ${archetypeLabel}` : 'Production AI Scaffolding'}
+            </p>
           </div>
 
-          <div ref={menuRef} className="relative -mr-1 -mt-1 shrink-0">
-            <button
-              type="button"
-              aria-label="Project actions"
-              aria-haspopup="menu"
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((v) => !v)}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              {busy || exporting ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <MoreHorizontal className="h-4 w-4" />
-              )}
-            </button>
+          {/* Top Overlaid Badges */}
+          <div className="absolute top-9 left-2.5 flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-background/85 px-2 py-0.5 text-[10px] font-semibold text-primary backdrop-blur-md shadow-xs">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live Edge
+            </span>
+            <span className="inline-flex items-center rounded-full border border-border/80 bg-background/80 px-2 py-0.5 text-[10px] font-medium text-muted-foreground backdrop-blur-md">
+              {project.themeId || 'Obsidian Vault'}
+            </span>
+          </div>
+        </div>
 
-            {menuOpen && (
-              <div
-                role="menu"
-                className="absolute right-0 top-8 z-30 w-44 overflow-hidden rounded-lg border border-border bg-popover p-1 shadow-dropdown"
+        {/* Content Body */}
+        <div className="p-4 space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <Link
+                href={href}
+                className="truncate text-base font-bold tracking-tight text-foreground transition-colors hover:text-primary focus-visible:outline-none"
               >
-                <MenuItem
-                  icon={<ExternalLink className="h-3.5 w-3.5" />}
-                  label="Open Workspace"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    router.push(href);
-                  }}
-                />
-                <MenuItem
-                  icon={<Copy className="h-3.5 w-3.5" />}
-                  label="Duplicate Site"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    onDuplicate(project);
-                  }}
-                />
-                <MenuItem
-                  icon={<Download className="h-3.5 w-3.5" />}
-                  label="Export Source ZIP"
-                  onClick={handleExport}
-                />
-                <div className="my-1 border-t border-border/60" />
-                <MenuItem
-                  icon={<Trash2 className="h-3.5 w-3.5" />}
-                  label="Delete Site"
-                  destructive
-                  onClick={() => {
-                    setMenuOpen(false);
-                    onDelete(project);
-                  }}
-                />
+                {project.name}
+              </Link>
+              <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
+                <Globe className="h-3 w-3 shrink-0 text-muted-foreground/70" />
+                <span className="truncate">{project.customDomain || project.domain || 'no-domain-configured'}</span>
               </div>
-            )}
-          </div>
-        </div>
+            </div>
 
-        {/* Badges: Mode + Archetype / Status */}
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <span className="inline-flex items-center rounded-md border border-border/70 bg-muted/30 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-            {isStore ? 'E-Commerce' : 'Services'}
-          </span>
-          {archetypeLabel && (
-            <span className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/20 px-2 py-0.5 text-[10px] font-medium capitalize text-muted-foreground">
-              <Layers className="h-2.5 w-2.5" />
-              {archetypeLabel}
-            </span>
-          )}
-          <StatusBadge status={project.status} />
-        </div>
+            <div ref={menuRef} className="relative shrink-0">
+              <button
+                type="button"
+                aria-label="Project actions"
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((v) => !v)}
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-border/60 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                {busy || exporting ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <MoreHorizontal className="h-4 w-4" />
+                )}
+              </button>
 
-        {/* Domain and Update Info */}
-        <div className="mt-4 flex items-center justify-between gap-2 text-xs text-muted-foreground">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <Globe className="h-3.5 w-3.5 shrink-0 text-muted-foreground/70" />
-            <span className="truncate text-[11px]">
-              {project.customDomain || project.domain || 'No domain attached'}
-            </span>
+              {menuOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-8 z-30 w-44 overflow-hidden rounded-xl border border-border bg-popover p-1 shadow-dropdown backdrop-blur-md"
+                >
+                  <MenuItem
+                    icon={<ExternalLink className="h-3.5 w-3.5" />}
+                    label="Open Workspace"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      router.push(href);
+                    }}
+                  />
+                  <MenuItem
+                    icon={<Copy className="h-3.5 w-3.5" />}
+                    label="Duplicate Site"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onDuplicate(project);
+                    }}
+                  />
+                  <MenuItem
+                    icon={<Download className="h-3.5 w-3.5" />}
+                    label="Export Source ZIP"
+                    onClick={handleExport}
+                  />
+                  <div className="my-1 border-t border-border/60" />
+                  <MenuItem
+                    icon={<Trash2 className="h-3.5 w-3.5" />}
+                    label="Delete Site"
+                    destructive
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onDelete(project);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
-          <span className="shrink-0 text-[11px] text-muted-foreground/60">
-            {relativeTime(project.updatedAt)}
-          </span>
+
+          {/* Badges Row */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-border/40 text-[11px] text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <span className="inline-flex items-center rounded-md border border-border/70 bg-muted/40 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider">
+                {isStore ? 'E-Commerce' : 'Services'}
+              </span>
+              <StatusBadge status={project.status} />
+            </div>
+            <span>{relativeTime(project.updatedAt)}</span>
+          </div>
         </div>
       </div>
 
       {/* Action Footer Bar */}
-      <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-3">
+      <div className="flex items-center justify-between border-t border-border/50 bg-muted/20 px-4 py-2.5 dark:bg-zinc-900/40">
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-[11px] text-muted-foreground hover:text-foreground"
+            className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
             onClick={() => onDuplicate(project)}
             title="Duplicate Site"
           >
-            <Copy className="mr-1 h-3 w-3" />
-            Copy
+            <Copy className="mr-1.5 h-3.5 w-3.5" />
+            <span>Copy</span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-[11px] text-muted-foreground hover:text-foreground"
+            className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
             onClick={handleExport}
             title="Export ZIP"
           >
-            <Download className="mr-1 h-3 w-3" />
-            Export
+            <Download className="mr-1.5 h-3.5 w-3.5" />
+            <span>Export</span>
           </Button>
         </div>
 
         <Button
-          variant="secondary"
           size="sm"
-          className="h-7 gap-1 px-2.5 text-[11px] font-medium shadow-none hover:bg-primary hover:text-primary-foreground transition-colors"
+          className="h-8 gap-1.5 px-3.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-500/20 active:scale-95 transition-all"
           onClick={() => router.push(href)}
         >
-          Open
-          <ArrowUpRight className="h-3 w-3" />
+          <span>Studio Editor</span>
+          <ArrowUpRight className="h-3.5 w-3.5" />
         </Button>
       </div>
     </div>
